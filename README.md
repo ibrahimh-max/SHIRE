@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SHIRE
 
-## Getting Started
+SHIRE is a hospitality hiring platform built for the F&B and hospitality industry.  
+It connects workers looking for jobs with hotels, restaurants, cafes, and venues looking to hire staff.
 
-First, run the development server:
+The platform supports:
+- Full-time hiring
+- Part-time hiring
+- Gig/shift-based staffing
+
+---
+
+# 🚀 Features
+
+## 👷 Worker Features
+- User authentication
+- Worker profile creation
+- Browse hospitality jobs
+- Apply to jobs
+- Track application status
+- View applied jobs in dashboard
+
+## 🏢 Employer Features
+- Employer authentication
+- Company/job management
+- Post hospitality jobs
+- View applicants
+- Track hiring activity through dashboard
+
+## 🔐 Authentication
+- Supabase Authentication
+- Email/password login & signup
+- Role-based access control
+- Protected routes
+
+---
+
+# 🛠 Tech Stack
+
+## Frontend
+- Next.js (App Router)
+- TypeScript
+- Tailwind CSS
+
+## Backend
+- Supabase
+  - PostgreSQL Database
+  - Authentication
+  - Row Level Security (RLS)
+
+---
+
+# 📂 Project Structure
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+src/
+│
+├── app/
+│   ├── dashboard/
+│   ├── jobs/
+│   ├── login/
+│   ├── post-job/
+│   ├── signup/
+│   ├── layout.tsx
+│   └── page.tsx
+│
+├── components/
+│
+├── contexts/
+│
+├── lib/
+│   └── supabase.ts
+│
+└── styles/
