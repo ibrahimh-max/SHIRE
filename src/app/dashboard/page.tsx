@@ -47,22 +47,28 @@ export default function Dashboard() {
   const [workerApplications, setWorkerApplications] = useState<WorkerApplication[]>([]);
   const [dashboardLoading, setDashboardLoading] = useState(false);
   const [error, setError] = useState('');
+  const [redirecting, setRedirecting] = useState(false);
 
+  // Handle redirect to login if not authenticated
   useEffect(() => {
     if (!loading && !user) {
+      console.log('🚪 Dashboard: No user found, redirecting to login');
+      setRedirecting(true);
       router.push('/login');
     }
   }, [user, loading, router]);
 
+  // Fetch dashboard data when user and profile are available
   useEffect(() => {
-    if (user && profile) {
+    if (user && profile && !redirecting) {
+      console.log('📊 Dashboard: Fetching data for', profile.role, user.id);
       if (profile.role === 'employer') {
         fetchEmployerJobs();
       } else if (profile.role === 'worker') {
         fetchWorkerApplications();
       }
     }
-  }, [user, profile]);
+  }, [user, profile, redirecting]);
 
   const fetchEmployerJobs = async () => {
     setDashboardLoading(true);
@@ -128,12 +134,26 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-50">
         <Navigation />
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-foreground/60">Loading...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your account...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (redirecting) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="flex items-center justify-center py-16">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Redirecting to login...</p>
           </div>
         </div>
       </div>

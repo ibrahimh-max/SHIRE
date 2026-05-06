@@ -18,12 +18,16 @@ export default function Signup() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear error when user starts typing
+    if (error) setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    console.log('🔐 Attempting signup for:', formData.email, 'as', formData.role);
 
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -38,13 +42,38 @@ export default function Signup() {
       });
 
       if (error) {
+        console.error('❌ Signup error:', error);
         setError(error.message);
+        setLoading(false);
         return;
       }
 
-      router.push('/login?message=Check your email to verify your account');
+      console.log('✅ Signup successful, user:', data.user?.id);
+      
+      // Create profile record
+      if (data.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            name: formData.name,
+            role: formData.role
+          });
+
+        if (profileError) {
+          console.error('❌ Profile creation error:', profileError);
+          setError('Account created but profile setup failed. Please contact support.');
+          setLoading(false);
+          return;
+        }
+
+        console.log('✅ Profile created successfully');
+      }
+
+      router.push('/login?message=Account created successfully! Please check your email to verify your account.');
     } catch (err) {
-      setError('An unexpected error occurred');
+      console.error('❌ Signup exception:', err);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }

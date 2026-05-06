@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Navigation from '@/components/Navigation';
 import { supabase } from '@/lib/supabase';
 
@@ -10,16 +10,31 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [redirecting, setRedirecting] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Check for message in URL parameters
+  useEffect(() => {
+    const urlMessage = searchParams.get('message');
+    if (urlMessage) {
+      setMessage(urlMessage);
+    }
+  }, [searchParams]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear error when user starts typing
+    if (error) setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setRedirecting(true);
+
+    console.log('🔐 Attempting login for:', formData.email);
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -28,14 +43,25 @@ export default function Login() {
       });
 
       if (error) {
+        console.error('❌ Login error:', error);
         setError(error.message);
+        setRedirecting(false);
+        setLoading(false);
         return;
       }
 
+      console.log('✅ Login successful, user:', data.user?.id);
+      
+      // Wait a moment for auth state to update
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      console.log('🔄 Redirecting to dashboard...');
       router.push('/dashboard');
+      
     } catch (err) {
-      setError('An unexpected error occurred');
-    } finally {
+      console.error('❌ Login exception:', err);
+      setError('An unexpected error occurred. Please try again.');
+      setRedirecting(false);
       setLoading(false);
     }
   };
@@ -95,10 +121,17 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full bg-primary text-white py-2.5 rounded-xl hover:bg-primary-dark transition-all font-medium shadow-sm hover:shadow-md disabled:opacity-60"
+              disabled={loading || redirecting}
+              className="w-full bg-primary text-white py-2.5 rounded-xl hover:bg-primary-dark transition-all font-medium shadow-sm hover:shadow-md disabled:opacity-60 flex items-center justify-center gap-2"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading || redirecting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  {redirecting ? 'Redirecting...' : 'Signing in...'}
+                </>
+              ) : (
+                'Sign in'
+              )}
             </button>
           </form>
 
