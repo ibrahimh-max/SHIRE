@@ -31,7 +31,6 @@ export default function Jobs() {
   const [error, setError] = useState('');
   const [applying, setApplying] = useState<string | null>(null);
 
-  // Fetch jobs from Supabase
   useEffect(() => {
     fetchJobs();
   }, []);
@@ -54,7 +53,6 @@ export default function Jobs() {
         return;
       }
 
-      // Process jobs data
       let processedJobs = data || [];
       if (user && profile?.role === 'worker') {
         processedJobs = data?.map(job => ({
@@ -71,7 +69,6 @@ export default function Jobs() {
     }
   };
 
-  // Handle job application
   const handleApply = async (jobId: string) => {
     if (!user || profile?.role !== 'worker') {
       setError('Only workers can apply for jobs');
@@ -81,7 +78,6 @@ export default function Jobs() {
     setApplying(jobId);
 
     try {
-      // Check if already applied
       const job = jobs.find(j => j.id === jobId);
       if (job?.applications && job.applications.length > 0) {
         setError('You have already applied for this job');
@@ -108,7 +104,6 @@ export default function Jobs() {
         return;
       }
 
-      // Refresh jobs to update application status
       await fetchJobs();
     } catch (err) {
       setError('Failed to apply for job');
@@ -117,19 +112,17 @@ export default function Jobs() {
     }
   };
 
-  // Get shift timing display text
   const getShiftTimingText = (timing: string) => {
     const shiftMap: { [key: string]: string } = {
-      'morning': 'Morning',
-      'afternoon': 'Afternoon',
-      'evening': 'Evening',
-      'night': 'Night',
-      'flexible': 'Flexible'
+      'morning': '🌅 Morning',
+      'afternoon': '☀️ Afternoon',
+      'evening': '🌙 Evening',
+      'night': '🌃 Night',
+      'flexible': '🕒 Flexible'
     };
     return shiftMap[timing] || timing;
   };
 
-  // Get job type display text
   const getJobTypeText = (type: string) => {
     const typeMap: { [key: string]: string } = {
       'full-time': 'Full-time',
@@ -142,12 +135,12 @@ export default function Jobs() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Navigation />
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading jobs...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-foreground/60">Loading jobs...</p>
           </div>
         </div>
       </div>
@@ -155,78 +148,86 @@ export default function Jobs() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Navigation />
-      <div className="py-8">
-        <div className="max-w-6xl mx-auto px-4">
-          <h1 className="text-3xl font-bold mb-8 text-center">Hospitality Jobs</h1>
-          
+      <div className="py-8 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10">
+            <h1 className="text-4xl font-bold text-foreground mb-2">Find your next role</h1>
+            <p className="text-foreground/60">Hospitality jobs waiting for you</p>
+          </div>
+
           {error && (
-            <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-md text-center">
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-center">
               {error}
             </div>
           )}
-          
+
           {jobs.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-600 text-lg">No jobs available at the moment.</p>
-              <p className="text-gray-500 mt-2">Check back later for new opportunities!</p>
+            <div className="text-center py-16 bg-white rounded-2xl border border-primary/10">
+              <p className="text-foreground/70 text-lg">No jobs available right now</p>
+              <p className="text-foreground/50 mt-2">Check back soon for new opportunities</p>
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {jobs.map((job) => {
                 const hasApplied = job.applications && job.applications.length > 0;
-                
+
                 return (
-                  <div key={job.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                    <h2 className="text-xl font-semibold mb-2">{job.title}</h2>
-                    <p className="text-gray-600 mb-1">{job.companies?.name || 'Company'}</p>
-                    <p className="text-gray-500 text-sm mb-3">{job.location}</p>
-                    
-                    <p className="text-gray-700 mb-4 line-clamp-3">{job.description}</p>
-                    
-                    <div className="space-y-2 mb-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-green-600 font-semibold">{job.pay}</span>
-                        <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                          {getJobTypeText(job.job_type)}
-                        </span>
-                      </div>
-                      
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-600">
-                          {getShiftTimingText(job.shift_timing)}
-                        </span>
-                        <span className="text-gray-600">
-                          {job.workers_needed} worker{job.workers_needed > 1 ? 's' : ''} needed
-                        </span>
-                      </div>
+                  <div key={job.id} className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all p-6 border border-primary/5 hover:border-primary/20">
+                    <div className="flex justify-between items-start mb-3">
+                      <h2 className="text-xl font-bold text-foreground">{job.title}</h2>
+                      <span className="bg-accent/10 text-accent-dark text-xs px-2 py-1 rounded-full font-medium">
+                        {getJobTypeText(job.job_type)}
+                      </span>
                     </div>
                     
+                    <p className="text-primary font-semibold mb-1">{job.companies?.name || 'Company'}</p>
+                    <p className="text-foreground/50 text-sm mb-3 flex items-center gap-1">
+                      📍 {job.location}
+                    </p>
+
+                    <p className="text-foreground/70 text-sm mb-4 line-clamp-2">
+                      {job.description.substring(0, 100)}...
+                    </p>
+
+                    <div className="space-y-2 mb-5">
+                      <div className="flex justify-between items-center">
+                        <span className="text-primary font-bold text-lg">{job.pay}</span>
+                        <span className="text-foreground/50 text-xs">
+                          👥 {job.workers_needed} needed
+                        </span>
+                      </div>
+
+                      <div className="text-foreground/60 text-sm">
+                        {getShiftTimingText(job.shift_timing)}
+                      </div>
+                    </div>
+
                     {user && profile?.role === 'worker' ? (
                       hasApplied ? (
-                        <div className="w-full bg-green-100 text-green-800 py-2 px-4 rounded-md text-center font-medium">
+                        <div className="w-full bg-green-50 border border-green-200 text-green-700 py-2.5 px-4 rounded-xl text-center font-medium">
                           ✓ Applied ({job.applications![0].status})
                         </div>
                       ) : (
                         <button
                           onClick={() => handleApply(job.id)}
                           disabled={applying === job.id}
-                          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-400"
+                          className="w-full bg-primary text-white py-2.5 px-4 rounded-xl hover:bg-primary-dark transition-all font-medium shadow-sm hover:shadow-md disabled:opacity-60"
                         >
-                          {applying === job.id ? 'Applying...' : 'Apply Now'}
+                          {applying === job.id ? 'Applying...' : 'Apply now'}
                         </button>
                       )
                     ) : user ? (
-                      <div className="w-full bg-gray-100 text-gray-600 py-2 px-4 rounded-md text-center text-sm">
+                      <div className="w-full bg-gray-100 text-foreground/60 py-2.5 px-4 rounded-xl text-center text-sm">
                         Only workers can apply
                       </div>
                     ) : (
                       <button
                         onClick={() => window.location.href = '/login'}
-                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                        className="w-full bg-primary text-white py-2.5 px-4 rounded-xl hover:bg-primary-dark transition-all font-medium shadow-sm hover:shadow-md"
                       >
-                        Login to Apply
+                        Login to apply
                       </button>
                     )}
                   </div>

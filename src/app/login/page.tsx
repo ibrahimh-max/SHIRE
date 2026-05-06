@@ -1,46 +1,27 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Navigation from '@/components/Navigation';
 import { supabase } from '@/lib/supabase';
 
 export default function Login() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const router = useRouter();
-  const searchParams = useSearchParams();
 
-  // Check for message in URL parameters (e.g., from signup redirect)
-  useEffect(() => {
-    const urlMessage = searchParams.get('message');
-    if (urlMessage) {
-      setMessage(urlMessage);
-    }
-  }, [searchParams]);
-
-  // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    setMessage('');
 
     try {
-      // Sign in user with Supabase auth
       const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password
@@ -51,7 +32,6 @@ export default function Login() {
         return;
       }
 
-      // Redirect to dashboard on successful login
       router.push('/dashboard');
     } catch (err) {
       setError('An unexpected error occurred');
@@ -61,28 +41,31 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Navigation />
-      <div className="flex items-center justify-center py-16">
-        <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-          <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
-          
+      <div className="flex items-center justify-center py-16 px-4">
+        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 border border-primary/10">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-foreground">Welcome back</h1>
+            <p className="text-foreground/60 mt-2">Sign in to your account</p>
+          </div>
+
           {message && (
-            <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-md text-sm">
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm">
               {message}
             </div>
           )}
-          
+
           {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
               {error}
             </div>
           )}
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
+
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email
+              <label htmlFor="email" className="block text-sm font-medium text-foreground/80 mb-1">
+                Email address
               </label>
               <input
                 type="email"
@@ -90,13 +73,13 @@ export default function Login() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
                 required
               />
             </div>
-            
+
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-foreground/80 mb-1">
                 Password
               </label>
               <input
@@ -105,25 +88,25 @@ export default function Login() {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
                 required
               />
             </div>
-            
+
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-400"
+              className="w-full bg-primary text-white py-2.5 rounded-xl hover:bg-primary-dark transition-all font-medium shadow-sm hover:shadow-md disabled:opacity-60"
             >
-              {loading ? 'Signing In...' : 'Login'}
+              {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
-          
+
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-foreground/60">
               Don't have an account?{' '}
-              <a href="/signup" className="text-blue-600 hover:underline">
-                Sign Up
+              <a href="/signup" className="text-primary hover:text-primary-dark font-medium">
+                Create account
               </a>
             </p>
           </div>
