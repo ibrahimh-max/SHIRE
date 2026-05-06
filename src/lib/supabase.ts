@@ -29,6 +29,8 @@ export interface Job {
   pay: string;
   job_type: 'full-time' | 'part-time' | 'contract' | 'temporary';
   location: string;
+  shift_timing: 'morning' | 'afternoon' | 'evening' | 'night' | 'flexible';
+  workers_needed: number;
   created_at: string;
   updated_at: string;
 }

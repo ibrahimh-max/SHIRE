@@ -32,6 +32,8 @@ CREATE TABLE IF NOT EXISTS jobs (
   pay TEXT NOT NULL,
   job_type TEXT NOT NULL CHECK (job_type IN ('full-time', 'part-time', 'contract', 'temporary')),
   location TEXT NOT NULL,
+  shift_timing TEXT NOT NULL CHECK (shift_timing IN ('morning', 'afternoon', 'evening', 'night', 'flexible')),
+  workers_needed INTEGER NOT NULL DEFAULT 1,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
