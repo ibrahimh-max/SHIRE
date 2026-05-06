@@ -30,6 +30,7 @@ export default function Signup() {
     console.log('🔐 Attempting signup for:', formData.email, 'as', formData.role);
 
     try {
+      // Step 1: Create user account
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -48,26 +49,87 @@ export default function Signup() {
         return;
       }
 
-      console.log('✅ Signup successful, user:', data.user?.id);
+      console.log('✅ Auth signup successful, user:', data.user?.id);
       
-      // Create profile record
+      // Step 2: Wait for session to be established
       if (data.user) {
-        const { error: profileError } = await supabase
+        console.log('⏳ Waiting for auth session to establish...');
+        
+        // Wait up to 5 seconds for session
+        let attempts = 0;
+        let session = null;
+        while (attempts < 10 && !session) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          const { data: { session: currentSession } } = await supabase.auth.getSession();
+          session = currentSession;
+          attempts++;
+          console.log(`🔄 Session check attempt ${attempts}, session exists: !!session}`);
+        }
+        
+        if (!session) {
+          console.error('❌ Failed to establish session after signup');
+          setError('Account created but session failed to establish. Please try logging in.');
+          setLoading(false);
+          return;
+        }
+        
+        console.log('✅ Session established, creating profile...');
+        
+        // Step 3: Check if profile already exists
+        const { data: existingProfile, error: checkError } = await supabase
           .from('profiles')
-          .insert({
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+          
+        if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = not found
+          console.error('❌ Profile check error:', checkError);
+          setError('Error checking profile. Please contact support.');
+          setLoading(false);
+          return;
+        }
+        
+        if (existingProfile) {
+          console.log('ℹ️ Profile already exists, skipping creation');
+        } else {
+          // Step 4: Create profile record
+          console.log('📝 Creating profile with data:', {
             id: data.user.id,
             name: formData.name,
             role: formData.role
           });
+          
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              id: data.user.id,
+              name: formData.name,
+              role: formData.role
+            })
+            .select()
+            .single();
 
-        if (profileError) {
-          console.error('❌ Profile creation error:', profileError);
-          setError('Account created but profile setup failed. Please contact support.');
-          setLoading(false);
-          return;
+          if (profileError) {
+            console.error('❌ Profile creation error:', {
+              code: profileError.code,
+              message: profileError.message,
+              details: profileError.details
+            });
+            
+            // Handle specific error cases
+            if (profileError.code === '23505') {
+              setError('Profile already exists. Please try logging in.');
+            } else if (profileError.code === '42501') {
+              setError('Permission denied creating profile. Please contact support.');
+            } else {
+              setError(`Profile creation failed: ${profileError.message}`);
+            }
+            setLoading(false);
+            return;
+          }
+
+          console.log('✅ Profile created successfully:', profileData);
         }
-
-        console.log('✅ Profile created successfully');
       }
 
       router.push('/login?message=Account created successfully! Please check your email to verify your account.');

@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Navigation from '@/components/Navigation';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Login() {
+  const { user, loading, authInitialized } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [redirecting, setRedirecting] = useState(false);
@@ -22,6 +24,18 @@ export default function Login() {
     }
   }, [searchParams]);
 
+  // Handle redirect if user is already logged in
+  useEffect(() => {
+    console.log('🔍 Login page auth check:', { loading, authInitialized, hasUser: !!user });
+    
+    // Only redirect if auth is initialized and user exists
+    if (authInitialized && user && !redirecting) {
+      console.log('✅ Login page: User already authenticated, redirecting to dashboard');
+      setRedirecting(true);
+      router.push('/dashboard');
+    }
+  }, [user, loading, authInitialized, router, redirecting]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     // Clear error when user starts typing
@@ -30,7 +44,7 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitting(true);
     setError('');
     setRedirecting(true);
 
@@ -46,23 +60,34 @@ export default function Login() {
         console.error('❌ Login error:', error);
         setError(error.message);
         setRedirecting(false);
-        setLoading(false);
+        setSubmitting(false);
         return;
       }
 
       console.log('✅ Login successful, user:', data.user?.id);
       
-      // Wait a moment for auth state to update
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Wait for auth state to update and initialization to complete
+      let attempts = 0;
+      while (attempts < 10) {
+        await new Promise(resolve => setTimeout(resolve, 200));
+        attempts++;
+        console.log(`⏳ Waiting for auth state update... attempt ${attempts}`);
+        
+        // Check if user is available in auth context
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          console.log('✅ Auth state updated, redirecting...');
+          break;
+        }
+      }
       
-      console.log('🔄 Redirecting to dashboard...');
       router.push('/dashboard');
       
     } catch (err) {
       console.error('❌ Login exception:', err);
       setError('An unexpected error occurred. Please try again.');
       setRedirecting(false);
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -121,10 +146,10 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={loading || redirecting}
+              disabled={submitting || redirecting}
               className="w-full bg-primary text-white py-2.5 rounded-xl hover:bg-primary-dark transition-all font-medium shadow-sm hover:shadow-md disabled:opacity-60 flex items-center justify-center gap-2"
             >
-              {loading || redirecting ? (
+              {submitting || redirecting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   {redirecting ? 'Redirecting...' : 'Signing in...'}

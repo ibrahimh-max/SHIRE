@@ -41,7 +41,7 @@ interface WorkerApplication {
 }
 
 export default function Dashboard() {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, authInitialized } = useAuth();
   const router = useRouter();
   const [employerJobs, setEmployerJobs] = useState<EmployerJob[]>([]);
   const [workerApplications, setWorkerApplications] = useState<WorkerApplication[]>([]);
@@ -49,18 +49,27 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const [redirecting, setRedirecting] = useState(false);
 
-  // Handle redirect to login if not authenticated
+  // Handle redirect to login if not authenticated - ONLY after auth initialization is complete
   useEffect(() => {
-    if (!loading && !user) {
-      console.log('🚪 Dashboard: No user found, redirecting to login');
+    console.log('🔍 Dashboard auth check:', { loading, authInitialized, hasUser: !!user });
+    
+    // Do NOT redirect if auth is still loading or not initialized
+    if (loading || !authInitialized) {
+      console.log('⏳ Dashboard: Auth still initializing, waiting...');
+      return;
+    }
+    
+    // Only redirect if auth is complete AND no user found
+    if (authInitialized && !user) {
+      console.log('🚪 Dashboard: Auth initialized but no user, redirecting to login');
       setRedirecting(true);
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [user, loading, authInitialized, router]);
 
   // Fetch dashboard data when user and profile are available
   useEffect(() => {
-    if (user && profile && !redirecting) {
+    if (user && profile && !redirecting && authInitialized) {
       console.log('📊 Dashboard: Fetching data for', profile.role, user.id);
       if (profile.role === 'employer') {
         fetchEmployerJobs();
@@ -68,7 +77,7 @@ export default function Dashboard() {
         fetchWorkerApplications();
       }
     }
-  }, [user, profile, redirecting]);
+  }, [user, profile, redirecting, authInitialized]);
 
   const fetchEmployerJobs = async () => {
     setDashboardLoading(true);
@@ -132,14 +141,16 @@ export default function Dashboard() {
     }
   };
 
-  if (loading) {
+  if (loading || !authInitialized) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation />
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your account...</p>
+            <p className="text-gray-600">
+              {!authInitialized ? 'Initializing authentication...' : 'Loading your account...'}
+            </p>
           </div>
         </div>
       </div>

@@ -9,6 +9,7 @@ interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
+  authInitialized: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -19,7 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [initialized, setInitialized] = useState(false);
+  const [authInitialized, setAuthInitialized] = useState(false);
 
   // Fetch user profile from database
   const fetchProfile = async (userId: string, retries = 3) => {
@@ -75,7 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Initialize auth state
   useEffect(() => {
-    if (initialized) return;
+    if (authInitialized) return;
     
     console.log('🚀 Initializing auth state...');
     
@@ -88,7 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (error) {
           console.error('❌ Error getting session:', error);
           setLoading(false);
-          setInitialized(true);
+          setAuthInitialized(true);
           return;
         }
         
@@ -103,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('❌ Exception getting initial session:', err);
       } finally {
         setLoading(false);
-        setInitialized(true);
+        setAuthInitialized(true);
         console.log('🏁 Auth initialization complete');
       }
     };
@@ -132,12 +133,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('🧹 Cleaning up auth subscription');
       subscription.unsubscribe();
     };
-  }, [initialized]);
+  }, [authInitialized]);
 
   const value = {
     user,
     profile,
     loading,
+    authInitialized,
     signOut,
     refreshProfile
   };
