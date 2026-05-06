@@ -48,14 +48,12 @@ export default function Dashboard() {
   const [dashboardLoading, setDashboardLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Redirect to login if not authenticated
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
     }
   }, [user, loading, router]);
 
-  // Fetch dashboard data
   useEffect(() => {
     if (user && profile) {
       if (profile.role === 'employer') {
@@ -69,7 +67,7 @@ export default function Dashboard() {
   const fetchEmployerJobs = async () => {
     setDashboardLoading(true);
     setError('');
-    
+
     try {
       const { data, error } = await supabase
         .from('jobs')
@@ -97,7 +95,7 @@ export default function Dashboard() {
   const fetchWorkerApplications = async () => {
     setDashboardLoading(true);
     setError('');
-    
+
     try {
       const { data, error } = await supabase
         .from('applications')
@@ -128,152 +126,152 @@ export default function Dashboard() {
     }
   };
 
-  // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Navigation />
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-foreground/60">Loading...</p>
           </div>
         </div>
       </div>
     );
   }
 
-  // Show nothing while redirecting
   if (!user) {
     return null;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Navigation />
-      <div className="py-8">
-        <div className="max-w-6xl mx-auto px-4">
-          <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
-          
-          <div className="bg-white p-6 rounded-lg shadow mb-6">
-            <h2 className="text-xl font-semibold mb-4">Welcome back, {profile?.name || 'User'}!</h2>
-            <p className="text-gray-600">
-              You are logged in as a <span className="font-semibold capitalize">{profile?.role}</span>
-            </p>
+      <div className="py-8 px-4">
+        <div className="max-w-6xl mx-auto">
+          {/* Welcome header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+            <p className="text-foreground/60 mt-1">Welcome back, {profile?.name?.split(' ')[0] || 'User'} 👋</p>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-md">
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl">
               {error}
             </div>
           )}
 
           {profile?.role === 'worker' ? (
+            /* WORKER DASHBOARD */
             <div className="space-y-6">
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h2 className="text-xl font-semibold mb-4">Your Job Applications</h2>
-                
+              <div className="bg-white rounded-2xl shadow-md border border-primary/10 p-6">
+                <h2 className="text-xl font-semibold text-foreground mb-4">Your applications</h2>
+
                 {dashboardLoading ? (
                   <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading applications...</p>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-foreground/60">Loading applications...</p>
                   </div>
                 ) : workerApplications.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-gray-600 mb-4">You haven't applied to any jobs yet.</p>
-                    <Link href="/jobs" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
-                      Browse Jobs
+                  <div className="text-center py-10">
+                    <p className="text-foreground/60 mb-4">You haven't applied to any jobs yet</p>
+                    <Link href="/jobs" className="bg-primary text-white px-5 py-2.5 rounded-xl hover:bg-primary-dark transition-all font-medium inline-block">
+                      Browse jobs
                     </Link>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {workerApplications.map((application) => (
-                      <div key={application.id} className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h3 className="font-semibold text-lg">{application.jobs?.title}</h3>
-                            <p className="text-gray-600">{application.jobs?.companies?.name}</p>
-                            <p className="text-gray-500 text-sm">{application.jobs?.location}</p>
-                          </div>
-                          <div className="text-right">
-                            <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                              application.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                              application.status === 'accepted' ? 'bg-green-100 text-green-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
+                    {workerApplications.map((application) => {
+                      const statusColors = {
+                        pending: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+                        accepted: 'bg-green-50 text-green-700 border-green-200',
+                        rejected: 'bg-red-50 text-red-700 border-red-200'
+                      };
+                      const statusColor = statusColors[application.status as keyof typeof statusColors] || statusColors.pending;
+
+                      return (
+                        <div key={application.id} className="border border-gray-100 rounded-xl p-4 hover:shadow-md transition-all">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <h3 className="font-semibold text-lg text-foreground">{application.jobs?.title}</h3>
+                              <p className="text-primary text-sm">{application.jobs?.companies?.name}</p>
+                              <p className="text-foreground/50 text-sm mt-1">📍 {application.jobs?.location}</p>
+                            </div>
+                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium border ${statusColor}`}>
                               {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
                             </span>
                           </div>
+                          <div className="flex justify-between items-center text-sm text-foreground/60 mt-3 pt-2 border-t border-gray-50">
+                            <span className="font-medium">{application.jobs?.pay}</span>
+                            <span>Applied: {new Date(application.created_at).toLocaleDateString()}</span>
+                          </div>
                         </div>
-                        <div className="flex justify-between items-center text-sm text-gray-600">
-                          <span>{application.jobs?.pay}</span>
-                          <span>Applied: {new Date(application.created_at).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
             </div>
           ) : profile?.role === 'employer' ? (
+            /* EMPLOYER DASHBOARD */
             <div className="space-y-6">
-              <div className="grid md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h3 className="font-semibold text-purple-900 mb-2">Total Jobs Posted</h3>
-                  <p className="text-3xl font-bold text-purple-600">{employerJobs.length}</p>
+              {/* Stats cards */}
+              <div className="grid md:grid-cols-3 gap-5">
+                <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl p-6 border border-primary/20">
+                  <p className="text-foreground/60 text-sm mb-1">Total jobs posted</p>
+                  <p className="text-3xl font-bold text-primary">{employerJobs.length}</p>
                 </div>
-                
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h3 className="font-semibold text-orange-900 mb-2">Total Applicants</h3>
-                  <p className="text-3xl font-bold text-orange-600">
+
+                <div className="bg-gradient-to-br from-accent/5 to-accent/10 rounded-2xl p-6 border border-accent/20">
+                  <p className="text-foreground/60 text-sm mb-1">Total applicants</p>
+                  <p className="text-3xl font-bold text-accent-dark">
                     {employerJobs.reduce((sum, job) => sum + (job.applications?.length || 0), 0)}
                   </p>
                 </div>
-                
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h3 className="font-semibold text-green-900 mb-2">Active Jobs</h3>
-                  <p className="text-3xl font-bold text-green-600">{employerJobs.length}</p>
+
+                <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-6 border border-primary/10">
+                  <p className="text-foreground/60 text-sm mb-1">Active openings</p>
+                  <p className="text-3xl font-bold text-foreground">{employerJobs.length}</p>
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-lg shadow">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">Your Job Postings</h2>
-                  <Link href="/post-job" className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
-                    Post New Job
+              {/* Job postings */}
+              <div className="bg-white rounded-2xl shadow-md border border-primary/10 p-6">
+                <div className="flex justify-between items-center mb-5">
+                  <h2 className="text-xl font-semibold text-foreground">Your job postings</h2>
+                  <Link href="/post-job" className="bg-accent text-white px-4 py-2 rounded-xl hover:bg-accent-dark transition-all text-sm font-medium">
+                    + Post new job
                   </Link>
                 </div>
-                
+
                 {dashboardLoading ? (
                   <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading jobs...</p>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-foreground/60">Loading jobs...</p>
                   </div>
                 ) : employerJobs.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-gray-600 mb-4">You haven't posted any jobs yet.</p>
-                    <Link href="/post-job" className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
-                      Post Your First Job
+                  <div className="text-center py-10">
+                    <p className="text-foreground/60 mb-4">You haven't posted any jobs yet</p>
+                    <Link href="/post-job" className="bg-accent text-white px-5 py-2.5 rounded-xl hover:bg-accent-dark transition-all font-medium inline-block">
+                      Post your first job
                     </Link>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {employerJobs.map((job) => (
-                      <div key={job.id} className="border border-gray-200 rounded-lg p-4">
+                      <div key={job.id} className="border border-gray-100 rounded-xl p-4 hover:shadow-md transition-all">
                         <div className="flex justify-between items-start mb-2">
                           <div>
-                            <h3 className="font-semibold text-lg">{job.title}</h3>
-                            <p className="text-gray-600">{job.companies?.name}</p>
-                            <p className="text-gray-500 text-sm">{job.location}</p>
+                            <h3 className="font-semibold text-lg text-foreground">{job.title}</h3>
+                            <p className="text-primary text-sm">{job.companies?.name}</p>
+                            <p className="text-foreground/50 text-sm mt-1">📍 {job.location}</p>
                           </div>
-                          <div className="text-right">
-                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
-                              {job.applications?.length || 0} applicant{(job.applications?.length || 0) !== 1 ? 's' : ''}
-                            </span>
-                          </div>
+                          <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
+                            {job.applications?.length || 0} applicant{(job.applications?.length || 0) !== 1 ? 's' : ''}
+                          </span>
                         </div>
-                        <div className="flex justify-between items-center text-sm text-gray-600">
-                          <span>{job.pay}</span>
+                        <div className="flex justify-between items-center text-sm text-foreground/60 mt-3 pt-2 border-t border-gray-50">
+                          <span className="font-medium">{job.pay}</span>
                           <span>Posted: {new Date(job.created_at).toLocaleDateString()}</span>
                         </div>
                       </div>
@@ -283,8 +281,8 @@ export default function Dashboard() {
               </div>
             </div>
           ) : (
-            <div className="bg-white p-6 rounded-lg shadow">
-              <p className="text-gray-600">Loading your profile information...</p>
+            <div className="bg-white rounded-2xl shadow-md border border-primary/10 p-6 text-center">
+              <p className="text-foreground/60">Loading your profile...</p>
             </div>
           )}
         </div>
