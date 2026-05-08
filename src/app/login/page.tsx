@@ -51,6 +51,7 @@ export default function Login() {
     console.log('🔐 Attempting login for:', formData.email);
 
     try {
+      // Step 1: Authenticate user
       const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password
@@ -64,23 +65,42 @@ export default function Login() {
         return;
       }
 
-      console.log('✅ Login successful, user:', data.user?.id);
+      console.log('✅ Authentication successful, user:', data.user?.id);
+      console.log('⏳ Waiting for auth context to update...');
       
-      // Wait for auth state to update and initialization to complete
+      // Step 2: Wait for auth context to be fully initialized with the new session
       let attempts = 0;
-      while (attempts < 10) {
+      let sessionVerified = false;
+      
+      while (attempts < 15 && !sessionVerified) { // 3 seconds max
         await new Promise(resolve => setTimeout(resolve, 200));
         attempts++;
-        console.log(`⏳ Waiting for auth state update... attempt ${attempts}`);
         
-        // Check if user is available in auth context
+        // Check if session is established
         const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          console.log('✅ Auth state updated, redirecting...');
+        if (session?.user && session.user.id === data.user?.id) {
+          console.log(`✅ Session verified on attempt ${attempts}, user: ${session.user.id}`);
+          sessionVerified = true;
           break;
         }
+        
+        console.log(`⏳ Session verification attempt ${attempts}, session exists: !!session}`);
       }
       
+      if (!sessionVerified) {
+        console.error('❌ Failed to verify session after login');
+        setError('Login successful but session verification failed. Please try again.');
+        setRedirecting(false);
+        setSubmitting(false);
+        return;
+      }
+      
+      // Step 3: Wait a bit more for auth context to fully initialize
+      console.log('⏳ Waiting for auth context initialization...');
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Step 4: Redirect to dashboard
+      console.log('🎯 Login flow completed, redirecting to dashboard');
       router.push('/dashboard');
       
     } catch (err) {

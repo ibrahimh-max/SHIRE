@@ -25,9 +25,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Fetch user profile from database
   const fetchProfile = async (userId: string, retries = 3) => {
     console.log('🔍 Fetching profile for user:', userId);
+    console.log('📋 Profile fetch start:', { userId, retries, timestamp: new Date().toISOString() });
     
     for (let i = 0; i < retries; i++) {
       try {
+        console.log(`🔄 Profile fetch attempt ${i + 1}/${retries}...`);
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
@@ -36,31 +38,70 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (error) {
           console.error(`❌ Error fetching profile (attempt ${i + 1}):`, error);
+          console.log('📋 Profile error details:', {
+            attempt: i + 1,
+            code: error.code,
+            message: error.message,
+            details: error.details,
+            hint: error.hint
+          });
+          
           if (i === retries - 1) {
             // Don't set profile to null on last retry, keep existing state
             console.log('⚠️ Failed to fetch profile after retries, keeping existing state');
+            console.log('📋 Profile fetch failed:', { 
+              userId, 
+              totalAttempts: retries,
+              finalError: error.message
+            });
+          } else {
+            console.log(`⏳ Waiting before retry ${i + 2}...`);
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait before retry
           }
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait before retry
           continue;
         }
 
         console.log('✅ Profile fetched successfully:', data);
+        console.log('📋 Profile data:', {
+          id: data.id,
+          name: data.name,
+          role: data.role,
+          createdAt: data.created_at,
+          updatedAt: data.updated_at
+        });
         setProfile(data);
+        console.log('🏁 Profile fetch completed successfully');
         return data;
       } catch (err) {
         console.error(`❌ Exception in fetchProfile (attempt ${i + 1}):`, err);
+        console.log('📋 Profile exception details:', {
+          attempt: i + 1,
+          error: err,
+          errorMessage: err instanceof Error ? err.message : 'Unknown error'
+        });
+        
         if (i === retries - 1) {
           console.log('⚠️ Exception in fetchProfile after retries');
+          console.log('📋 Profile fetch failed with exception:', { 
+            userId, 
+            totalAttempts: retries,
+            finalException: err
+          });
+        } else {
+          console.log(`⏳ Waiting before retry ${i + 2}...`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
-        await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
+    
+    console.log('🏁 Profile fetch completed (no success)');
   };
 
   // Refresh profile data
   const refreshProfile = async () => {
     if (user) {
       console.log('🔄 Refreshing profile for user:', user.id);
+      console.log('📋 Profile refresh start:', { userId: user.id, timestamp: new Date().toISOString() });
       await fetchProfile(user.id);
     }
   };
@@ -79,6 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (authInitialized) return;
     
     console.log('🚀 Initializing auth state...');
+    console.log('📋 Auth initialization start:', { timestamp: new Date().toISOString() });
     
     // Get initial session
     const getInitialSession = async () => {
@@ -88,6 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (error) {
           console.error('❌ Error getting session:', error);
+          console.log('📋 Session error details:', { code: error.code, message: error.message });
           setLoading(false);
           setAuthInitialized(true);
           return;
@@ -95,17 +138,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (session?.user) {
           console.log('✅ Session found for user:', session.user.id);
+          console.log('📋 Session info:', {
+            userId: session.user.id,
+            email: session.user.email,
+            lastSignInAt: session.user.last_sign_in_at,
+            createdAt: session.user.created_at
+          });
           setUser(session.user);
+          console.log('🔄 Fetching profile for authenticated user...');
           await fetchProfile(session.user.id);
         } else {
           console.log('ℹ️ No session found');
+          console.log('📋 No session - user needs to login');
         }
       } catch (err) {
         console.error('❌ Exception getting initial session:', err);
+        console.log('📋 Session exception:', err);
       } finally {
         setLoading(false);
         setAuthInitialized(true);
         console.log('🏁 Auth initialization complete');
+        console.log('📋 Auth initialization end:', { 
+          timestamp: new Date().toISOString(),
+          hasUser: !!user,
+          hasProfile: !!profile
+        });
       }
     };
 
@@ -114,14 +171,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔄 Auth state changed:', { event, hasUser: !!session?.user });
+        console.log('🔄 Auth state changed:', { 
+          event, 
+          hasUser: !!session?.user,
+          userId: session?.user?.id,
+          timestamp: new Date().toISOString()
+        });
         
         if (session?.user) {
           console.log('✅ User signed in:', session.user.id);
+          console.log('📋 Sign in details:', {
+            userId: session.user.id,
+            email: session.user.email,
+            isNewUser: !user || user.id !== session.user.id
+          });
           setUser(session.user);
+          console.log('🔄 Fetching profile after sign in...');
           await fetchProfile(session.user.id);
         } else {
           console.log('ℹ️ User signed out');
+          console.log('📋 Sign out details:', {
+            previousUserId: user?.id,
+            hadProfile: !!profile
+          });
           setUser(null);
           setProfile(null);
         }

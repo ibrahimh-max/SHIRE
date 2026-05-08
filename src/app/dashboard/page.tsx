@@ -51,21 +51,41 @@ export default function Dashboard() {
 
   // Handle redirect to login if not authenticated - ONLY after auth initialization is complete
   useEffect(() => {
-    console.log('🔍 Dashboard auth check:', { loading, authInitialized, hasUser: !!user });
+    console.log('🔍 Dashboard auth check:', { loading, authInitialized, hasUser: !!user, redirecting });
     
     // Do NOT redirect if auth is still loading or not initialized
     if (loading || !authInitialized) {
-      console.log('⏳ Dashboard: Auth still initializing, waiting...');
+      console.log('⏳ Dashboard: Auth still initializing, waiting...', { loading, authInitialized });
+      return;
+    }
+    
+    // Do NOT redirect if already redirecting
+    if (redirecting) {
+      console.log('🔄 Dashboard: Already redirecting, skipping check');
       return;
     }
     
     // Only redirect if auth is complete AND no user found
     if (authInitialized && !user) {
       console.log('🚪 Dashboard: Auth initialized but no user, redirecting to login');
+      console.log('📋 Dashboard redirect decision:', {
+        reason: 'no_user_after_init',
+        authInitialized,
+        hasUser: !!user,
+        loading
+      });
       setRedirecting(true);
       router.push('/login');
+    } else if (authInitialized && user) {
+      console.log('✅ Dashboard: User authenticated, dashboard access granted');
+      console.log('📋 Dashboard access info:', {
+        userId: user.id,
+        email: user.email,
+        profileLoaded: !!profile,
+        profileRole: profile?.role
+      });
     }
-  }, [user, loading, authInitialized, router]);
+  }, [user, loading, authInitialized, router, redirecting]);
 
   // Fetch dashboard data when user and profile are available
   useEffect(() => {
