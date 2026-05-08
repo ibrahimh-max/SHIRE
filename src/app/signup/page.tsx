@@ -50,45 +50,9 @@ export default function Signup() {
       }
 
       console.log('✅ Auth signup successful, user:', data.user?.id);
+      console.log('� Profile creation will be handled by backend trigger');
       
-      // Step 2: Create profile using the user ID from signup response
-      if (data.user) {
-        console.log('📝 Creating profile for user:', data.user.id);
-        
-        // Create profile record directly without waiting for session
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
-            name: formData.name,
-            role: formData.role
-          })
-          .select()
-          .single();
-
-        if (profileError) {
-          console.error('❌ Profile creation error:', {
-            code: profileError.code,
-            message: profileError.message,
-            details: profileError.details
-          });
-          
-          // Handle specific error cases
-          if (profileError.code === '23505') {
-            setError('Profile already exists. Please try logging in.');
-          } else if (profileError.code === '42501') {
-            setError('Permission denied creating profile. Please contact support.');
-          } else {
-            setError(`Profile creation failed: ${profileError.message}`);
-          }
-          setLoading(false);
-          return;
-        }
-
-        console.log('✅ Profile created successfully:', profileData);
-      }
-
-      // Step 3: Show success and redirect to login (no auto-login)
+      // Step 2: Show success and redirect to login (no auto-login)
       console.log('🎉 Signup flow completed, redirecting to login');
       router.push('/login?message=Account created successfully! Please check your email to verify your account.');
       

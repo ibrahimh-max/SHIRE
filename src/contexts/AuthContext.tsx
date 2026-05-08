@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authInitialized, setAuthInitialized] = useState(false);
 
   // Fetch user profile from database
-  const fetchProfile = async (userId: string, retries = 3) => {
+  const fetchProfile = async (userId: string, retries = 8) => {
     console.log('🔍 Fetching profile for user:', userId);
     console.log('📋 Profile fetch start:', { userId, retries, timestamp: new Date().toISOString() });
     
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             });
           } else {
             console.log(`⏳ Waiting before retry ${i + 2}...`);
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait before retry
+            await new Promise(resolve => setTimeout(resolve, 800)); // Wait before retry
           }
           continue;
         }
@@ -67,16 +67,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log('📋 Profile missing details:', { 
             userId, 
             attempt: i + 1,
-            isNull: true
+            isNull: true,
+            waitingForTrigger: i < retries - 1
           });
           
           if (i === retries - 1) {
-            console.log('⚠️ Profile confirmed missing after all retries');
+            console.log('⚠️ Profile confirmed missing after all retries - backend trigger may have failed');
             console.log('📋 Final status: Profile does not exist');
             setProfile(null); // Explicitly set to null when profile is missing
           } else {
-            console.log(`⏳ Retrying profile fetch ${i + 2}...`);
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            console.log(`⏳ Waiting for backend trigger to create profile... retry ${i + 2}`);
+            await new Promise(resolve => setTimeout(resolve, 800));
           }
           continue;
         }
@@ -87,7 +88,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           name: data.name,
           role: data.role,
           createdAt: data.created_at,
-          updatedAt: data.updated_at
+          updatedAt: data.updated_at,
+          fetchAttempt: i + 1
         });
         setProfile(data);
         console.log('🏁 Profile fetch completed successfully');
@@ -109,12 +111,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           });
         } else {
           console.log(`⏳ Waiting before retry ${i + 2}...`);
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 800));
         }
       }
     }
     
-    console.log('🏁 Profile fetch completed (no success)');
+    console.log('🏁 Profile fetch completed (no success) - backend trigger may be delayed');
+    setProfile(null); // Ensure profile is null if not found
   };
 
   // Refresh profile data
