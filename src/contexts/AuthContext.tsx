@@ -34,8 +34,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .from('profiles')
           .select('*')
           .eq('id', userId)
-          .single();
+          .maybeSingle();
 
+        // Handle case where profile doesn't exist (not an error with maybeSingle)
         if (error) {
           console.error(`❌ Error fetching profile (attempt ${i + 1}):`, error);
           console.log('📋 Profile error details:', {
@@ -47,8 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           });
           
           if (i === retries - 1) {
-            // Don't set profile to null on last retry, keep existing state
-            console.log('⚠️ Failed to fetch profile after retries, keeping existing state');
+            console.log('⚠️ Failed to fetch profile after retries');
             console.log('📋 Profile fetch failed:', { 
               userId, 
               totalAttempts: retries,
@@ -57,6 +57,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           } else {
             console.log(`⏳ Waiting before retry ${i + 2}...`);
             await new Promise(resolve => setTimeout(resolve, 1000)); // Wait before retry
+          }
+          continue;
+        }
+
+        // Handle case where profile doesn't exist (data is null with maybeSingle)
+        if (!data) {
+          console.log('ℹ️ Profile does not exist for user:', userId);
+          console.log('📋 Profile missing details:', { 
+            userId, 
+            attempt: i + 1,
+            isNull: true
+          });
+          
+          if (i === retries - 1) {
+            console.log('⚠️ Profile confirmed missing after all retries');
+            console.log('📋 Final status: Profile does not exist');
+            setProfile(null); // Explicitly set to null when profile is missing
+          } else {
+            console.log(`⏳ Retrying profile fetch ${i + 2}...`);
+            await new Promise(resolve => setTimeout(resolve, 1000));
           }
           continue;
         }

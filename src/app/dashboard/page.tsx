@@ -51,7 +51,7 @@ export default function Dashboard() {
 
   // Handle redirect to login if not authenticated - ONLY after auth initialization is complete
   useEffect(() => {
-    console.log('🔍 Dashboard auth check:', { loading, authInitialized, hasUser: !!user, redirecting });
+    console.log('🔍 Dashboard auth check:', { loading, authInitialized, hasUser: !!user, hasProfile: !!profile, redirecting });
     
     // Do NOT redirect if auth is still loading or not initialized
     if (loading || !authInitialized) {
@@ -76,16 +76,27 @@ export default function Dashboard() {
       });
       setRedirecting(true);
       router.push('/login');
-    } else if (authInitialized && user) {
-      console.log('✅ Dashboard: User authenticated, dashboard access granted');
+    } else if (authInitialized && user && !profile) {
+      console.log('⚠️ Dashboard: User authenticated but profile missing');
+      console.log('📋 Dashboard profile missing:', {
+        userId: user.id,
+        email: user.email,
+        hasProfile: !!profile,
+        reason: 'profile_not_found'
+      });
+      // Do NOT redirect to login - user is authenticated but needs profile setup
+      // Keep user on dashboard but show profile setup message
+    } else if (authInitialized && user && profile) {
+      console.log('✅ Dashboard: User authenticated with profile, dashboard access granted');
       console.log('📋 Dashboard access info:', {
         userId: user.id,
         email: user.email,
         profileLoaded: !!profile,
-        profileRole: profile?.role
+        profileRole: profile?.role,
+        profileName: profile?.name
       });
     }
-  }, [user, loading, authInitialized, router, redirecting]);
+  }, [user, loading, authInitialized, router, redirecting, profile]);
 
   // Fetch dashboard data when user and profile are available
   useEffect(() => {
@@ -212,6 +223,31 @@ export default function Dashboard() {
             </div>
           )}
 
+          {/* Profile missing case */}
+          {user && !profile && authInitialized && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
+              <div className="text-4xl mb-4">👤</div>
+              <h2 className="text-xl font-semibold text-foreground mb-2">Profile Setup Required</h2>
+              <p className="text-foreground/70 mb-4">
+                Your account is authenticated but we couldn't find your profile. This may happen if:
+              </p>
+              <ul className="text-left text-foreground/60 text-sm space-y-1 mb-4 max-w-md mx-auto">
+                <li>• Your profile is still being created</li>
+                <li>• There was an issue during signup</li>
+                <li>• Your profile was accidentally deleted</li>
+              </ul>
+              <p className="text-foreground/70 mb-4">
+                Please try refreshing the page, or contact support if this persists.
+              </p>
+              <button 
+                onClick={() => window.location.reload()}
+                className="bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary-dark transition-all font-medium"
+              >
+                Refresh Page
+              </button>
+            </div>
+          )}
+
           {profile?.role === 'worker' ? (
             /* WORKER DASHBOARD */
             <div className="space-y-6">
@@ -331,11 +367,11 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
-          ) : (
+          ) : profile ? (
             <div className="bg-white rounded-2xl shadow-md border border-primary/10 p-6 text-center">
               <p className="text-foreground/60">Loading your profile...</p>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
