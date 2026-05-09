@@ -99,21 +99,24 @@ export default function Dashboard() {
     setError('');
 
     try {
-      const { data, error } = await supabase
-        .from('jobs')
-        .select(`
-          *,
-          companies(name),
-          applications(
-            id, 
-            status, 
-            user_id, 
-            created_at,
-            profiles(id, name, email)
-          )
-        `)
-        .eq('companies.owner_id', user?.id) // Only fetch jobs for current employer
-        .order('created_at', { ascending: false });
+const { data, error } = await supabase
+  .from('jobs')
+  .select(`
+    *,
+    companies(
+      id,
+      name,
+      owner_id
+    ),
+    applications(
+      id,
+      status,
+      user_id,
+      created_at
+    )
+  `)
+  .eq('companies.owner_id', user?.id)
+  .order('created_at', { ascending: false });
 
       if (error) {
         console.error('❌ Employer jobs fetch error:', error);
