@@ -140,7 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Initialize auth state
   useEffect(() => {
-    if (authInitialized) return;
+   
     
     console.log('🚀 Initializing auth state...');
     console.log('📋 Auth initialization start:', { timestamp: new Date().toISOString() });
@@ -181,11 +181,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
         setAuthInitialized(true);
         console.log('🏁 Auth initialization complete');
-        console.log('📋 Auth initialization end:', { 
-          timestamp: new Date().toISOString(),
-          hasUser: !!user,
-          hasProfile: !!profile
-        });
+    
       }
     };
 
@@ -228,7 +224,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('🧹 Cleaning up auth subscription');
       subscription.unsubscribe();
     };
-  }, [authInitialized]);
+  }, []);
 
   const value = {
     user,
