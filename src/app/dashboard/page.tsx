@@ -21,6 +21,12 @@ interface EmployerJob {
     id: string;
     status: string;
     user_id: string;
+    created_at: string;
+    profiles: {
+      id: string;
+      name: string;
+      email: string;
+    };
   }[];
 }
 
@@ -98,8 +104,15 @@ export default function Dashboard() {
         .select(`
           *,
           companies(name),
-          applications(id, status, user_id)
+          applications(
+            id, 
+            status, 
+            user_id, 
+            created_at,
+            profiles(id, name, email)
+          )
         `)
+        .eq('companies.owner_id', user?.id) // Only fetch jobs for current employer
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -150,6 +163,32 @@ export default function Dashboard() {
       setError('Failed to fetch applications');
     } finally {
       setDashboardLoading(false);
+    }
+  };
+
+  // Update application status
+  const updateApplicationStatus = async (applicationId: string, newStatus: 'accepted' | 'rejected') => {
+    try {
+      console.log(`🔄 Updating application ${applicationId} to ${newStatus}`);
+      
+      const { error } = await supabase
+        .from('applications')
+        .update({ status: newStatus })
+        .eq('id', applicationId);
+
+      if (error) {
+        console.error('❌ Failed to update application status:', error);
+        setError('Failed to update application status');
+        return;
+      }
+
+      console.log(`✅ Application ${applicationId} updated to ${newStatus}`);
+      
+      // Refresh the jobs data to show updated status
+      await fetchEmployerJobs();
+    } catch (err) {
+      console.error('❌ Exception updating application status:', err);
+      setError('Failed to update application status');
     }
   };
 
@@ -258,22 +297,66 @@ export default function Dashboard() {
                   {workerApplications.map((application) => (
                     <div
                       key={application.id}
-                      className="border rounded-xl p-4"
+                      className="border border-gray-200 rounded-xl p-5"
                     >
-                      <h3 className="font-semibold text-lg">
-                        {application.jobs?.title}
-                      </h3>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-semibold text-lg">
+                            {application.jobs?.title}
+                          </h3>
 
-                      <p className="text-sm text-gray-600">
-                        {application.jobs?.companies?.name}
-                      </p>
+                          <p className="text-sm text-gray-600">
+                            {application.jobs?.companies?.name}
+                          </p>
 
-                      <div className="mt-2 flex justify-between text-sm">
-                        <span>{application.jobs?.pay}</span>
+                          <p className="text-sm mt-1">
+                            📍 {application.jobs?.location}
+                          </p>
 
-                        <span className="capitalize">
-                          {application.status}
-                        </span>
+                          <div className="mt-2 flex items-center gap-4 text-sm">
+                            <span className="font-medium">
+                              {application.jobs?.pay}
+                            </span>
+
+                            <span className="text-gray-500">
+                              Applied: {new Date(application.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          {/* Status Badge */}
+                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                            application.status === 'accepted' 
+                              ? 'bg-green-100 text-green-700'
+                              : application.status === 'rejected'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-yellow-100 text-yellow-700'
+                          }`}>
+                            {application.status === 'accepted' && '✓ '}
+                            {application.status === 'rejected' && '✗ '}
+                            {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
+                          </span>
+
+                          {/* Status Message */}
+                          <div className="mt-2 text-sm">
+                            {application.status === 'accepted' && (
+                              <p className="text-green-600 font-medium">
+                                Congratulations! You've been accepted.
+                              </p>
+                            )}
+                            {application.status === 'rejected' && (
+                              <p className="text-red-600">
+                                This position wasn't a match.
+                              </p>
+                            )}
+                            {application.status === 'pending' && (
+                              <p className="text-gray-500">
+                                Under review
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -322,36 +405,106 @@ export default function Dashboard() {
                   </Link>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {employerJobs.map((job) => (
                     <div
                       key={job.id}
-                      className="bg-white rounded-2xl shadow-md p-5 border border-gray-100"
+                      className="bg-white rounded-2xl shadow-md border border-gray-100"
                     >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-semibold text-lg">
-                            {job.title}
-                          </h3>
+                      {/* Job Header */}
+                      <div className="p-5 border-b border-gray-100">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-semibold text-lg">
+                              {job.title}
+                            </h3>
 
-                          <p className="text-gray-600 text-sm">
-                            {job.companies?.name}
-                          </p>
+                            <p className="text-gray-600 text-sm">
+                              {job.companies?.name}
+                            </p>
 
-                          <p className="text-sm mt-1">
-                            📍 {job.location}
-                          </p>
+                            <p className="text-sm mt-1">
+                              📍 {job.location}
+                            </p>
+                          </div>
+
+                          <div className="text-right">
+                            <p className="font-semibold">
+                              {job.pay}
+                            </p>
+
+                            <p className="text-sm text-gray-500">
+                              {(job.applications?.length || 0)} applicants
+                            </p>
+                          </div>
                         </div>
+                      </div>
 
-                        <div className="text-right">
-                          <p className="font-semibold">
-                            {job.pay}
-                          </p>
+                      {/* Applicants Section */}
+                      <div className="p-5">
+                        <h4 className="font-medium mb-4">Applicants</h4>
+                        
+                        {job.applications && job.applications.length > 0 ? (
+                          <div className="space-y-3">
+                            {job.applications.map((application) => (
+                              <div
+                                key={application.id}
+                                className="border border-gray-200 rounded-lg p-4"
+                              >
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <p className="font-medium">
+                                      {application.profiles?.name || 'Unknown'}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                      {application.profiles?.email || 'No email'}
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      Applied: {new Date(application.created_at).toLocaleDateString()}
+                                    </p>
+                                  </div>
 
-                          <p className="text-sm text-gray-500">
-                            {(job.applications?.length || 0)} applicants
-                          </p>
-                        </div>
+                                  <div className="flex items-center gap-2">
+                                    {/* Status Badge */}
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                      application.status === 'accepted' 
+                                        ? 'bg-green-100 text-green-700'
+                                        : application.status === 'rejected'
+                                        ? 'bg-red-100 text-red-700'
+                                        : 'bg-yellow-100 text-yellow-700'
+                                    }`}>
+                                      {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
+                                    </span>
+
+                                    {/* Action Buttons - Only show if pending */}
+                                    {application.status === 'pending' && (
+                                      <div className="flex gap-2">
+                                        <button
+                                          onClick={() => updateApplicationStatus(application.id, 'accepted')}
+                                          className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors"
+                                        >
+                                          Accept
+                                        </button>
+                                        <button
+                                          onClick={() => updateApplicationStatus(application.id, 'rejected')}
+                                          className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
+                                        >
+                                          Reject
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8">
+                            <p className="text-gray-500">
+                              No applicants yet for this position.
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
