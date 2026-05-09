@@ -144,12 +144,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   console.log('🛠 DEV MODE ENABLED');
 
   const mockUser = {
-    id: 'dev-user-123',
+    id: '11111111-1111-1111-1111-111111111111',
     email: 'dev@shire.com',
   } as User;
 
   const mockProfile = {
-    id: 'dev-user-123',
+   id: '11111111-1111-1111-1111-111111111111',
     name: 'Dev Employer',
     role: 'employer',
   };
