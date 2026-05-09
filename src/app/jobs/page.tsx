@@ -27,13 +27,47 @@ interface JobWithCompany {
 export default function Jobs() {
   const { user, profile } = useAuth();
   const [jobs, setJobs] = useState<JobWithCompany[]>([]);
+  const [filteredJobs, setFilteredJobs] = useState<JobWithCompany[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [applying, setApplying] = useState<string | null>(null);
 
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('');
+  const [selectedJobType, setSelectedJobType] = useState('');
+  const [uniqueLocations, setUniqueLocations] = useState<string[]>([]);
+  const [uniqueJobTypes, setUniqueJobTypes] = useState<string[]>([]);
+
   useEffect(() => {
     fetchJobs();
   }, []);
+
+  // Filter jobs based on search and filter criteria
+  useEffect(() => {
+    let filtered = jobs;
+
+    // Search filter (job title and company name)
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(job => 
+        job.title.toLowerCase().includes(searchLower) ||
+        job.companies?.name.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Location filter
+    if (selectedLocation) {
+      filtered = filtered.filter(job => job.location === selectedLocation);
+    }
+
+    // Job type filter
+    if (selectedJobType) {
+      filtered = filtered.filter(job => job.job_type === selectedJobType);
+    }
+
+    setFilteredJobs(filtered);
+  }, [searchTerm, selectedLocation, selectedJobType, jobs]);
 
   const fetchJobs = async () => {
     try {
@@ -62,6 +96,13 @@ export default function Jobs() {
       }
 
       setJobs(processedJobs);
+      setFilteredJobs(processedJobs);
+
+      // Extract unique locations and job types for filters
+      const locations = [...new Set(processedJobs.map(job => job.location).filter(Boolean))];
+      const jobTypes = [...new Set(processedJobs.map(job => job.job_type).filter(Boolean))];
+      setUniqueLocations(locations);
+      setUniqueJobTypes(jobTypes);
     } catch (err) {
       setError('Failed to fetch jobs');
     } finally {
@@ -163,14 +204,130 @@ export default function Jobs() {
             </div>
           )}
 
-          {jobs.length === 0 ? (
+          {/* Search and Filters */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+            <div className="grid gap-4 md:grid-cols-4">
+              {/* Search Bar */}
+              <div className="md:col-span-2">
+                <input
+                  type="text"
+                  placeholder="Search job title or company..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Location Filter */}
+              <div>
+                <select
+                  value={selectedLocation}
+                  onChange={(e) => setSelectedLocation(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">All Locations</option>
+                  {uniqueLocations.map(location => (
+                    <option key={location} value={location}>
+                      {location}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Job Type Filter */}
+              <div>
+                <select
+                  value={selectedJobType}
+                  onChange={(e) => setSelectedJobType(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">All Types</option>
+                  {uniqueJobTypes.map(jobType => (
+                    <option key={jobType} value={jobType}>
+                      {getJobTypeText(jobType)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Active Filters Display */}
+            {(searchTerm || selectedLocation || selectedJobType) && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {searchTerm && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                    Search: {searchTerm}
+                    <button
+                      onClick={() => setSearchTerm('')}
+                      className="ml-2 text-blue-600 hover:text-blue-800"
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
+                {selectedLocation && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                    Location: {selectedLocation}
+                    <button
+                      onClick={() => setSelectedLocation('')}
+                      className="ml-2 text-green-600 hover:text-green-800"
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
+                {selectedJobType && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800">
+                    Type: {getJobTypeText(selectedJobType)}
+                    <button
+                      onClick={() => setSelectedJobType('')}
+                      className="ml-2 text-purple-600 hover:text-purple-800"
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
+                <button
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSelectedLocation('');
+                    setSelectedJobType('');
+                  }}
+                  className="text-sm text-gray-600 hover:text-gray-800 underline"
+                >
+                  Clear all filters
+                </button>
+              </div>
+            )}
+          </div>
+
+          {filteredJobs.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-2xl border border-primary/10">
-              <p className="text-foreground/70 text-lg">No jobs available right now</p>
-              <p className="text-foreground/50 mt-2">Check back soon for new opportunities</p>
+              {jobs.length === 0 ? (
+                <>
+                  <p className="text-foreground/70 text-lg">No jobs available right now</p>
+                  <p className="text-foreground/50 mt-2">Check back soon for new opportunities</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-foreground/70 text-lg">No jobs match your filters</p>
+                  <p className="text-foreground/50 mt-2">Try adjusting your search or filters</p>
+                  <button
+                    onClick={() => {
+                      setSearchTerm('');
+                      setSelectedLocation('');
+                      setSelectedJobType('');
+                    }}
+                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Clear filters
+                  </button>
+                </>
+              )}
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {jobs.map((job) => {
+              {filteredJobs.map((job) => {
                 const hasApplied = job.applications && job.applications.length > 0;
 
                 return (
