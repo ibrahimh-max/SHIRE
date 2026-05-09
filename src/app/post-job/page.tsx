@@ -140,9 +140,12 @@ export default function PostJob() {
               <p className="text-yellow-700 mb-4">
                 You need to create a company before posting jobs.
               </p>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
-                Create Company
-              </button>
+<button
+  onClick={() => router.push('/create-company')}
+  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+>
+  Create Company
+</button>
             </div>
           ) : (
             <>
