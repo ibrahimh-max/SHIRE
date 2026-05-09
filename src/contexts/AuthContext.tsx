@@ -140,8 +140,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Initialize auth state
   useEffect(() => {
-   
-    
+    if (DEV_MODE) {
+  console.log('🛠 DEV MODE ENABLED');
+
+  const mockUser = {
+    id: 'dev-user-123',
+    email: 'dev@shire.com',
+  } as User;
+
+  const mockProfile = {
+    id: 'dev-user-123',
+    name: 'Dev Employer',
+    role: 'employer',
+  };
+
+  setUser(mockUser);
+  setProfile(mockProfile as any);
+  setLoading(false);
+  setAuthInitialized(true);
+
+  return;
+}
+  
     console.log('🚀 Initializing auth state...');
     console.log('📋 Auth initialization start:', { timestamp: new Date().toISOString() });
     
@@ -246,3 +266,6 @@ export function useAuth() {
   }
   return context;
 }
+
+
+const DEV_MODE = true;
