@@ -1,6 +1,7 @@
 'use client';
 
-
+const DEV_MODE = true;
+const DEV_ROLE = 'employer';
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
