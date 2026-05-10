@@ -1,5 +1,7 @@
 'use client';
 
+
+
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -140,18 +142,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Initialize auth state
   useEffect(() => {
-    if (DEV_MODE) {
+if (DEV_MODE) {
   console.log('🛠 DEV MODE ENABLED');
 
+  const DEV_USER_ID = 'e50fe1da-b715-4d97-9d22-1582f123c530';
+
   const mockUser = {
-    id: 'e50fe1da-b715-4d97-9d22-1582f123c530',
+    id: DEV_USER_ID,
     email: 'dev@shire.com',
   } as User;
 
   const mockProfile = {
-   id: 'e50fe1da-b715-4d97-9d22-1582f123c530',
-    name: 'Dev Employer',
-    role: 'employer',
+    id: DEV_USER_ID,
+    name: DEV_ROLE === 'employer'
+      ? 'Dev Employer'
+      : 'Dev Worker',
+    role: DEV_ROLE,
   };
 
   setUser(mockUser);
@@ -267,5 +273,3 @@ export function useAuth() {
   return context;
 }
 
-
-const DEV_MODE = true;
