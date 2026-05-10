@@ -98,7 +98,6 @@ export default function PostJob() {
         return;
       }
 
-      // Redirect to dashboard on success
       router.push('/dashboard?message=Job posted successfully');
     } catch (err) {
       setError('An unexpected error occurred');
@@ -107,14 +106,13 @@ export default function PostJob() {
     }
   };
 
-  // Show loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation />
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-gray-600">Loading...</p>
           </div>
         </div>
@@ -122,7 +120,6 @@ export default function PostJob() {
     );
   }
 
-  // Show nothing while redirecting
   if (!user || !profile || profile.role !== 'employer') {
     return null;
   }
@@ -132,30 +129,30 @@ export default function PostJob() {
       <Navigation />
       <div className="py-8">
         <div className="max-w-2xl mx-auto px-4">
-          <h1 className="text-3xl font-bold mb-8">Post a Job</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">Post a Job</h1>
           
           {companies.length === 0 ? (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-6">
               <h3 className="text-lg font-semibold text-yellow-800 mb-2">No Company Found</h3>
               <p className="text-yellow-700 mb-4">
                 You need to create a company before posting jobs.
               </p>
-<button
-  onClick={() => router.push('/create-company')}
-  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
->
-  Create Company
-</button>
+              <button
+                onClick={() => router.push('/create-company')}
+                className="bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary-dark transition-colors shadow-sm"
+              >
+                Create Company
+              </button>
             </div>
           ) : (
             <>
               {error && (
-                <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-md">
+                <div className="mb-6 p-4 rounded-xl border border-red-200 bg-red-50 text-red-700">
                   {error}
                 </div>
               )}
               
-              <div className="bg-white p-8 rounded-lg shadow-md">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
@@ -165,7 +162,7 @@ export default function PostJob() {
                       id="company"
                       value={selectedCompany}
                       onChange={(e) => setSelectedCompany(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                       required
                     >
                       {companies.map(company => (
@@ -186,7 +183,7 @@ export default function PostJob() {
                       name="title"
                       value={formData.title}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                       placeholder="e.g. Front Desk Receptionist"
                       required
                     />
@@ -202,7 +199,7 @@ export default function PostJob() {
                       value={formData.description}
                       onChange={handleChange}
                       rows={6}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                       placeholder="Describe the role, responsibilities, and requirements..."
                       required
                     />
@@ -219,7 +216,7 @@ export default function PostJob() {
                         name="pay"
                         value={formData.pay}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                         placeholder="e.g. $18/hour or $45,000/year"
                         required
                       />
@@ -235,7 +232,7 @@ export default function PostJob() {
                         name="location"
                         value={formData.location}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                         placeholder="e.g. New York, NY"
                         required
                       />
@@ -252,7 +249,7 @@ export default function PostJob() {
                         name="job_type"
                         value={formData.job_type}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                         required
                       >
                         <option value="full-time">Full-time</option>
@@ -271,7 +268,7 @@ export default function PostJob() {
                         name="shift_timing"
                         value={formData.shift_timing}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                         required
                       >
                         <option value="morning">Morning</option>
@@ -293,24 +290,24 @@ export default function PostJob() {
                         value={formData.workers_needed}
                         onChange={handleChange}
                         min="1"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                         required
                       />
                     </div>
                   </div>
                   
-                  <div className="flex gap-4">
+                  <div className="flex gap-4 pt-4">
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors disabled:bg-green-400"
+                      className="flex-1 bg-primary text-white py-2.5 px-4 rounded-xl hover:bg-primary-dark transition-colors disabled:bg-primary/50 font-medium shadow-sm"
                     >
                       {submitting ? 'Posting Job...' : 'Post Job'}
                     </button>
                     <button
                       type="button"
                       onClick={() => router.push('/dashboard')}
-                      className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+                      className="flex-1 bg-gray-200 text-gray-700 py-2.5 px-4 rounded-xl hover:bg-gray-300 transition-colors font-medium"
                     >
                       Cancel
                     </button>

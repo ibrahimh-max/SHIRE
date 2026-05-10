@@ -63,12 +63,10 @@ export default function Dashboard() {
       hasProfile: !!profile
     });
 
-    // Wait until auth fully initializes
     if (loading || !authInitialized) {
       return;
     }
 
-    // Redirect only if auth finished AND no user
     if (!user) {
       console.log('🚪 No authenticated user, redirecting to login');
       router.push('/login');
@@ -191,7 +189,6 @@ export default function Dashboard() {
 
       console.log(`✅ Application ${applicationId} updated to ${newStatus}`);
       
-      // Refresh the jobs data to show updated status
       await fetchEmployerJobs();
     } catch (err) {
       console.error('❌ Exception updating application status:', err);
@@ -206,7 +203,7 @@ export default function Dashboard() {
         <Navigation />
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-gray-600">Loading your account...</p>
           </div>
         </div>
@@ -214,13 +211,12 @@ export default function Dashboard() {
     );
   }
 
-  // Redirecting
   if (!user) {
     return null;
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
       <Navigation />
 
       <div className="py-8 px-4">
@@ -228,11 +224,10 @@ export default function Dashboard() {
 
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-3xl font-bold text-gray-900">
               Dashboard
             </h1>
-
-            <p className="text-foreground/60 mt-2">
+            <p className="text-gray-600 mt-2">
               Welcome back, {profile?.name || 'User'} 👋
             </p>
           </div>
@@ -247,17 +242,15 @@ export default function Dashboard() {
           {/* Missing profile */}
           {user && !profile && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
-              <h2 className="text-xl font-semibold mb-2">
+              <h2 className="text-xl font-semibold mb-2 text-gray-900">
                 Profile not found
               </h2>
-
               <p className="text-gray-600 mb-4">
                 Your account exists but profile data is missing.
               </p>
-
               <button
                 onClick={() => window.location.reload()}
-                className="bg-blue-600 text-white px-4 py-2 rounded-xl"
+                className="bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary-dark transition-colors"
               >
                 Refresh
               </button>
@@ -266,16 +259,14 @@ export default function Dashboard() {
 
           {/* WORKER DASHBOARD */}
           {profile?.role === 'worker' && (
-            <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">
+                <h2 className="text-xl font-semibold text-gray-900">
                   Your Applications
                 </h2>
-
                 <Link
                   href="/jobs"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-xl"
+                  className="bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary-dark transition-colors shadow-sm"
                 >
                   Browse Jobs
                 </Link>
@@ -283,18 +274,17 @@ export default function Dashboard() {
 
               {dashboardLoading ? (
                 <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                  <p>Loading applications...</p>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading applications...</p>
                 </div>
               ) : workerApplications.length === 0 ? (
                 <div className="text-center py-10">
                   <p className="text-gray-600 mb-4">
                     You have not applied to any jobs yet.
                   </p>
-
                   <Link
                     href="/jobs"
-                    className="bg-blue-600 text-white px-5 py-2 rounded-xl"
+                    className="bg-primary text-white px-5 py-2 rounded-xl hover:bg-primary-dark transition-colors"
                   >
                     Explore Jobs
                   </Link>
@@ -304,41 +294,37 @@ export default function Dashboard() {
                   {workerApplications.map((application) => (
                     <div
                       key={application.id}
-                      className="border border-gray-200 rounded-xl p-5"
+                      className="border border-gray-200 rounded-xl p-5 hover:shadow-sm transition-shadow"
                     >
                       <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-semibold text-lg">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg text-gray-900">
                             {application.jobs?.title}
                           </h3>
-
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 mt-0.5">
                             {application.jobs?.companies?.name}
                           </p>
-
-                          <p className="text-sm mt-1">
+                          <p className="text-sm text-gray-600 mt-2">
                             📍 {application.jobs?.location}
                           </p>
-
                           <div className="mt-2 flex items-center gap-4 text-sm">
-                            <span className="font-medium">
+                            <span className="font-medium text-primary">
                               {application.jobs?.pay}
                             </span>
-
                             <span className="text-gray-500">
                               Applied: {new Date(application.created_at).toLocaleDateString()}
                             </span>
                           </div>
                         </div>
 
-                        <div className="text-right">
+                        <div className="text-right ml-4">
                           {/* Status Badge */}
                           <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
                             application.status === 'accepted' 
-                              ? 'bg-green-100 text-green-700'
+                              ? 'bg-green-50 text-green-700'
                               : application.status === 'rejected'
-                              ? 'bg-red-100 text-red-700'
-                              : 'bg-yellow-100 text-yellow-700'
+                              ? 'bg-red-50 text-red-700'
+                              : 'bg-purple-50 text-purple-700'
                           }`}>
                             {application.status === 'accepted' && '✓ '}
                             {application.status === 'rejected' && '✗ '}
@@ -375,38 +361,34 @@ export default function Dashboard() {
           {/* EMPLOYER DASHBOARD */}
           {profile?.role === 'employer' && (
             <div className="space-y-6">
-
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-semibold">
+                <h2 className="text-2xl font-semibold text-gray-900">
                   Employer Dashboard
                 </h2>
-
                 <Link
                   href="/post-job"
-                  className="bg-green-600 text-white px-4 py-2 rounded-xl"
+                  className="bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary-dark transition-colors shadow-sm"
                 >
-                  Post Job
+                  + Post Job
                 </Link>
               </div>
 
               {dashboardLoading ? (
-                <div className="bg-white rounded-2xl shadow-md p-8 text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
-                  <p>Loading your jobs...</p>
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading your jobs...</p>
                 </div>
               ) : employerJobs.length === 0 ? (
-                <div className="bg-white rounded-2xl shadow-md p-8 text-center">
-                  <h3 className="text-xl font-semibold mb-3">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
                     No jobs posted yet
                   </h3>
-
                   <p className="text-gray-600 mb-5">
                     Start hiring by posting your first job.
                   </p>
-
                   <Link
                     href="/post-job"
-                    className="bg-green-600 text-white px-5 py-2 rounded-xl"
+                    className="bg-primary text-white px-5 py-2 rounded-xl hover:bg-primary-dark transition-colors"
                   >
                     Create Job
                   </Link>
@@ -416,32 +398,28 @@ export default function Dashboard() {
                   {employerJobs.map((job) => (
                     <div
                       key={job.id}
-                      className="bg-white rounded-2xl shadow-md border border-gray-100"
+                      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
                     >
                       {/* Job Header */}
                       <div className="p-5 border-b border-gray-100">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="font-semibold text-lg">
+                            <h3 className="font-semibold text-lg text-gray-900">
                               {job.title}
                             </h3>
-
-                            <p className="text-gray-600 text-sm">
+                            <p className="text-gray-600 text-sm mt-0.5">
                               {job.companies?.name}
                             </p>
-
-                            <p className="text-sm mt-1">
+                            <p className="text-sm text-gray-600 mt-2">
                               📍 {job.location}
                             </p>
                           </div>
-
                           <div className="text-right">
-                            <p className="font-semibold">
+                            <p className="font-semibold text-primary">
                               {job.pay}
                             </p>
-
-                            <p className="text-sm text-gray-500">
-                              {(job.applications?.length || 0)} applicants
+                            <p className="text-sm text-gray-500 mt-1">
+                              {job.applications?.length || 0} applicants
                             </p>
                           </div>
                         </div>
@@ -449,36 +427,36 @@ export default function Dashboard() {
 
                       {/* Applicants Section */}
                       <div className="p-5">
-                        <h4 className="font-medium mb-4">Applicants</h4>
+                        <h4 className="font-medium text-gray-900 mb-4">Applicants</h4>
                         
                         {job.applications && job.applications.length > 0 ? (
                           <div className="space-y-3">
                             {job.applications.map((application) => (
                               <div
                                 key={application.id}
-                                className="border border-gray-200 rounded-lg p-4"
+                                className="border border-gray-200 rounded-xl p-4 bg-gray-50/30"
                               >
-                               <div className="flex justify-between items-start">
-                                  <div>
-                                    <p className="font-medium">
+                                <div className="flex justify-between items-start">
+                                  <div className="flex-1">
+                                    <p className="font-medium text-gray-900">
                                       {application.profiles?.name || 'Unknown'}
                                     </p>
-                                    <p className="text-sm text-gray-600">
-      Applicant ID: {application.user_id}
-</p>
-                                    <p className="text-xs text-gray-500 mt-1">
+                                    <p className="text-sm text-gray-500 mt-0.5">
+                                      Applicant ID: {application.user_id}
+                                    </p>
+                                    <p className="text-xs text-gray-400 mt-1">
                                       Applied: {new Date(application.created_at).toLocaleDateString()}
                                     </p>
                                   </div>
 
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-2 ml-4">
                                     {/* Status Badge */}
                                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                                       application.status === 'accepted' 
-                                        ? 'bg-green-100 text-green-700'
+                                        ? 'bg-green-50 text-green-700'
                                         : application.status === 'rejected'
-                                        ? 'bg-red-100 text-red-700'
-                                        : 'bg-yellow-100 text-yellow-700'
+                                        ? 'bg-red-50 text-red-700'
+                                        : 'bg-purple-50 text-purple-700'
                                     }`}>
                                       {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
                                     </span>
@@ -488,13 +466,13 @@ export default function Dashboard() {
                                       <div className="flex gap-2">
                                         <button
                                           onClick={() => updateApplicationStatus(application.id, 'accepted')}
-                                          className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors"
+                                          className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors"
                                         >
                                           Accept
                                         </button>
                                         <button
                                           onClick={() => updateApplicationStatus(application.id, 'rejected')}
-                                          className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
+                                          className="px-3 py-1 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
                                         >
                                           Reject
                                         </button>

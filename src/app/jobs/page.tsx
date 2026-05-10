@@ -24,6 +24,30 @@ interface JobWithCompany {
   }[];
 }
 
+const BRAND = '#6C63FF';
+const BRAND_DARK = '#5a52e0';
+
+const JOB_TYPE_STYLES: Record<string, { bg: string; color: string; label: string }> = {
+  'full-time':  { bg: '#EEEDFE', color: '#534AB7', label: 'Full-time' },
+  'part-time':  { bg: '#E1F5EE', color: '#0F6E56', label: 'Part-time' },
+  'contract':   { bg: '#FAEEDA', color: '#854F0B', label: 'Contract' },
+  'temporary':  { bg: '#FAECE7', color: '#993C1D', label: 'Temporary' },
+};
+
+const SHIFT_LABELS: Record<string, string> = {
+  morning:   'Morning',
+  afternoon: 'Afternoon',
+  evening:   'Evening',
+  night:     'Night',
+  flexible:  'Flexible',
+};
+
+const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
+  pending:  { bg: '#FAEEDA', color: '#854F0B' },
+  accepted: { bg: '#EAF3DE', color: '#3B6D11' },
+  rejected: { bg: '#FCEBEB', color: '#A32D2D' },
+};
+
 export default function Jobs() {
   const { user, profile } = useAuth();
   const [jobs, setJobs] = useState<JobWithCompany[]>([]);
@@ -32,92 +56,55 @@ export default function Jobs() {
   const [error, setError] = useState('');
   const [applying, setApplying] = useState<string | null>(null);
 
-  // Search and filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedJobType, setSelectedJobType] = useState('');
   const [uniqueLocations, setUniqueLocations] = useState<string[]>([]);
   const [uniqueJobTypes, setUniqueJobTypes] = useState<string[]>([]);
 
-  useEffect(() => {
-    fetchJobs();
-  }, []);
+  useEffect(() => { fetchJobs(); }, []);
 
-  // Filter jobs based on search and filter criteria
   useEffect(() => {
     let filtered = jobs;
-
-    // Search filter (job title and company name)
     if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(job => 
-        job.title.toLowerCase().includes(searchLower) ||
-        job.companies?.name.toLowerCase().includes(searchLower)
+      const q = searchTerm.toLowerCase();
+      filtered = filtered.filter(j =>
+        j.title.toLowerCase().includes(q) || j.companies?.name.toLowerCase().includes(q)
       );
     }
-
-    // Location filter
-    if (selectedLocation) {
-      filtered = filtered.filter(job => job.location === selectedLocation);
-    }
-
-    // Job type filter
-    if (selectedJobType) {
-      filtered = filtered.filter(job => job.job_type === selectedJobType);
-    }
-
+    if (selectedLocation) filtered = filtered.filter(j => j.location === selectedLocation);
+    if (selectedJobType) filtered = filtered.filter(j => j.job_type === selectedJobType);
     setFilteredJobs(filtered);
   }, [searchTerm, selectedLocation, selectedJobType, jobs]);
 
   const fetchJobs = async () => {
     try {
-      let query = supabase
+      const { data, error } = await supabase
         .from('jobs')
-        .select(`
-          *,
-          companies(name),
-          applications(id, status, user_id)
-        `)
+        .select('*, companies(name), applications(id, status, user_id)')
         .order('created_at', { ascending: false });
 
-      const { data, error } = await query;
+      if (error) { setError(error.message); return; }
 
-      if (error) {
-        setError(error.message);
-        return;
-      }
-
-      let processedJobs = data || [];
+      let processed = data || [];
       if (user && profile?.role === 'worker') {
-        processedJobs = data?.map(job => ({
+        processed = data?.map(job => ({
           ...job,
-          applications: job.applications?.filter((app: any) => app.user_id === user.id) || []
+          applications: job.applications?.filter((app: any) => app.user_id === user.id) || [],
         })) || [];
       }
 
-      setJobs(processedJobs);
-      setFilteredJobs(processedJobs);
-
-      // Extract unique locations and job types for filters
-      const locations = [...new Set(processedJobs.map(job => job.location).filter(Boolean))];
-      const jobTypes = [...new Set(processedJobs.map(job => job.job_type).filter(Boolean))];
-      setUniqueLocations(locations);
-      setUniqueJobTypes(jobTypes);
-    } catch (err) {
-      setError('Failed to fetch jobs');
-    } finally {
-      setLoading(false);
-    }
+      setJobs(processed);
+      setFilteredJobs(processed);
+      setUniqueLocations([...new Set(processed.map(j => j.location).filter(Boolean))]);
+      setUniqueJobTypes([...new Set(processed.map(j => j.job_type).filter(Boolean))]);
+    } catch { setError('Failed to fetch jobs'); }
+    finally { setLoading(false); }
   };
 
   const handleApply = async (jobId: string) => {
-    if (!user || profile?.role !== 'worker') {
-      setError('Only workers can apply for jobs');
-      return;
-    }
-
+    if (!user || profile?.role !== 'worker') { setError('Only workers can apply for jobs'); return; }
     setApplying(jobId);
-
     try {
       const job = jobs.find(j => j.id === jobId);
       if (job?.applications && job.applications.length > 0) {
@@ -125,274 +112,247 @@ export default function Jobs() {
         setApplying(null);
         return;
       }
-
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('applications')
-        .insert({
-          job_id: jobId,
-          user_id: user.id,
-          status: 'pending'
-        })
-        .select()
-        .single();
+        .insert({ job_id: jobId, user_id: user.id, status: 'pending' })
+        .select().single();
 
       if (error) {
-        if (error.code === '23505') {
-          setError('You have already applied for this job');
-        } else {
-          setError(error.message);
-        }
+        setError(error.code === '23505' ? 'You have already applied for this job' : error.message);
         return;
       }
-
       await fetchJobs();
-    } catch (err) {
-      setError('Failed to apply for job');
-    } finally {
-      setApplying(null);
-    }
+    } catch { setError('Failed to apply for job'); }
+    finally { setApplying(null); }
   };
 
-  const getShiftTimingText = (timing: string) => {
-    const shiftMap: { [key: string]: string } = {
-      'morning': '🌅 Morning',
-      'afternoon': '☀️ Afternoon',
-      'evening': '🌙 Evening',
-      'night': '🌃 Night',
-      'flexible': '🕒 Flexible'
-    };
-    return shiftMap[timing] || timing;
-  };
-
-  const getJobTypeText = (type: string) => {
-    const typeMap: { [key: string]: string } = {
-      'full-time': 'Full-time',
-      'part-time': 'Part-time',
-      'contract': 'Contract',
-      'temporary': 'Temporary'
-    };
-    return typeMap[type] || type;
-  };
+  const clearFilters = () => { setSearchTerm(''); setSelectedLocation(''); setSelectedJobType(''); };
+  const hasFilters = searchTerm || selectedLocation || selectedJobType;
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-50">
         <Navigation />
-        <div className="flex items-center justify-center py-16">
+        <div className="flex items-center justify-center py-24">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-foreground/60">Loading jobs...</p>
+            <div className="w-8 h-8 border-2 border-gray-200 rounded-full mx-auto mb-4" style={{ borderTopColor: BRAND, animation: 'spin 0.8s linear infinite' }} />
+            <p className="text-sm text-gray-500">Loading jobs...</p>
           </div>
         </div>
+        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
       <Navigation />
-      <div className="py-8 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10">
-            <h1 className="text-4xl font-bold text-foreground mb-2">Find your next role</h1>
-            <p className="text-foreground/60">Hospitality jobs waiting for you</p>
+
+      <div className="max-w-6xl mx-auto px-4 py-10">
+
+        {/* Hero */}
+        <div className="text-center mb-10">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Find your next role</h1>
+          <p className="text-gray-500">Hospitality jobs waiting for you</p>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="mb-6 px-4 py-3 bg-red-50 border border-red-100 text-red-700 rounded-xl text-sm">
+            {error}
           </div>
+        )}
 
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-center">
-              {error}
-            </div>
-          )}
-
-          {/* Search and Filters */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
-            <div className="grid gap-4 md:grid-cols-4">
-              {/* Search Bar */}
-              <div className="md:col-span-2">
-                <input
-                  type="text"
-                  placeholder="Search job title or company..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              {/* Location Filter */}
-              <div>
-                <select
-                  value={selectedLocation}
-                  onChange={(e) => setSelectedLocation(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">All Locations</option>
-                  {uniqueLocations.map(location => (
-                    <option key={location} value={location}>
-                      {location}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Job Type Filter */}
-              <div>
-                <select
-                  value={selectedJobType}
-                  onChange={(e) => setSelectedJobType(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">All Types</option>
-                  {uniqueJobTypes.map(jobType => (
-                    <option key={jobType} value={jobType}>
-                      {getJobTypeText(jobType)}
-                    </option>
-                  ))}
-                </select>
-              </div>
+        {/* Search + filters */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-8 shadow-sm">
+          <div className="grid gap-3 md:grid-cols-4">
+            <div className="md:col-span-2 relative">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search job title or company..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:border-transparent bg-gray-50"
+                style={{ '--tw-ring-color': BRAND } as any}
+              />
             </div>
 
-            {/* Active Filters Display */}
-            {(searchTerm || selectedLocation || selectedJobType) && (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {searchTerm && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
-                    Search: {searchTerm}
-                    <button
-                      onClick={() => setSearchTerm('')}
-                      className="ml-2 text-blue-600 hover:text-blue-800"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
-                {selectedLocation && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
-                    Location: {selectedLocation}
-                    <button
-                      onClick={() => setSelectedLocation('')}
-                      className="ml-2 text-green-600 hover:text-green-800"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
-                {selectedJobType && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800">
-                    Type: {getJobTypeText(selectedJobType)}
-                    <button
-                      onClick={() => setSelectedJobType('')}
-                      className="ml-2 text-purple-600 hover:text-purple-800"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
-                <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    setSelectedLocation('');
-                    setSelectedJobType('');
-                  }}
-                  className="text-sm text-gray-600 hover:text-gray-800 underline"
-                >
-                  Clear all filters
-                </button>
-              </div>
-            )}
+            <select
+              value={selectedLocation}
+              onChange={e => setSelectedLocation(e.target.value)}
+              className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:border-transparent bg-gray-50 text-gray-700"
+            >
+              <option value="">All locations</option>
+              {uniqueLocations.map(l => <option key={l} value={l}>{l}</option>)}
+            </select>
+
+            <select
+              value={selectedJobType}
+              onChange={e => setSelectedJobType(e.target.value)}
+              className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:border-transparent bg-gray-50 text-gray-700"
+            >
+              <option value="">All types</option>
+              {uniqueJobTypes.map(t => (
+                <option key={t} value={t}>{JOB_TYPE_STYLES[t]?.label || t}</option>
+              ))}
+            </select>
           </div>
 
-          {filteredJobs.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-2xl border border-primary/10">
-              {jobs.length === 0 ? (
-                <>
-                  <p className="text-foreground/70 text-lg">No jobs available right now</p>
-                  <p className="text-foreground/50 mt-2">Check back soon for new opportunities</p>
-                </>
-              ) : (
-                <>
-                  <p className="text-foreground/70 text-lg">No jobs match your filters</p>
-                  <p className="text-foreground/50 mt-2">Try adjusting your search or filters</p>
-                  <button
-                    onClick={() => {
-                      setSearchTerm('');
-                      setSelectedLocation('');
-                      setSelectedJobType('');
-                    }}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Clear filters
-                  </button>
-                </>
+          {/* Active filter chips */}
+          {hasFilters && (
+            <div className="mt-3 flex flex-wrap gap-2 items-center">
+              {searchTerm && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                  &ldquo;{searchTerm}&rdquo;
+                  <button onClick={() => setSearchTerm('')} className="ml-1 text-gray-400 hover:text-gray-700">×</button>
+                </span>
               )}
-            </div>
-          ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredJobs.map((job) => {
-                const hasApplied = job.applications && job.applications.length > 0;
-
-                return (
-                  <div key={job.id} className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all p-6 border border-primary/5 hover:border-primary/20">
-                    <div className="flex justify-between items-start mb-3">
-                      <h2 className="text-xl font-bold text-foreground">{job.title}</h2>
-                      <span className="bg-accent/10 text-accent-dark text-xs px-2 py-1 rounded-full font-medium">
-                        {getJobTypeText(job.job_type)}
-                      </span>
-                    </div>
-                    
-                    <p className="text-primary font-semibold mb-1">{job.companies?.name || 'Company'}</p>
-                    <p className="text-foreground/50 text-sm mb-3 flex items-center gap-1">
-                      📍 {job.location}
-                    </p>
-
-                    <p className="text-foreground/70 text-sm mb-4 line-clamp-2">
-                      {job.description.substring(0, 100)}...
-                    </p>
-
-                    <div className="space-y-2 mb-5">
-                      <div className="flex justify-between items-center">
-                        <span className="text-primary font-bold text-lg">{job.pay}</span>
-                        <span className="text-foreground/50 text-xs">
-                          👥 {job.workers_needed} needed
-                        </span>
-                      </div>
-
-                      <div className="text-foreground/60 text-sm">
-                        {getShiftTimingText(job.shift_timing)}
-                      </div>
-                    </div>
-
-                    {user && profile?.role === 'worker' ? (
-                      hasApplied ? (
-                        <div className="w-full bg-green-50 border border-green-200 text-green-700 py-2.5 px-4 rounded-xl text-center font-medium">
-                          ✓ Applied ({job.applications![0].status})
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => handleApply(job.id)}
-                          disabled={applying === job.id}
-                          className="w-full bg-primary text-white py-2.5 px-4 rounded-xl hover:bg-primary-dark transition-all font-medium shadow-sm hover:shadow-md disabled:opacity-60"
-                        >
-                          {applying === job.id ? 'Applying...' : 'Apply now'}
-                        </button>
-                      )
-                    ) : user ? (
-                      <div className="w-full bg-gray-100 text-foreground/60 py-2.5 px-4 rounded-xl text-center text-sm">
-                        Only workers can apply
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => window.location.href = '/login'}
-                        className="w-full bg-primary text-white py-2.5 px-4 rounded-xl hover:bg-primary-dark transition-all font-medium shadow-sm hover:shadow-md"
-                      >
-                        Login to apply
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
+              {selectedLocation && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                  {selectedLocation}
+                  <button onClick={() => setSelectedLocation('')} className="ml-1 text-gray-400 hover:text-gray-700">×</button>
+                </span>
+              )}
+              {selectedJobType && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium" style={JOB_TYPE_STYLES[selectedJobType] ? { background: JOB_TYPE_STYLES[selectedJobType].bg, color: JOB_TYPE_STYLES[selectedJobType].color } : { background: '#f3f4f6', color: '#374151' }}>
+                  {JOB_TYPE_STYLES[selectedJobType]?.label || selectedJobType}
+                  <button onClick={() => setSelectedJobType('')} className="ml-1 opacity-60 hover:opacity-100">×</button>
+                </span>
+              )}
+              <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-700 underline underline-offset-2">
+                Clear all
+              </button>
             </div>
           )}
         </div>
+
+        {/* Results count */}
+        {!loading && filteredJobs.length > 0 && (
+          <p className="text-sm text-gray-400 mb-4">{filteredJobs.length} {filteredJobs.length === 1 ? 'role' : 'roles'} found</p>
+        )}
+
+        {/* Empty state */}
+        {filteredJobs.length === 0 ? (
+          <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
+            <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            {jobs.length === 0 ? (
+              <>
+                <p className="text-gray-700 font-medium">No jobs available yet</p>
+                <p className="text-gray-400 text-sm mt-1">Check back soon for new opportunities</p>
+              </>
+            ) : (
+              <>
+                <p className="text-gray-700 font-medium">No jobs match your filters</p>
+                <p className="text-gray-400 text-sm mt-1">Try adjusting your search</p>
+                <button
+                  onClick={clearFilters}
+                  className="mt-4 px-4 py-2 text-sm font-medium text-white rounded-lg transition-all"
+                  style={{ background: BRAND }}
+                >
+                  Clear filters
+                </button>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {filteredJobs.map(job => {
+              const hasApplied = job.applications && job.applications.length > 0;
+              const typeStyle = JOB_TYPE_STYLES[job.job_type] || { bg: '#f3f4f6', color: '#374151', label: job.job_type };
+              const appStatus = hasApplied ? job.applications![0].status : null;
+              const statusStyle = appStatus ? STATUS_STYLES[appStatus] : null;
+
+              return (
+                <div
+                  key={job.id}
+                  className="bg-white rounded-2xl border border-gray-100 p-6 flex flex-col hover:border-gray-200 hover:shadow-md transition-all"
+                >
+                  {/* Top row — type badge */}
+                  <div className="flex justify-between items-start mb-3">
+                    <span
+                      className="text-xs font-medium px-2.5 py-1 rounded-full"
+                      style={{ background: typeStyle.bg, color: typeStyle.color }}
+                    >
+                      {typeStyle.label}
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      {new Date(job.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                    </span>
+                  </div>
+
+                  {/* Title */}
+                  <h2 className="text-base font-semibold text-gray-900 mb-1 leading-snug">{job.title}</h2>
+
+                  {/* Company */}
+                  <p className="text-sm font-medium mb-0.5" style={{ color: BRAND }}>{job.companies?.name || 'Company'}</p>
+
+                  {/* Location — truncated */}
+                  <p className="text-xs text-gray-400 mb-3 truncate" title={job.location}>
+                    {job.location}
+                  </p>
+
+                  {/* Description preview */}
+                  <p className="text-sm text-gray-500 mb-4 line-clamp-2 flex-1">
+                    {job.description}
+                  </p>
+
+                  {/* Meta row */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">{job.pay}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{SHIFT_LABELS[job.shift_timing] || job.shift_timing} shift</p>
+                    </div>
+                    <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-lg">
+                      {job.workers_needed} {job.workers_needed === 1 ? 'opening' : 'openings'}
+                    </span>
+                  </div>
+
+                  {/* CTA */}
+                  {user && profile?.role === 'worker' ? (
+                    hasApplied ? (
+                      <div
+                        className="w-full py-2.5 px-4 rounded-xl text-center text-sm font-medium"
+                        style={{ background: statusStyle?.bg || '#f3f4f6', color: statusStyle?.color || '#374151' }}
+                      >
+                        Applied · {appStatus!.charAt(0).toUpperCase() + appStatus!.slice(1)}
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleApply(job.id)}
+                        disabled={applying === job.id}
+                        className="w-full py-2.5 px-4 rounded-xl text-sm font-medium text-white transition-all disabled:opacity-60"
+                        style={{ background: applying === job.id ? '#a8a4f0' : BRAND }}
+                      >
+                        {applying === job.id ? 'Applying...' : 'Apply now'}
+                      </button>
+                    )
+                  ) : user ? (
+                    <div className="w-full bg-gray-50 text-gray-400 py-2.5 px-4 rounded-xl text-center text-sm">
+                      Only workers can apply
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => window.location.href = '/login'}
+                      className="w-full py-2.5 px-4 rounded-xl text-sm font-medium text-white transition-all"
+                      style={{ background: BRAND }}
+                      onMouseEnter={e => (e.currentTarget.style.background = BRAND_DARK)}
+                      onMouseLeave={e => (e.currentTarget.style.background = BRAND)}
+                    >
+                      Log in to apply
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
