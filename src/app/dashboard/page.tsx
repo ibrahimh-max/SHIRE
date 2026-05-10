@@ -25,7 +25,6 @@ interface EmployerJob {
     profiles: {
       id: string;
       name: string;
-      email: string;
     };
   }[];
 }
@@ -115,8 +114,8 @@ export default function Dashboard() {
             created_at,
             profiles(
               id,
-              name,
-              email
+              name
+            
             )
           )
         `)
@@ -459,14 +458,14 @@ export default function Dashboard() {
                                 key={application.id}
                                 className="border border-gray-200 rounded-lg p-4"
                               >
-                                <div className="flex justify-between items-start">
+                               <div className="flex justify-between items-start">
                                   <div>
                                     <p className="font-medium">
                                       {application.profiles?.name || 'Unknown'}
                                     </p>
                                     <p className="text-sm text-gray-600">
-                                      {application.profiles?.email || 'No email'}
-                                    </p>
+      Applicant ID: {application.user_id}
+</p>
                                     <p className="text-xs text-gray-500 mt-1">
                                       Applied: {new Date(application.created_at).toLocaleDateString()}
                                     </p>
