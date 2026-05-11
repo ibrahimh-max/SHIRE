@@ -27,8 +27,6 @@ export default function Signup() {
     setLoading(true);
     setError('');
 
-    console.log('🔐 Attempting signup for:', formData.email, 'as', formData.role);
-
     try {
       // Step 1: Create user account
       const { data, error } = await supabase.auth.signUp({
@@ -43,21 +41,15 @@ export default function Signup() {
       });
 
       if (error) {
-        console.error('❌ Signup error:', error);
         setError(error.message);
         setLoading(false);
         return;
       }
-
-      console.log('✅ Auth signup successful, user:', data.user?.id);
-      console.log('� Profile creation will be handled by backend trigger');
       
       // Step 2: Show success and redirect to login (no auto-login)
-      console.log('🎉 Signup flow completed, redirecting to login');
       router.push('/login?message=Account created successfully! Please check your email to verify your account.');
       
     } catch (err) {
-      console.error('❌ Signup exception:', err);
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
