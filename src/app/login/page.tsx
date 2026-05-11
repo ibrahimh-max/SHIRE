@@ -26,11 +26,8 @@ export default function Login() {
 
   // Handle redirect if user is already logged in
   useEffect(() => {
-    console.log('🔍 Login page auth check:', { loading, authInitialized, hasUser: !!user });
-    
     // Only redirect if auth is initialized and user exists
     if (authInitialized && user && !redirecting) {
-      console.log('✅ Login page: User already authenticated, redirecting to dashboard');
       setRedirecting(true);
       router.push('/dashboard');
     }
@@ -48,8 +45,6 @@ export default function Login() {
     setError('');
     setRedirecting(true);
 
-    console.log('🔐 Attempting login for:', formData.email);
-
     try {
       // Step 1: Authenticate user
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -58,15 +53,11 @@ export default function Login() {
       });
 
       if (error) {
-        console.error('❌ Login error:', error);
         setError(error.message);
         setRedirecting(false);
         setSubmitting(false);
         return;
       }
-
-      console.log('✅ Authentication successful, user:', data.user?.id);
-      console.log('⏳ Waiting for auth context to update...');
       
       // Step 2: Wait for auth context to be fully initialized with the new session
       let attempts = 0;
@@ -79,16 +70,12 @@ export default function Login() {
         // Check if session is established
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user && session.user.id === data.user?.id) {
-          console.log(`✅ Session verified on attempt ${attempts}, user: ${session.user.id}`);
           sessionVerified = true;
           break;
         }
-        
-        console.log(`⏳ Session verification attempt ${attempts}, session exists: !!session}`);
       }
       
       if (!sessionVerified) {
-        console.error('❌ Failed to verify session after login');
         setError('Login successful but session verification failed. Please try again.');
         setRedirecting(false);
         setSubmitting(false);
@@ -96,15 +83,12 @@ export default function Login() {
       }
       
       // Step 3: Wait a bit more for auth context to fully initialize
-      console.log('⏳ Waiting for auth context initialization...');
       await new Promise(resolve => setTimeout(resolve, 500));
       
       // Step 4: Redirect to dashboard
-      console.log('🎯 Login flow completed, redirecting to dashboard');
       router.push('/dashboard');
       
     } catch (err) {
-      console.error('❌ Login exception:', err);
       setError('An unexpected error occurred. Please try again.');
       setRedirecting(false);
       setSubmitting(false);
