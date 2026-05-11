@@ -1,6 +1,6 @@
 'use client';
 
-const DEV_MODE = true;
+const DEV_MODE = false;
 const DEV_ROLE = 'worker';
 
 import { createContext, useContext, useEffect, useState } from 'react';
