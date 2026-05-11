@@ -56,31 +56,19 @@ export default function Dashboard() {
 
   // Handle authentication redirect
   useEffect(() => {
-    console.log('🔍 Dashboard auth state:', {
-      loading,
-      authInitialized,
-      hasUser: !!user,
-      hasProfile: !!profile
-    });
-
     if (loading || !authInitialized) {
       return;
     }
 
     if (!user) {
-      console.log('🚪 No authenticated user, redirecting to login');
       router.push('/login');
       return;
     }
-
-    console.log('✅ Dashboard access granted');
   }, [user, profile, loading, authInitialized, router]);
 
   // Fetch dashboard data
   useEffect(() => {
     if (!user || !profile) return;
-
-    console.log('📊 Loading dashboard data for:', profile.role);
 
     if (profile.role === 'employer') {
       fetchEmployerJobs();
@@ -121,14 +109,12 @@ export default function Dashboard() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('❌ Employer jobs fetch error:', error);
         setError(error.message);
         return;
       }
 
       setEmployerJobs(data || []);
     } catch (err) {
-      console.error('❌ Employer jobs exception:', err);
       setError('Failed to fetch jobs');
     } finally {
       setDashboardLoading(false);
@@ -157,14 +143,12 @@ export default function Dashboard() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('❌ Worker applications fetch error:', error);
         setError(error.message);
         return;
       }
 
       setWorkerApplications(data || []);
     } catch (err) {
-      console.error('❌ Worker applications exception:', err);
       setError('Failed to fetch applications');
     } finally {
       setDashboardLoading(false);
@@ -174,24 +158,18 @@ export default function Dashboard() {
   // Update application status
   const updateApplicationStatus = async (applicationId: string, newStatus: 'accepted' | 'rejected') => {
     try {
-      console.log(`🔄 Updating application ${applicationId} to ${newStatus}`);
-      
       const { error } = await supabase
         .from('applications')
         .update({ status: newStatus })
         .eq('id', applicationId);
 
       if (error) {
-        console.error('❌ Failed to update application status:', error);
         setError('Failed to update application status');
         return;
       }
-
-      console.log(`✅ Application ${applicationId} updated to ${newStatus}`);
       
       await fetchEmployerJobs();
     } catch (err) {
-      console.error('❌ Exception updating application status:', err);
       setError('Failed to update application status');
     }
   };
