@@ -115,11 +115,11 @@ export default function CreateCompanyPage() {
                 className="w-full border rounded-lg px-3 py-2"
               >
                 <option value="">Select Type</option>
-                <option value="hotel">Hotel</option>
-                <option value="restaurant">Restaurant</option>
-                <option value="cafe">Cafe</option>
-                <option value="catering">Catering</option>
-                <option value="event venue">Event Venue</option>
+                <option value="Restaraunt">Hotel</option>
+                <option value="Theme Park">Restaurant</option>
+                <option value="Resort">Cafe</option>
+                <option value="Startup">Catering</option>
+                <option value="MNC">Event Venue</option>
               </select>
             </div>
 
