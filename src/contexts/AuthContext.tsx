@@ -1,7 +1,7 @@
 'use client';
 
 const DEV_MODE = false;
-const DEV_ROLE = 'worker';
+const DEV_ROLE: 'worker' | 'employer' = 'worker';
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
