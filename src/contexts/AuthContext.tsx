@@ -78,7 +78,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
 
-    // DEV MODE
 
 
     // REAL AUTH FLOW
