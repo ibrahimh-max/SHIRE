@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
 if (DEV_MODE) {
 
-  const DEV_USER_ID = 'e50fe1da-b715-4d97-9d22-1582f123c530';
+  const DEV_USER_ID = '5fd2d9e0-5213-41b2-b934-d67c0c00d2ed';
 
   const mockUser = {
     id: DEV_USER_ID,
