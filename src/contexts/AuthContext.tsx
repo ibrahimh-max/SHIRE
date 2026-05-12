@@ -1,12 +1,11 @@
 'use client';
 
-const DEV_MODE = false;
-const DEV_ROLE: 'worker' | 'employer' = 'worker';
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { Profile } from '@/lib/supabase';
+
+const DEV_MODE = false;
 
 interface AuthContextType {
   user: User | null;
@@ -25,8 +24,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [authInitialized, setAuthInitialized] = useState(false);
 
-  // Fetch user profile from database
-  const fetchProfile = async (userId: string, retries = 8) => {
+  // Fetch profile
+  const fetchProfile = async (userId: string, retries = 5) => {
     for (let i = 0; i < retries; i++) {
       try {
         const { data, error } = await supabase
@@ -35,48 +34,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('id', userId)
           .maybeSingle();
 
-        // Handle case where profile doesn't exist (not an error with maybeSingle)
         if (error) {
-          if (i === retries - 1) {
-            // Failed to fetch profile after retries
-          } else {
-            await new Promise(resolve => setTimeout(resolve, 800)); // Wait before retry
+          if (i < retries - 1) {
+            await new Promise(resolve => setTimeout(resolve, 800));
+            continue;
           }
-          continue;
+
+          setProfile(null);
+          return;
         }
 
-        // Handle case where profile doesn't exist (data is null with maybeSingle)
         if (!data) {
-          if (i === retries - 1) {
-            setProfile(null); // Explicitly set to null when profile is missing
-          } else {
-            await new Promise(resolve => setTimeout(resolve, 800));
-          }
-          continue;
+          setProfile(null);
+          return;
         }
 
         setProfile(data);
-        return data;
-      } catch (err) {
-        if (i === retries - 1) {
-          // Exception in fetchProfile after retries
-        } else {
+        return;
+      } catch {
+        if (i < retries - 1) {
           await new Promise(resolve => setTimeout(resolve, 800));
+          continue;
         }
+
+        setProfile(null);
       }
     }
-    
-    setProfile(null); // Ensure profile is null if not found
   };
 
-  // Refresh profile data
+  // Refresh profile
   const refreshProfile = async () => {
     if (user) {
       await fetchProfile(user.id);
     }
   };
 
-  // Sign out user
+  // Sign out
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -84,52 +77,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(false);
   };
 
-  // Initialize auth state
   useEffect(() => {
-if (DEV_MODE) {
 
-  const DEV_USER_ID = '5fd2d9e0-5213-41b2-b934-d67c0c00d2ed';
+    // DEV MODE
+    if (DEV_MODE) {
 
-  const mockUser = {
-    id: DEV_USER_ID,
-    email: 'dev@shire.com',
-  } as User;
+      const DEV_USER_ID = '5fd2d9e0-5213-41b2-b934-d67c0c00d2ed';
 
-  const mockProfile = {
-    id: DEV_USER_ID,
-    name: DEV_ROLE === 'employer'
-      ? 'Dev Employer'
-      : 'Dev Worker',
-    role: DEV_ROLE,
-  };
+      const mockUser = {
+        id: DEV_USER_ID,
+        email: 'dev@shire.com',
+      } as User;
 
-  setUser(mockUser);
-  setProfile(mockProfile as any);
-  setLoading(false);
-  setAuthInitialized(true);
+      const mockProfile = {
+        id: DEV_USER_ID,
+        name: 'Dev User',
+        role: 'employer',
+      };
 
-  return;
-}
-    
-    // Get initial session
+      setUser(mockUser);
+      setProfile(mockProfile as Profile);
+      setLoading(false);
+      setAuthInitialized(true);
+
+      return;
+    }
+
+    // REAL AUTH FLOW
     const getInitialSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
+
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
         if (error) {
           setLoading(false);
           setAuthInitialized(true);
           return;
         }
-        
+
         if (session?.user) {
           setUser(session.user);
           await fetchProfile(session.user.id);
         } else {
-          // No session found
+          setUser(null);
+          setProfile(null);
         }
-      } catch (err) {
-        // Exception getting initial session
+
+      } catch {
+        setUser(null);
+        setProfile(null);
       } finally {
         setLoading(false);
         setAuthInitialized(true);
@@ -138,23 +137,26 @@ if (DEV_MODE) {
 
     getInitialSession();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session?.user) {
-          setUser(session.user);
-          await fetchProfile(session.user.id);
-        } else {
-          setUser(null);
-          setProfile(null);
-        }
-        setLoading(false);
+    // AUTH LISTENER
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_, session) => {
+
+      if (session?.user) {
+        setUser(session.user);
+        await fetchProfile(session.user.id);
+      } else {
+        setUser(null);
+        setProfile(null);
       }
-    );
+
+      setLoading(false);
+    });
 
     return () => {
       subscription.unsubscribe();
     };
+
   }, []);
 
   const value = {
@@ -163,17 +165,23 @@ if (DEV_MODE) {
     loading,
     authInitialized,
     signOut,
-    refreshProfile
+    refreshProfile,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
-// Hook to use auth context
+// Hook
 export function useAuth() {
   const context = useContext(AuthContext);
+
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
+
   return context;
 }
