@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic';
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -7,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Navigation from '@/components/Navigation';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+
+export const dynamic = 'force-dynamic';
 
 export default function Login() {
   const { user, loading, authInitialized } = useAuth();

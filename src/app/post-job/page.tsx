@@ -6,6 +6,8 @@ import Navigation from '@/components/Navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
+export const dynamic = 'force-dynamic';
+
 export default function PostJob() {
   const { user, profile, loading } = useAuth();
   const router = useRouter();
