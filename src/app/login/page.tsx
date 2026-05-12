@@ -6,10 +6,10 @@ import Navigation from '@/components/Navigation';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
-export const dynamic = 'force-dynamic';
-
 export default function Login() {
   const { user, authInitialized } = useAuth();
+
+  const [mounted, setMounted] = useState(false);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -22,13 +22,18 @@ export default function Login() {
 
   const router = useRouter();
 
+  // Ensure client-side rendering only
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Redirect if already logged in
   useEffect(() => {
-    if (authInitialized && user && !redirecting) {
+    if (mounted && authInitialized && user && !redirecting) {
       setRedirecting(true);
       router.push('/dashboard');
     }
-  }, [authInitialized, user, redirecting, router]);
+  }, [mounted, authInitialized, user, redirecting, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -66,6 +71,11 @@ export default function Login() {
       setSubmitting(false);
     }
   };
+
+  // Prevent prerender mismatch
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">
