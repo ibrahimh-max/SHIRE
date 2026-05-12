@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default function Login() {
   const { user, loading, authInitialized } = useAuth();

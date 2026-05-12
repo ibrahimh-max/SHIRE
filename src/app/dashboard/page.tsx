@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
+
 interface EmployerJob {
   id: string;
   title: string;
