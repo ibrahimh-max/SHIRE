@@ -5,7 +5,6 @@ import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { Profile } from '@/lib/supabase';
 
-const DEV_MODE = false;
 
 interface AuthContextType {
   user: User | null;
@@ -80,28 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
 
     // DEV MODE
-    if (DEV_MODE) {
 
-      const DEV_USER_ID = '5fd2d9e0-5213-41b2-b934-d67c0c00d2ed';
-
-      const mockUser = {
-        id: DEV_USER_ID,
-        email: 'dev@shire.com',
-      } as User;
-
-      const mockProfile = {
-        id: DEV_USER_ID,
-        name: 'Dev User',
-        role: 'employer',
-      };
-
-      setUser(mockUser);
-      setProfile(mockProfile as Profile);
-      setLoading(false);
-      setAuthInitialized(true);
-
-      return;
-    }
 
     // REAL AUTH FLOW
     const getInitialSession = async () => {
