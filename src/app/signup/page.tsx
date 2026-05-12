@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Navigation from '@/components/Navigation';
 import { supabase } from '@/lib/supabase';
 
+export const dynamic = 'force-dynamic';
+
 export default function Signup() {
   const [formData, setFormData] = useState({
     name: '',
