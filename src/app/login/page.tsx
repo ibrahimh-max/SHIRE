@@ -37,22 +37,33 @@ export default function Login() {
   }, [mounted, authInitialized, user, redirecting, router]);
 
   // ✅ ADD THIS FUNCTION - Google Sign In
-  const signInWithGoogle = async () => {
+const signInWithGoogle = async () => {
+
+  try {
+
     setGoogleLoading(true);
     setError('');
-    
-    try {
-      await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-        },
-      });
-    } catch (err) {
-      setError('Failed to sign in with Google. Please try again.');
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+
+    if (error) {
+      setError(error.message);
       setGoogleLoading(false);
     }
-  };
+
+  } catch {
+
+    setError('Failed to sign in with Google.');
+    setGoogleLoading(false);
+
+  }
+};
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
