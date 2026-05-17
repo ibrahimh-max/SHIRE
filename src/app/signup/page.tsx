@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/Navigation';
 import { supabase } from '@/lib/supabase';
@@ -8,6 +8,8 @@ import { supabase } from '@/lib/supabase';
 export default function Signup() {
 
   const router = useRouter();
+
+  const [mounted, setMounted] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -20,6 +22,11 @@ export default function Signup() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  // Prevent hydration issues
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -111,6 +118,10 @@ export default function Signup() {
     }
   };
 
+  if (!mounted) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-background">
 
@@ -156,7 +167,7 @@ export default function Signup() {
             </div>
           )}
 
-          {/* Google Signup Button */}
+          {/* Google Signup */}
           <button
             onClick={signUpWithGoogle}
             disabled={googleLoading || loading || success}
@@ -169,7 +180,6 @@ export default function Signup() {
               </>
             ) : (
               <>
-                {/* Google Icon */}
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
