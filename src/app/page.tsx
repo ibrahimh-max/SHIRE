@@ -41,14 +41,14 @@ export default function HomePage() {
               href="/jobs"
               className="bg-primary text-white px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:scale-[1.02] transition-all"
             >
-              Find Jobs
+              Get Started
             </Link>
 
             <Link
               href="/signup"
               className="border border-primary/20 bg-white/70 backdrop-blur text-foreground px-8 py-4 rounded-2xl font-medium text-lg hover:bg-primary/5 transition-all"
             >
-              Post a Job
+              Explore Jobs
             </Link>
 
           </div>
@@ -219,14 +219,14 @@ export default function HomePage() {
               href="/signup"
               className="bg-primary text-white px-8 py-4 rounded-2xl font-medium shadow-lg hover:scale-[1.02] transition-all"
             >
-              Get Started
+              Post a Job
             </Link>
 
             <Link
               href="/jobs"
               className="border border-primary/20 bg-white px-8 py-4 rounded-2xl font-medium hover:bg-primary/5 transition-all"
             >
-              Explore Jobs
+              Find Jobs
             </Link>
 
           </div>

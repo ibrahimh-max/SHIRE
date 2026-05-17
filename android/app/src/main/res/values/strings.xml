@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SHIRE</string>
+    <string name="title_activity_main">SHIRE</string>
+    <string name="package_name">com.shire.app</string>
+    <string name="custom_url_scheme">com.shire.app</string>
+</resources>
