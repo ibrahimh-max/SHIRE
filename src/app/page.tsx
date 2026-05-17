@@ -38,14 +38,14 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-14">
 
             <Link
-              href="/jobs"
+              href="/signup"
               className="bg-primary text-white px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:scale-[1.02] transition-all"
             >
               Get Started
             </Link>
 
             <Link
-              href="/signup"
+              href="/jobs"
               className="border border-primary/20 bg-white/70 backdrop-blur text-foreground px-8 py-4 rounded-2xl font-medium text-lg hover:bg-primary/5 transition-all"
             >
               Explore Jobs
