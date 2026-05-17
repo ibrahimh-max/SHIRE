@@ -21,6 +21,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
         </AuthProvider>
+        <p>Start your hospitality journey today</p>
       </body>
     </html>
   );
