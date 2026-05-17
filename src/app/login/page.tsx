@@ -49,6 +49,9 @@ const signInWithGoogle = async () => {
 
       options: {
         redirectTo: `${window.location.origin}/dashboard`,
+        queryParams: {
+        prompt: 'select_account',
+},
       },
     });
 
