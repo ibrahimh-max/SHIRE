@@ -1,6 +1,6 @@
-# SHIRE
+# CREWZI
 
-SHIRE is a hospitality hiring platform built for the F&B and hospitality industry.  
+CREWZI is a hospitality hiring platform built for the F&B and hospitality industry.  
 It connects workers looking for jobs with hotels, restaurants, cafes, and venues looking to hire staff.
 
 The platform supports:

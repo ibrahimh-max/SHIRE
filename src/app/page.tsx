@@ -20,17 +20,17 @@ export default function HomePage() {
 
           {/* Heading */}
           <h1 className="text-5xl md:text-7xl font-bold text-foreground leading-tight mb-6">
-            Hire hospitality
+            The fastest way to
             <br />
             staff{' '}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              faster
+            your business
             </span>
           </h1>
 
           {/* Subheading */}
           <p className="text-lg md:text-xl text-foreground/60 max-w-3xl mx-auto mb-10 leading-relaxed">
-            SHIRE helps hotels, restaurants, cafes, and event businesses
+            CREWZI helps hotels, restaurants, cafes, and event businesses
             connect with reliable local workers quickly and efficiently.
           </p>
 
@@ -86,7 +86,7 @@ export default function HomePage() {
 
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-foreground mb-4">
-              How SHIRE Works
+              How CREWZI Works
             </h2>
 
             <p className="text-foreground/60 max-w-2xl mx-auto">
@@ -206,7 +206,7 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto px-4 text-center">
 
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Start hiring faster with SHIRE
+            Start hiring faster with CREWZI
           </h2>
 
           <p className="text-lg text-foreground/60 mb-10 max-w-2xl mx-auto">

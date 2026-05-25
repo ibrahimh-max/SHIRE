@@ -138,7 +138,7 @@ export default function Signup() {
           <div className="text-center mb-8">
 
             <h1 className="text-3xl font-bold text-foreground">
-              Join SHIRE
+              Join CREWZI
             </h1>
 
             <p className="text-foreground/60 mt-2">

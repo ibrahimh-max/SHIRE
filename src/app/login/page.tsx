@@ -124,7 +124,7 @@ const signInWithGoogle = async () => {
             </h1>
 
             <p className="text-foreground/60 mt-2">
-              Sign in to your SHIRE account
+              Sign in to your CREWZI account
             </p>
           </div>
 

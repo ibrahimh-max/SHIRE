@@ -163,4 +163,3 @@ export function useAuth() {
   return context;
 }
 
-// shire is not available on vercel//

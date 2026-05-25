@@ -18,7 +18,7 @@ export default function Navigation() {
           {/* Left — logo + links */}
           <div className="flex items-center gap-8">
             <Link href="/" className="text-xl font-bold tracking-tight" style={{ color: '#6C63FF' }}>
-              SHIRE
+              CREWZI
             </Link>
 
             <div className="hidden md:flex items-center gap-1">

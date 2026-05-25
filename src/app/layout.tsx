@@ -6,7 +6,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'SHIRE - Hospitality Hiring Platform',
+  title: 'CREWZI - Hospitality Hiring Platform',
   description: 'Connect with hospitality jobs and talent',
 };
 
