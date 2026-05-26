@@ -1,34 +1,54 @@
-'use client'
+'use client';
 
-import { useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 
-export default function AuthCallbackPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+function AuthCallbackContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const code = searchParams.get('code')
+    const handleCallback = async () => {
+      const code = searchParams.get('code');
+      const next = searchParams.get('next') ?? '/dashboard';
 
-    const finishLogin = async () => {
-      if (!code) {
-        router.replace('/login')
-        return
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (!error) {
+          router.push(next);
+        } else {
+          router.push('/login?error=Unable to verify email');
+        }
+      } else {
+        router.push('/login');
       }
+    };
 
-      const { error } = await supabase.auth.exchangeCodeForSession(code)
+    handleCallback();
+  }, [router, searchParams]);
 
-      if (error) {
-        router.replace('/login')
-        return
-      }
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-foreground/60">Completing sign in...</p>
+      </div>
+    </div>
+  );
+}
 
-      router.replace('/dashboard')
-    }
-
-    void finishLogin()
-  }, [router, searchParams])
-
-  return <p>Signing you in...</p>
+export default function AuthCallback() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-foreground/60">Loading...</p>
+        </div>
+      </div>
+    }>
+      <AuthCallbackContent />
+    </Suspense>
+  );
 }
