@@ -24,8 +24,8 @@ interface JobWithCompany {
   }[];
 }
 
-const BRAND = '#6C63FF';
-const BRAND_DARK = '#5a52e0';
+const BRAND = '#00ADB5';
+const BRAND_DARK = '#008C93';
 
 const JOB_TYPE_STYLES: Record<string, { bg: string; color: string; label: string }> = {
   'full-time':  { bg: '#EEEDFE', color: '#534AB7', label: 'Full-time' },
@@ -77,30 +77,90 @@ export default function Jobs() {
     setFilteredJobs(filtered);
   }, [searchTerm, selectedLocation, selectedJobType, jobs]);
 
-  const fetchJobs = async () => {
-    try {
+const fetchJobs = async () => {
+  try {
+
+    setLoading(true);
+    setError('');
+
+    // Guest / employer query
+    if (!user || profile?.role !== 'worker') {
+
       const { data, error } = await supabase
         .from('jobs')
-        .select('*, companies(name), applications(id, status, user_id)')
+        .select(`
+          *,
+          companies(name)
+        `)
         .order('created_at', { ascending: false });
 
-      if (error) { setError(error.message); return; }
-
-      let processed = data || [];
-      if (user && profile?.role === 'worker') {
-        processed = data?.map(job => ({
-          ...job,
-          applications: job.applications?.filter((app: any) => app.user_id === user.id) || [],
-        })) || [];
+      if (error) {
+        setError(error.message);
+        return;
       }
+
+      const processed = data || [];
 
       setJobs(processed);
       setFilteredJobs(processed);
-      setUniqueLocations([...new Set(processed.map(j => j.location).filter(Boolean))]);
-      setUniqueJobTypes([...new Set(processed.map(j => j.job_type).filter(Boolean))]);
-    } catch { setError('Failed to fetch jobs'); }
-    finally { setLoading(false); }
-  };
+
+      setUniqueLocations([
+        ...new Set(processed.map(j => j.location).filter(Boolean))
+      ]);
+
+      setUniqueJobTypes([
+        ...new Set(processed.map(j => j.job_type).filter(Boolean))
+      ]);
+
+      return;
+    }
+
+    // Worker query (only fetch THIS user's applications)
+    const { data, error } = await supabase
+      .from('jobs')
+      .select(`
+        *,
+        companies(name),
+        applications(
+          id,
+          status,
+          user_id
+        )
+      `)
+      .eq('applications.user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    const processed =
+      data?.map(job => ({
+        ...job,
+        applications:
+          job.applications?.filter(
+            (app: any) => app.user_id === user.id
+          ) || [],
+      })) || [];
+
+    setJobs(processed);
+    setFilteredJobs(processed);
+
+    setUniqueLocations([
+      ...new Set(processed.map(j => j.location).filter(Boolean))
+    ]);
+
+    setUniqueJobTypes([
+      ...new Set(processed.map(j => j.job_type).filter(Boolean))
+    ]);
+
+  } catch {
+    setError('Failed to fetch jobs');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleApply = async (jobId: string) => {
     if (!user || profile?.role !== 'worker') { setError('Only workers can apply for jobs'); return; }

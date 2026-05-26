@@ -186,7 +186,7 @@ export default function HomePage() {
               '🍽 Waiter',
               '👨‍🍳 Chef',
               '☕ Barista',
-              '🧹 Housekeeping',
+              '🚗 Valet',
               '🎉 Event Staff',
             ].map((role) => (
               <div
