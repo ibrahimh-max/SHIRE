@@ -180,12 +180,12 @@ export default function Dashboard() {
   // Initial auth loading
   if (loading || !authInitialized) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Navigation />
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your account...</p>
+            <p className="text-foreground/60">Loading your account...</p>
           </div>
         </div>
       </div>
@@ -197,7 +197,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Navigation />
 
       <div className="py-8 px-4">
@@ -205,10 +205,10 @@ export default function Dashboard() {
 
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-foreground">
               Dashboard
             </h1>
-            <p className="text-gray-600 mt-2">
+            <p className="text-foreground/60 mt-2">
               Welcome back, {profile?.name || 'User'} 👋
             </p>
           </div>
@@ -223,10 +223,10 @@ export default function Dashboard() {
           {/* Missing profile */}
           {user && !profile && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
-              <h2 className="text-xl font-semibold mb-2 text-gray-900">
+              <h2 className="text-xl font-semibold mb-2 text-foreground">
                 Profile not found
               </h2>
-              <p className="text-gray-600 mb-4">
+              <p className="text-foreground/60 mb-4">
                 Your account exists but profile data is missing.
               </p>
               <button
@@ -240,9 +240,9 @@ export default function Dashboard() {
 
           {/* WORKER DASHBOARD */}
           {profile?.role === 'worker' && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold text-foreground">
                   Your Applications
                 </h2>
                 <Link
@@ -256,11 +256,11 @@ export default function Dashboard() {
               {dashboardLoading ? (
                 <div className="text-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                  <p className="text-gray-600">Loading applications...</p>
+                  <p className="text-foreground/60">Loading applications...</p>
                 </div>
               ) : workerApplications.length === 0 ? (
                 <div className="text-center py-10">
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-foreground/60 mb-4">
                     You have not applied to any jobs yet.
                   </p>
                   <Link
@@ -275,24 +275,24 @@ export default function Dashboard() {
                   {workerApplications.map((application) => (
                     <div
                       key={application.id}
-                      className="border border-gray-200 rounded-xl p-5 hover:shadow-sm transition-shadow"
+                      className="border border-primary/10 rounded-xl p-5 hover:shadow-sm transition-shadow"
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-lg text-gray-900">
+                          <h3 className="font-semibold text-lg text-foreground">
                             {application.jobs?.title}
                           </h3>
-                          <p className="text-sm text-gray-600 mt-0.5">
+                          <p className="text-sm text-foreground/60 mt-0.5">
                             {application.jobs?.companies?.name}
                           </p>
-                          <p className="text-sm text-gray-600 mt-2">
+                          <p className="text-sm text-foreground/60 mt-2">
                             📍 {application.jobs?.location}
                           </p>
                           <div className="mt-2 flex items-center gap-4 text-sm">
                             <span className="font-medium text-primary">
                               {application.jobs?.pay}
                             </span>
-                            <span className="text-gray-500">
+                            <span className="text-foreground/40">
                               Applied: {new Date(application.created_at).toLocaleDateString()}
                             </span>
                           </div>
@@ -302,10 +302,10 @@ export default function Dashboard() {
                           {/* Status Badge */}
                           <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
                             application.status === 'accepted' 
-                              ? 'bg-green-50 text-green-700'
+                              ? 'bg-primary/10 text-primary'
                               : application.status === 'rejected'
                               ? 'bg-red-50 text-red-700'
-                              : 'bg-purple-50 text-purple-700'
+                              : 'bg-primary/5 text-primary'
                           }`}>
                             {application.status === 'accepted' && '✓ '}
                             {application.status === 'rejected' && '✗ '}
@@ -315,7 +315,7 @@ export default function Dashboard() {
                           {/* Status Message */}
                           <div className="mt-2 text-sm">
                             {application.status === 'accepted' && (
-                              <p className="text-green-600 font-medium">
+                              <p className="text-primary font-medium">
                                 Congratulations! You've been accepted.
                               </p>
                             )}
@@ -325,7 +325,7 @@ export default function Dashboard() {
                               </p>
                             )}
                             {application.status === 'pending' && (
-                              <p className="text-gray-500">
+                              <p className="text-foreground/40">
                                 Under review
                               </p>
                             )}
@@ -343,7 +343,7 @@ export default function Dashboard() {
           {profile?.role === 'employer' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-semibold text-gray-900">
+                <h2 className="text-2xl font-semibold text-foreground">
                   Employer Dashboard
                 </h2>
                 <Link
@@ -355,16 +355,16 @@ export default function Dashboard() {
               </div>
 
               {dashboardLoading ? (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+                <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-8 text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                  <p className="text-gray-600">Loading your jobs...</p>
+                  <p className="text-foreground/60">Loading your jobs...</p>
                 </div>
               ) : employerJobs.length === 0 ? (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-8 text-center">
+                  <h3 className="text-xl font-semibold text-foreground mb-3">
                     No jobs posted yet
                   </h3>
-                  <p className="text-gray-600 mb-5">
+                  <p className="text-foreground/60 mb-5">
                     Start hiring by posting your first job.
                   </p>
                   <Link
@@ -379,19 +379,19 @@ export default function Dashboard() {
                   {employerJobs.map((job) => (
                     <div
                       key={job.id}
-                      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+                      className="bg-white rounded-2xl shadow-sm border border-primary/10 overflow-hidden"
                     >
                       {/* Job Header */}
-                      <div className="p-5 border-b border-gray-100">
+                      <div className="p-5 border-b border-primary/10">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="font-semibold text-lg text-gray-900">
+                            <h3 className="font-semibold text-lg text-foreground">
                               {job.title}
                             </h3>
-                            <p className="text-gray-600 text-sm mt-0.5">
+                            <p className="text-foreground/60 text-sm mt-0.5">
                               {job.companies?.name}
                             </p>
-                            <p className="text-sm text-gray-600 mt-2">
+                            <p className="text-sm text-foreground/60 mt-2">
                               📍 {job.location}
                             </p>
                           </div>
@@ -399,7 +399,7 @@ export default function Dashboard() {
                             <p className="font-semibold text-primary">
                               {job.pay}
                             </p>
-                            <p className="text-sm text-gray-500 mt-1">
+                            <p className="text-sm text-foreground/40 mt-1">
                               {job.applications?.length || 0} applicants
                             </p>
                           </div>
@@ -408,24 +408,24 @@ export default function Dashboard() {
 
                       {/* Applicants Section */}
                       <div className="p-5">
-                        <h4 className="font-medium text-gray-900 mb-4">Applicants</h4>
+                        <h4 className="font-medium text-foreground mb-4">Applicants</h4>
                         
                         {job.applications && job.applications.length > 0 ? (
                           <div className="space-y-3">
                             {job.applications.map((application) => (
                               <div
                                 key={application.id}
-                                className="border border-gray-200 rounded-xl p-4 bg-gray-50/30"
+                                className="border border-primary/10 rounded-xl p-4 bg-background/30"
                               >
                                 <div className="flex justify-between items-start">
                                   <div className="flex-1">
-                                    <p className="font-medium text-gray-900">
+                                    <p className="font-medium text-foreground">
                                       {application.profiles?.name || 'Unknown'}
                                     </p>
-                                    <p className="text-sm text-gray-500 mt-0.5">
+                                    <p className="text-sm text-foreground/40 mt-0.5">
                                       Applicant ID: {application.user_id}
                                     </p>
-                                    <p className="text-xs text-gray-400 mt-1">
+                                    <p className="text-xs text-foreground/30 mt-1">
                                       Applied: {new Date(application.created_at).toLocaleDateString()}
                                     </p>
                                   </div>
@@ -434,10 +434,10 @@ export default function Dashboard() {
                                     {/* Status Badge */}
                                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                                       application.status === 'accepted' 
-                                        ? 'bg-green-50 text-green-700'
+                                        ? 'bg-primary/10 text-primary'
                                         : application.status === 'rejected'
                                         ? 'bg-red-50 text-red-700'
-                                        : 'bg-purple-50 text-purple-700'
+                                        : 'bg-primary/5 text-primary'
                                     }`}>
                                       {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
                                     </span>
@@ -447,7 +447,7 @@ export default function Dashboard() {
                                       <div className="flex gap-2">
                                         <button
                                           onClick={() => updateApplicationStatus(application.id, 'accepted')}
-                                          className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors"
+                                          className="px-3 py-1 bg-primary text-white text-sm rounded-lg hover:bg-primary-dark transition-colors"
                                         >
                                           Accept
                                         </button>
@@ -466,7 +466,7 @@ export default function Dashboard() {
                           </div>
                         ) : (
                           <div className="text-center py-8">
-                            <p className="text-gray-500">
+                            <p className="text-foreground/40">
                               No applicants yet for this position.
                             </p>
                           </div>
