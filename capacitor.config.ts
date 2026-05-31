@@ -1,9 +1,10 @@
-import type { CapacitorConfig } from '@capacitor/cli';
-
-const config: CapacitorConfig = {
-  appId: 'com.shire.app',
-  appName: 'SHIRE',
-  webDir: 'out',
+const config = {
+  appId: 'in.crewzi.app',
+  appName: 'CREWZI',
+  server: {
+    url: 'https://crewzi.in',
+    cleartext: false,
+  },
 };
 
 export default config;
