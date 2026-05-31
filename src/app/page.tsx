@@ -7,34 +7,28 @@ export default function HomePage() {
       {/* HERO SECTION */}
       <section className="relative">
 
-        {/* Background glow */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 blur-3xl rounded-full -translate-y-1/2 translate-x-1/3"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent/10 blur-3xl rounded-full translate-y-1/2 -translate-x-1/3"></div>
 
         <div className="relative max-w-6xl mx-auto px-4 py-24 md:py-32 text-center">
 
-          {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6">
             🚀 Hospitality Hiring Platform
           </div>
 
-          {/* Heading */}
           <h1 className="text-5xl md:text-7xl font-bold text-foreground leading-tight mb-6">
             The fastest way to
             <br />
-            staff{' '}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            your business
+              staff your business
             </span>
           </h1>
 
-          {/* Subheading */}
           <p className="text-lg md:text-xl text-foreground/60 max-w-3xl mx-auto mb-10 leading-relaxed">
             CREWZI helps hotels, restaurants, cafes, and event businesses
             connect with reliable local workers quickly and efficiently.
           </p>
 
-          {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-14">
 
             <Link
@@ -53,30 +47,83 @@ export default function HomePage() {
 
           </div>
 
-          {/* Quick Stats */}
+          {/* REPLACED STATS */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
 
             <div className="bg-white/70 backdrop-blur border border-primary/10 rounded-2xl p-5">
-              <p className="text-3xl font-bold text-foreground">50+</p>
-              <p className="text-sm text-foreground/50 mt-1">Hospitality Jobs</p>
+              <p className="font-semibold">🏨 Hotels</p>
             </div>
 
             <div className="bg-white/70 backdrop-blur border border-primary/10 rounded-2xl p-5">
-              <p className="text-3xl font-bold text-foreground">10+</p>
-              <p className="text-sm text-foreground/50 mt-1">Local Businesses</p>
+              <p className="font-semibold">🍽 Restaurants</p>
             </div>
 
             <div className="bg-white/70 backdrop-blur border border-primary/10 rounded-2xl p-5">
-              <p className="text-3xl font-bold text-foreground">24h</p>
-              <p className="text-sm text-foreground/50 mt-1">Average Hiring Time</p>
+              <p className="font-semibold">☕ Cafes</p>
             </div>
 
             <div className="bg-white/70 backdrop-blur border border-primary/10 rounded-2xl p-5">
-              <p className="text-3xl font-bold text-foreground">100%</p>
-              <p className="text-sm text-foreground/50 mt-1">Mobile Friendly</p>
+              <p className="font-semibold">🎉 Events</p>
             </div>
 
           </div>
+
+        </div>
+      </section>
+
+      {/* DOWNLOAD APP */}
+      <section className="py-20 border-t border-primary/10 bg-primary/5">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+
+          <h2 className="text-4xl font-bold mb-6">
+            Get CREWZI on Android
+          </h2>
+
+          <p className="text-lg text-foreground/60 mb-8">
+            Search jobs, apply instantly, and hire hospitality talent anytime.
+          </p>
+
+          <a
+            href="#"
+            className="inline-flex items-center bg-black text-white px-8 py-4 rounded-2xl font-medium"
+          >
+            📱 Download on Google Play
+          </a>
+
+        </div>
+      </section>
+
+      {/* TRUST SECTION */}
+      <section className="py-24">
+        <div className="max-w-6xl mx-auto px-4 text-center">
+
+          <h2 className="text-4xl font-bold mb-4">
+            Built for the Hospitality Industry
+          </h2>
+
+          <p className="text-foreground/60 max-w-2xl mx-auto mb-12">
+            CREWZI focuses exclusively on hospitality staffing and recruitment.
+          </p>
+
+          <div className="grid md:grid-cols-5 gap-4">
+
+            {[
+              '🏨 Hotels',
+              '🍽 Restaurants',
+              '☕ Cafes',
+              '🎉 Events',
+              '🍴 Cloud Kitchens',
+            ].map((item) => (
+              <div
+                key={item}
+                className="bg-white border border-primary/10 rounded-2xl p-6 shadow-sm"
+              >
+                {item}
+              </div>
+            ))}
+
+          </div>
+
         </div>
       </section>
 
@@ -96,77 +143,38 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-2 gap-8">
 
-            {/* Employers */}
             <div className="bg-white rounded-3xl border border-primary/10 shadow-sm p-8">
-              <div className="text-4xl mb-5">🏢</div>
-
               <h3 className="text-2xl font-semibold mb-6">
-                For Employers
+                🏢 For Employers
               </h3>
 
-              <div className="space-y-4 text-foreground/70">
-
-                <div className="flex items-start gap-3">
-                  <span className="font-bold text-primary">1.</span>
-                  <p>Create your company profile</p>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <span className="font-bold text-primary">2.</span>
-                  <p>Post hospitality job openings</p>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <span className="font-bold text-primary">3.</span>
-                  <p>Review applicants instantly</p>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <span className="font-bold text-primary">4.</span>
-                  <p>Hire reliable staff quickly</p>
-                </div>
-
-              </div>
+              <ul className="space-y-4 text-foreground/70">
+                <li>✓ Post jobs in minutes</li>
+                <li>✓ Find hospitality-focused talent</li>
+                <li>✓ Review applicants instantly</li>
+                <li>✓ Reduce hiring delays</li>
+              </ul>
             </div>
 
-            {/* Workers */}
             <div className="bg-white rounded-3xl border border-primary/10 shadow-sm p-8">
-              <div className="text-4xl mb-5">💼</div>
-
               <h3 className="text-2xl font-semibold mb-6">
-                For Workers
+                💼 For Workers
               </h3>
 
-              <div className="space-y-4 text-foreground/70">
-
-                <div className="flex items-start gap-3">
-                  <span className="font-bold text-primary">1.</span>
-                  <p>Create your worker profile</p>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <span className="font-bold text-primary">2.</span>
-                  <p>Browse local hospitality jobs</p>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <span className="font-bold text-primary">3.</span>
-                  <p>Apply instantly with one click</p>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <span className="font-bold text-primary">4.</span>
-                  <p>Track application status live</p>
-                </div>
-
-              </div>
+              <ul className="space-y-4 text-foreground/70">
+                <li>✓ Discover local opportunities</li>
+                <li>✓ Apply instantly</li>
+                <li>✓ Track application status</li>
+                <li>✓ Build your hospitality career</li>
+              </ul>
             </div>
 
           </div>
+
         </div>
       </section>
 
-      {/* JOB CATEGORIES */}
+      {/* JOB ROLES */}
       <section className="py-24">
         <div className="max-w-6xl mx-auto px-4">
 
@@ -198,6 +206,7 @@ export default function HomePage() {
             ))}
 
           </div>
+
         </div>
       </section>
 
@@ -230,9 +239,11 @@ export default function HomePage() {
             </Link>
 
           </div>
+
         </div>
       </section>
 
     </main>
   );
 }
+
