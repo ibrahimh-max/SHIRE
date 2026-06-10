@@ -138,12 +138,6 @@ export default function Signup() {
             </div>
           )}
 
-
-
-
-
-          </div>
-
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
 
@@ -280,5 +274,7 @@ export default function Signup() {
         </div>
 
       </div>
+
+    </div>
   );
 }
