@@ -56,6 +56,8 @@ export default function Dashboard() {
   const [workerApplications, setWorkerApplications] = useState<WorkerApplication[]>([]);
   const [dashboardLoading, setDashboardLoading] = useState(false);
   const [error, setError] = useState('');
+  const [totalCandidates, setTotalCandidates] = useState(0);
+  const [candidatesLoading, setCandidatesLoading] = useState(false);
 
   // Handle authentication redirect
   useEffect(() => {
@@ -67,6 +69,17 @@ export default function Dashboard() {
       router.push('/login');
       return;
     }
+
+    // Check if worker has required profile fields
+    if (profile && profile.role === 'worker') {
+      const requiredFields = ['phone', 'age', 'experience', 'preferred_role'];
+      const missingFields = requiredFields.filter(field => !profile[field as keyof typeof profile]);
+
+      if (missingFields.length > 0) {
+        router.push('/profile');
+        return;
+      }
+    }
   }, [user, profile, loading, authInitialized, router]);
 
   // Fetch dashboard data
@@ -74,12 +87,17 @@ export default function Dashboard() {
     if (!user || !profile) return;
 
     if (profile.role === 'employer') {
-      fetchEmployerJobs();
+      fetchTotalCandidates();
     }
 
-    if (profile.role === 'worker') {
-      fetchWorkerApplications();
-    }
+    // OLD JOBS/APPLICATIONS FLOW - COMMENTED OUT
+    // if (profile.role === 'employer') {
+    //   fetchEmployerJobs();
+    // }
+
+    // if (profile.role === 'worker') {
+    //   fetchWorkerApplications();
+    // }
   }, [user, profile]);
 
   const fetchEmployerJobs = async () => {
@@ -159,23 +177,49 @@ export default function Dashboard() {
   };
 
   // Update application status
-  const updateApplicationStatus = async (applicationId: string, newStatus: 'accepted' | 'rejected') => {
+  // Fetch total available candidates for employer
+  const fetchTotalCandidates = async () => {
+    setCandidatesLoading(true);
+    setError('');
+
     try {
-      const { error } = await supabase
-        .from('applications')
-        .update({ status: newStatus })
-        .eq('id', applicationId);
+      const { count, error } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'worker')
+        .eq('is_available', true);
 
       if (error) {
-        setError('Failed to update application status');
+        setError(error.message);
         return;
       }
-      
-      await fetchEmployerJobs();
+
+      setTotalCandidates(count || 0);
     } catch (err) {
-      setError('Failed to update application status');
+      setError('Failed to fetch candidates count');
+    } finally {
+      setCandidatesLoading(false);
     }
   };
+
+  // OLD JOBS/APPLICATIONS FLOW - COMMENTED OUT
+  // const updateApplicationStatus = async (applicationId: string, newStatus: 'accepted' | 'rejected') => {
+  //   try {
+  //     const { error } = await supabase
+  //       .from('applications')
+  //       .update({ status: newStatus })
+  //       .eq('id', applicationId);
+
+  //     if (error) {
+  //       setError('Failed to update application status');
+  //       return;
+  //     }
+      
+  //     await fetchEmployerJobs();
+  //   } catch (err) {
+  //     setError('Failed to update application status');
+  //   }
+  // };
 
   // Initial auth loading
   if (loading || !authInitialized) {
@@ -240,6 +284,94 @@ export default function Dashboard() {
 
           {/* WORKER DASHBOARD */}
           {profile?.role === 'worker' && (
+            <div className="space-y-6">
+              {/* Profile Status Card */}
+              <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-6">
+                <h2 className="text-xl font-semibold text-foreground mb-6">
+                  Your Profile Status
+                </h2>
+
+                {/* Check profile completion */}
+                {(() => {
+                  const requiredFields = ['phone', 'age', 'experience', 'preferred_role'];
+                  const missingFields = requiredFields.filter(field => !profile[field as keyof typeof profile]);
+                  const isComplete = missingFields.length === 0;
+                  const completionPercentage = Math.round(((requiredFields.length - missingFields.length) / requiredFields.length) * 100);
+
+                  return (
+                    <>
+                      {/* Profile Completion Status */}
+                      <div className="mb-6">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm font-medium text-foreground/70">
+                            Profile Completion
+                          </span>
+                          <span className={`text-sm font-semibold ${
+                            isComplete ? 'text-green-600' : 'text-foreground/60'
+                          }`}>
+                            {completionPercentage}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-foreground/10 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full transition-all ${
+                              isComplete ? 'bg-green-500' : 'bg-primary'
+                            }`}
+                            style={{ width: `${completionPercentage}%` }}
+                          ></div>
+                        </div>
+                      </div>
+
+                      {/* Profile Details */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        {/* Availability Status */}
+                        <div className="bg-background/50 rounded-xl p-4">
+                          <p className="text-sm text-foreground/60 mb-1">Availability Status</p>
+                          <div className="flex items-center gap-2">
+                            <span className={`w-3 h-3 rounded-full ${
+                              profile.is_available ? 'bg-green-500' : 'bg-red-500'
+                            }`}></span>
+                            <span className="font-medium text-foreground">
+                              {profile.is_available ? 'Available' : 'Not Available'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Preferred Role */}
+                        <div className="bg-background/50 rounded-xl p-4">
+                          <p className="text-sm text-foreground/60 mb-1">Preferred Role</p>
+                          <p className="font-medium text-foreground">
+                            {profile.preferred_role || 'Not set'}
+                          </p>
+                        </div>
+
+                        {/* Experience */}
+                        <div className="bg-background/50 rounded-xl p-4 md:col-span-2">
+                          <p className="text-sm text-foreground/60 mb-1">Experience</p>
+                          <p className="font-medium text-foreground">
+                            {profile.experience || 'Not set'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Complete Profile Button */}
+                      {!isComplete && (
+                        <Link
+                          href="/profile"
+                          className="inline-block bg-primary text-white px-6 py-3 rounded-xl hover:bg-primary-dark transition-colors shadow-sm font-medium"
+                        >
+                          Complete Profile
+                        </Link>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
+
+          {/* OLD WORKER DASHBOARD - APPLICATIONS VIEW - COMMENTED OUT
+          {profile?.role === 'worker' && (
             <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold text-foreground">
@@ -299,7 +431,6 @@ export default function Dashboard() {
                         </div>
 
                         <div className="text-right ml-4">
-                          {/* Status Badge */}
                           <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
                             application.status === 'accepted' 
                               ? 'bg-primary/10 text-primary'
@@ -312,7 +443,6 @@ export default function Dashboard() {
                             {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
                           </span>
 
-                          {/* Status Message */}
                           <div className="mt-2 text-sm">
                             {application.status === 'accepted' && (
                               <p className="text-primary font-medium">
@@ -338,8 +468,50 @@ export default function Dashboard() {
               )}
             </div>
           )}
+          */}
 
           {/* EMPLOYER DASHBOARD */}
+          {profile?.role === 'employer' && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-semibold text-foreground">
+                  Employer Dashboard
+                </h2>
+              </div>
+
+              {/* Candidates Overview Card */}
+              <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-8">
+                {candidatesLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-foreground/60">Loading candidates...</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-center mb-6">
+                      <p className="text-6xl font-bold text-primary mb-2">
+                        {totalCandidates}
+                      </p>
+                      <p className="text-foreground/60 text-lg">
+                        Available Candidates
+                      </p>
+                    </div>
+
+                    <div className="text-center">
+                      <Link
+                        href="/candidates"
+                        className="inline-block bg-primary text-white px-8 py-4 rounded-xl hover:bg-primary-dark transition-colors shadow-sm font-medium text-lg"
+                      >
+                        Browse Candidates
+                      </Link>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* OLD EMPLOYER DASHBOARD - JOBS/APPLICATIONS VIEW - COMMENTED OUT
           {profile?.role === 'employer' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center">
@@ -381,7 +553,6 @@ export default function Dashboard() {
                       key={job.id}
                       className="bg-white rounded-2xl shadow-sm border border-primary/10 overflow-hidden"
                     >
-                      {/* Job Header */}
                       <div className="p-5 border-b border-primary/10">
                         <div className="flex justify-between items-start">
                           <div>
@@ -406,7 +577,6 @@ export default function Dashboard() {
                         </div>
                       </div>
 
-                      {/* Applicants Section */}
                       <div className="p-5">
                         <h4 className="font-medium text-foreground mb-4">Applicants</h4>
                         
@@ -431,7 +601,6 @@ export default function Dashboard() {
                                   </div>
 
                                   <div className="flex items-center gap-2 ml-4">
-                                    {/* Status Badge */}
                                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                                       application.status === 'accepted' 
                                         ? 'bg-primary/10 text-primary'
@@ -442,7 +611,6 @@ export default function Dashboard() {
                                       {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
                                     </span>
 
-                                    {/* Action Buttons - Only show if pending */}
                                     {application.status === 'pending' && (
                                       <div className="flex gap-2">
                                         <button
@@ -478,6 +646,7 @@ export default function Dashboard() {
               )}
             </div>
           )}
+          */}
 
         </div>
       </div>

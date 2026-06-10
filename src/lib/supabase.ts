@@ -17,6 +17,13 @@ export interface Profile {
   role: 'worker' | 'employer';
   phone?: string;
   location?: string;
+  age?: number;
+  address?: string;
+  experience?: string;
+  availability?: 'Full Time' | 'Part Time' | 'Both';
+  preferred_role?: 'Waiter' | 'Chef' | 'Kitchen Helper' | 'Receptionist' | 'Housekeeping' | 'Barista' | 'Delivery Staff';
+  photo_url?: string;
+  is_available?: boolean;
   created_at: string;
   updated_at: string;
 }

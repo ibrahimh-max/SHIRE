@@ -22,12 +22,6 @@ export default function Navigation() {
             </Link>
 
             <div className="hidden md:flex items-center gap-1">
-              <Link
-                href="/jobs"
-                className="px-3 py-1.5 rounded-lg text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-primary/5 transition-all"
-              >
-                Jobs
-              </Link>
               {user && (
                 <Link
                   href="/dashboard"
@@ -36,6 +30,29 @@ export default function Navigation() {
                   Dashboard
                 </Link>
               )}
+              {user && profile?.role === 'worker' && (
+                <Link
+                  href="/profile"
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-primary/5 transition-all"
+                >
+                  Profile
+                </Link>
+              )}
+              {user && profile?.role === 'employer' && (
+                <Link
+                  href="/candidates"
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-primary/5 transition-all"
+                >
+                  Candidates
+                </Link>
+              )}
+              {/* OLD JOBS/APPLICATIONS FLOW - COMMENTED OUT
+              <Link
+                href="/jobs"
+                className="px-3 py-1.5 rounded-lg text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-primary/5 transition-all"
+              >
+                Jobs
+              </Link>
               {user && profile?.role === 'employer' && (
                 <Link
                   href="/post-job"
@@ -44,6 +61,7 @@ export default function Navigation() {
                   Post job
                 </Link>
               )}
+              */}
             </div>
           </div>
 
