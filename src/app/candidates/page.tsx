@@ -17,6 +17,7 @@ interface Candidate {
   availability?: 'Full Time' | 'Part Time' | 'Both';
   preferred_role?: 'Waiter' | 'Chef' | 'Kitchen Helper' | 'Receptionist' | 'Housekeeping' | 'Barista' | 'Delivery Staff';
   photo_url?: string;
+  resume_url?: string;
   is_available?: boolean;
 }
 
@@ -360,10 +361,32 @@ export default function CandidatesPage() {
 
                     {/* Available Badge */}
                     <div className="mt-4 pt-4 border-t border-primary/10">
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
-                        <span className="w-2 h-2 bg-primary rounded-full"></span>
-                        Available for hire
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                          <span className="w-2 h-2 bg-primary rounded-full"></span>
+                          Available for hire
+                        </span>
+
+                        {/* Resume Section */}
+                        {candidate.resume_url ? (
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center gap-1 text-xs font-medium text-green-600">
+                              <span className="text-sm">✓</span>
+                              Resume Available
+                            </span>
+                            <button
+                              onClick={() => window.open(candidate.resume_url, '_blank')}
+                              className="px-3 py-1 text-xs rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors"
+                            >
+                              View Resume
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-foreground/40">
+                            No resume
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

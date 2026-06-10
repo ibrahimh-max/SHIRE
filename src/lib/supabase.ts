@@ -23,6 +23,7 @@ export interface Profile {
   availability?: 'Full Time' | 'Part Time' | 'Both';
   preferred_role?: 'Waiter' | 'Chef' | 'Kitchen Helper' | 'Receptionist' | 'Housekeeping' | 'Barista' | 'Delivery Staff';
   photo_url?: string;
+  resume_url?: string;
   is_available?: boolean;
   created_at: string;
   updated_at: string;
