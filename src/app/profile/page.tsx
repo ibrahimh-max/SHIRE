@@ -112,19 +112,19 @@ export default function ProfilePage() {
       const fileName = `${user?.id}-${Date.now()}.${fileExt}`;
       const filePath = `resumes/${fileName}`;
 
-      // Upload to Supabase Storage
+      // Upload to Supabase Storage - Pointing to uppercase bucket 'RESUME'
       const { error: uploadError } = await supabase.storage
-        .from('resumes')
+        .from('RESUME')
         .upload(filePath, file);
 
       if (uploadError) {
-        setResumeError('Failed to upload resume');
+        setResumeError('Failed to upload resume to storage');
         return;
       }
 
-      // Get public URL
+      // Get public URL from uppercase bucket 'RESUME'
       const { data: publicUrlData } = supabase.storage
-        .from('resumes')
+        .from('RESUME')
         .getPublicUrl(filePath);
 
       // Update profile with resume URL
@@ -161,13 +161,13 @@ export default function ProfilePage() {
       const fileName = urlParts[urlParts.length - 1];
       const filePath = `resumes/${fileName}`;
 
-      // Delete from storage
+      // Delete from storage - Pointing to uppercase bucket 'RESUME'
       const { error: deleteError } = await supabase.storage
-        .from('resumes')
+        .from('RESUME')
         .remove([filePath]);
 
       if (deleteError) {
-        setResumeError('Failed to delete resume');
+        setResumeError('Failed to delete resume file');
         return;
       }
 
@@ -178,7 +178,7 @@ export default function ProfilePage() {
         .eq('id', user?.id);
 
       if (updateError) {
-        setResumeError('Failed to remove resume');
+        setResumeError('Failed to remove resume from profile');
         return;
       }
 
@@ -266,7 +266,7 @@ export default function ProfilePage() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground">
-              Worker Profile
+              Candidate Profile
             </h1>
             <p className="text-foreground/60 mt-2">
               Update your profile information
