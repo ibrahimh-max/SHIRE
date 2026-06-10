@@ -14,12 +14,11 @@ interface ProfileFormData {
   age: string;
   address: string;
   location: string;
-  experience: string;
   availability: 'Full Time' | 'Part Time' | 'Both' | '';
   preferred_role: 'Waiter' | 'Chef' | 'Kitchen Helper' | 'Receptionist' | 'Housekeeping' | 'Barista' | 'Delivery Staff' | '';
-  photo_url: string;
-  resume_url: string;
   is_available: boolean;
+  hospitality_experience: string;
+  start_availability: string;
 }
 
 export default function ProfilePage() {
@@ -32,20 +31,17 @@ export default function ProfilePage() {
     age: '',
     address: '',
     location: '',
-    experience: '',
     availability: '',
     preferred_role: '',
-    photo_url: '',
-    resume_url: '',
     is_available: true,
+    hospitality_experience: '',
+    start_availability: '',
   });
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState('');
-  const [resumeUploading, setResumeUploading] = useState(false);
-  const [resumeError, setResumeError] = useState('');
 
   // Handle authentication redirect
   useEffect(() => {
@@ -68,12 +64,11 @@ export default function ProfilePage() {
         age: profile.age ? profile.age.toString() : '',
         address: profile.address || '',
         location: profile.location || '',
-        experience: profile.experience || '',
         availability: profile.availability || '',
         preferred_role: profile.preferred_role || '',
-        photo_url: profile.photo_url || '',
-        resume_url: profile.resume_url || '',
         is_available: profile.is_available ?? true,
+        hospitality_experience: profile.hospitality_experience || '',
+        start_availability: profile.start_availability || '',
       });
     }
   }, [profile]);
@@ -84,114 +79,6 @@ export default function ProfilePage() {
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
     }));
-  };
-
-  const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (file.type !== 'application/pdf') {
-      setResumeError('Only PDF files are allowed');
-      return;
-    }
-
-    // Validate file size (5MB)
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setResumeError('File size must be less than 5MB');
-      return;
-    }
-
-    setResumeUploading(true);
-    setResumeError('');
-
-    try {
-      // Generate unique filename
-      const fileExt = 'pdf';
-      const fileName = `${user?.id}-${Date.now()}.${fileExt}`;
-      const filePath = `resumes/${fileName}`;
-
-      // Upload to Supabase Storage - Pointing to uppercase bucket 'RESUME'
-      const { error: uploadError } = await supabase.storage
-        .from('RESUME')
-        .upload(filePath, file);
-
-      if (uploadError) {
-        setResumeError('Failed to upload resume to storage');
-        return;
-      }
-
-      // Get public URL from uppercase bucket 'RESUME'
-      const { data: publicUrlData } = supabase.storage
-        .from('RESUME')
-        .getPublicUrl(filePath);
-
-      // Update profile with resume URL
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ resume_url: publicUrlData.publicUrl })
-        .eq('id', user?.id);
-
-      if (updateError) {
-        setResumeError('Failed to save resume URL');
-        return;
-      }
-
-      setFormData(prev => ({ ...prev, resume_url: publicUrlData.publicUrl }));
-      await refreshProfile();
-      setSuccessMessage('Resume uploaded successfully!');
-
-      setTimeout(() => {
-        setSuccessMessage('');
-      }, 3000);
-    } catch (err) {
-      setResumeError('Failed to upload resume');
-    } finally {
-      setResumeUploading(false);
-    }
-  };
-
-  const handleResumeDelete = async () => {
-    if (!formData.resume_url) return;
-
-    try {
-      // Extract filename from URL
-      const urlParts = formData.resume_url.split('/');
-      const fileName = urlParts[urlParts.length - 1];
-      const filePath = `resumes/${fileName}`;
-
-      // Delete from storage - Pointing to uppercase bucket 'RESUME'
-      const { error: deleteError } = await supabase.storage
-        .from('RESUME')
-        .remove([filePath]);
-
-      if (deleteError) {
-        setResumeError('Failed to delete resume file');
-        return;
-      }
-
-      // Update profile to remove resume URL
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ resume_url: null })
-        .eq('id', user?.id);
-
-      if (updateError) {
-        setResumeError('Failed to remove resume from profile');
-        return;
-      }
-
-      setFormData(prev => ({ ...prev, resume_url: '' }));
-      await refreshProfile();
-      setSuccessMessage('Resume deleted successfully!');
-
-      setTimeout(() => {
-        setSuccessMessage('');
-      }, 3000);
-    } catch (err) {
-      setResumeError('Failed to delete resume');
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -209,12 +96,11 @@ export default function ProfilePage() {
           age: formData.age ? parseInt(formData.age) : null,
           address: formData.address || null,
           location: formData.location || null,
-          experience: formData.experience || null,
           availability: formData.availability || null,
           preferred_role: formData.preferred_role || null,
-          photo_url: formData.photo_url || null,
-          resume_url: formData.resume_url || null,
           is_available: formData.is_available,
+          hospitality_experience: formData.hospitality_experience || null,
+          start_availability: formData.start_availability || null,
         })
         .eq('id', user?.id);
 
@@ -223,13 +109,12 @@ export default function ProfilePage() {
         return;
       }
 
-      setSuccessMessage('Profile updated successfully!');
+      setSuccessMessage('✅ Profile saved successfully');
       await refreshProfile();
 
-      // Hide success message after 3 seconds
       setTimeout(() => {
-        setSuccessMessage('');
-      }, 3000);
+        router.push('/dashboard');
+      }, 1500);
     } catch (err) {
       setError('Failed to update profile');
     } finally {
@@ -311,7 +196,7 @@ export default function ProfilePage() {
               {/* Phone */}
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-foreground mb-2">
-                  Phone Number
+                  Phone Number *
                 </label>
                 <input
                   type="tel"
@@ -319,6 +204,7 @@ export default function ProfilePage() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
+                  required
                   className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                   placeholder="Enter your phone number"
                 />
@@ -327,7 +213,7 @@ export default function ProfilePage() {
               {/* Age */}
               <div>
                 <label htmlFor="age" className="block text-sm font-medium text-foreground mb-2">
-                  Age
+                  Age *
                 </label>
                 <input
                   type="number"
@@ -335,6 +221,7 @@ export default function ProfilePage() {
                   name="age"
                   value={formData.age}
                   onChange={handleChange}
+                  required
                   min="16"
                   max="100"
                   className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
@@ -374,32 +261,59 @@ export default function ProfilePage() {
                 />
               </div>
 
-              {/* Experience */}
+              {/* Hospitality Experience */}
               <div>
-                <label htmlFor="experience" className="block text-sm font-medium text-foreground mb-2">
-                  Work Experience
+                <label htmlFor="hospitality_experience" className="block text-sm font-medium text-foreground mb-2">
+                  Hospitality Experience *
                 </label>
-                <textarea
-                  id="experience"
-                  name="experience"
-                  value={formData.experience}
+                <select
+                  id="hospitality_experience"
+                  name="hospitality_experience"
+                  value={formData.hospitality_experience}
                   onChange={handleChange}
-                  rows={4}
-                  className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
-                  placeholder="Describe your work experience..."
-                />
+                  required
+                  className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                >
+                  <option value="">Select experience</option>
+                  <option value="Fresher">Fresher</option>
+                  <option value="Less than 1 Year">Less than 1 Year</option>
+                  <option value="1-3 Years">1-3 Years</option>
+                  <option value="3+ Years">3+ Years</option>
+                </select>
+              </div>
+
+              {/* Start Availability */}
+              <div>
+                <label htmlFor="start_availability" className="block text-sm font-medium text-foreground mb-2">
+                  How soon can you start? *
+                </label>
+                <select
+                  id="start_availability"
+                  name="start_availability"
+                  value={formData.start_availability}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                >
+                  <option value="">Select start date</option>
+                  <option value="Immediately">Immediately</option>
+                  <option value="Within 1 Week">Within 1 Week</option>
+                  <option value="Within 2 Weeks">Within 2 Weeks</option>
+                  <option value="Within 1 Month">Within 1 Month</option>
+                </select>
               </div>
 
               {/* Availability */}
               <div>
                 <label htmlFor="availability" className="block text-sm font-medium text-foreground mb-2">
-                  Availability
+                  Availability *
                 </label>
                 <select
                   id="availability"
                   name="availability"
                   value={formData.availability}
                   onChange={handleChange}
+                  required
                   className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
                 >
                   <option value="">Select availability</option>
@@ -412,13 +326,14 @@ export default function ProfilePage() {
               {/* Preferred Role */}
               <div>
                 <label htmlFor="preferred_role" className="block text-sm font-medium text-foreground mb-2">
-                  Preferred Role
+                  Preferred Role *
                 </label>
                 <select
                   id="preferred_role"
                   name="preferred_role"
                   value={formData.preferred_role}
                   onChange={handleChange}
+                  required
                   className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
                 >
                   <option value="">Select preferred role</option>
@@ -430,104 +345,6 @@ export default function ProfilePage() {
                   <option value="Barista">Barista</option>
                   <option value="Delivery Staff">Delivery Staff</option>
                 </select>
-              </div>
-
-              {/* Photo URL */}
-              <div>
-                <label htmlFor="photo_url" className="block text-sm font-medium text-foreground mb-2">
-                  Profile Photo URL
-                </label>
-                <input
-                  type="url"
-                  id="photo_url"
-                  name="photo_url"
-                  value={formData.photo_url}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                  placeholder="https://example.com/photo.jpg"
-                />
-              </div>
-
-              {/* Resume Upload Section */}
-              <div className="p-4 bg-background/50 rounded-xl">
-                <h3 className="font-medium text-foreground mb-3">Resume (PDF)</h3>
-                
-                {resumeError && (
-                  <div className="mb-3 p-3 rounded-lg border border-red-200 bg-red-50 text-red-700 text-sm">
-                    {resumeError}
-                  </div>
-                )}
-
-                {!formData.resume_url ? (
-                  <div>
-                    <input
-                      type="file"
-                      id="resume"
-                      accept=".pdf"
-                      onChange={handleResumeUpload}
-                      disabled={resumeUploading}
-                      className="hidden"
-                    />
-                    <label
-                      htmlFor="resume"
-                      className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-primary/30 hover:border-primary transition-all cursor-pointer ${
-                        resumeUploading ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
-                    >
-                      {resumeUploading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                          <span className="text-foreground/60">Uploading...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="text-2xl">📄</span>
-                          <span className="text-foreground/70">Upload Resume (PDF)</span>
-                        </>
-                      )}
-                    </label>
-                    <p className="text-xs text-foreground/40 mt-2">
-                      Maximum file size: 5MB. Only PDF files allowed.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">✓</span>
-                      <div>
-                        <p className="font-medium text-foreground text-green-600">
-                          Resume Uploaded
-                        </p>
-                        <p className="text-xs text-foreground/40">
-                          PDF file stored securely
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <label
-                        htmlFor="resume"
-                        className="px-3 py-1.5 text-sm rounded-lg border border-primary/20 text-foreground/70 hover:border-primary hover:text-foreground transition-all cursor-pointer"
-                      >
-                        Replace
-                      </label>
-                      <button
-                        type="button"
-                        onClick={handleResumeDelete}
-                        className="px-3 py-1.5 text-sm rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-all"
-                      >
-                        Delete
-                      </button>
-                      <input
-                        type="file"
-                        id="resume"
-                        accept=".pdf"
-                        onChange={handleResumeUpload}
-                        disabled={resumeUploading}
-                        className="hidden"
-                      />
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Is Available Toggle */}

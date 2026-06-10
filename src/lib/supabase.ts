@@ -15,16 +15,31 @@ export interface Profile {
   id: string;
   name: string;
   role: 'worker' | 'employer';
+
   phone?: string;
   location?: string;
   age?: number;
   address?: string;
-  experience?: string;
+
   availability?: 'Full Time' | 'Part Time' | 'Both';
-  preferred_role?: 'Waiter' | 'Chef' | 'Kitchen Helper' | 'Receptionist' | 'Housekeeping' | 'Barista' | 'Delivery Staff';
+
+  preferred_role?:
+    | 'Waiter'
+    | 'Chef'
+    | 'Kitchen Helper'
+    | 'Receptionist'
+    | 'Housekeeping'
+    | 'Barista'
+    | 'Delivery Staff';
+
+  is_available?: boolean;
+
+  hospitality_experience?: string;
+  start_availability?: string;
+
   photo_url?: string;
   resume_url?: string;
-  is_available?: boolean;
+
   created_at: string;
   updated_at: string;
 }

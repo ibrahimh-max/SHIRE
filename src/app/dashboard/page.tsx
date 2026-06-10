@@ -72,7 +72,7 @@ export default function Dashboard() {
 
     // Check if worker has required profile fields
     if (profile && profile.role === 'worker') {
-      const requiredFields = ['phone', 'age', 'experience', 'preferred_role'];
+      const requiredFields = ['phone', 'age', 'preferred_role', 'availability', 'hospitality_experience', 'start_availability'];
       const missingFields = requiredFields.filter(field => !profile[field as keyof typeof profile]);
 
       if (missingFields.length > 0) {
@@ -293,7 +293,7 @@ export default function Dashboard() {
 
                 {/* Check profile completion */}
                 {(() => {
-                  const requiredFields = ['phone', 'age', 'experience', 'preferred_role'];
+                  const requiredFields = ['phone', 'age', 'preferred_role', 'availability', 'hospitality_experience', 'start_availability'];
                   const missingFields = requiredFields.filter(field => !profile[field as keyof typeof profile]);
                   const isComplete = missingFields.length === 0;
                   const completionPercentage = Math.round(((requiredFields.length - missingFields.length) / requiredFields.length) * 100);
@@ -345,11 +345,19 @@ export default function Dashboard() {
                           </p>
                         </div>
 
-                        {/* Experience */}
-                        <div className="bg-background/50 rounded-xl p-4 md:col-span-2">
-                          <p className="text-sm text-foreground/60 mb-1">Experience</p>
+                        {/* Hospitality Experience */}
+                        <div className="bg-background/50 rounded-xl p-4">
+                          <p className="text-sm text-foreground/60 mb-1">Hospitality Experience</p>
                           <p className="font-medium text-foreground">
-                            {profile.experience || 'Not set'}
+                            {profile.hospitality_experience || 'Not set'}
+                          </p>
+                        </div>
+
+                        {/* Can Start */}
+                        <div className="bg-background/50 rounded-xl p-4">
+                          <p className="text-sm text-foreground/60 mb-1">Can Start</p>
+                          <p className="font-medium text-foreground">
+                            {profile.start_availability || 'Not set'}
                           </p>
                         </div>
                       </div>
