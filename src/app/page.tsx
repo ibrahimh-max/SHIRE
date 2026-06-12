@@ -55,19 +55,19 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-14">
 
-            <Link
-              href="/app/signup"
-              className="bg-primary text-white px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:scale-[1.02] transition-all"
+            {/* Hero Buttons - Updated */}
+            <button
+              className="bg-primary text-white px-8 py-4 rounded-2xl font-medium text-lg shadow-lg cursor-not-allowed opacity-90"
             >
-              Get Started
-            </Link>
+              📱 Coming Soon on Google Play
+            </button>
 
-            <Link
-              href="/app/login"
+            <a
+              href="#how-it-works"
               className="border border-primary/20 bg-white/70 backdrop-blur text-foreground px-8 py-4 rounded-2xl font-medium text-lg hover:bg-primary/5 transition-all"
             >
-              Open App
-            </Link>
+              How It Works
+            </a>
 
           </div>
 
@@ -95,7 +95,54 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* DOWNLOAD APP */}
+      {/* Why CREWZI Section - New */}
+      <section className="py-24 border-t border-primary/10">
+        <div className="max-w-6xl mx-auto px-4">
+
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">
+              Why CREWZI?
+            </h2>
+
+            <p className="text-foreground/60">
+              Hospitality hiring is still broken. We're fixing it.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+
+            <div className="bg-red-50 border border-red-100 rounded-3xl p-8">
+              <h3 className="text-2xl font-semibold mb-6">
+                Traditional Hiring
+              </h3>
+
+              <ul className="space-y-4">
+                <li>❌ WhatsApp Groups</li>
+                <li>❌ Random Referrals</li>
+                <li>❌ Slow Hiring Process</li>
+                <li>❌ No Candidate Database</li>
+              </ul>
+            </div>
+
+            <div className="bg-primary/5 border border-primary/10 rounded-3xl p-8">
+              <h3 className="text-2xl font-semibold mb-6">
+                Hiring with CREWZI
+              </h3>
+
+              <ul className="space-y-4">
+                <li>✅ Hospitality Focused</li>
+                <li>✅ Worker Profiles</li>
+                <li>✅ Interview Requests</li>
+                <li>✅ Faster Hiring</li>
+              </ul>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* DOWNLOAD APP - Updated */}
       <section className="py-20 border-t border-primary/10 bg-primary/5">
         <div className="max-w-4xl mx-auto px-4 text-center">
 
@@ -104,15 +151,12 @@ export default function HomePage() {
           </h2>
 
           <p className="text-lg text-foreground/60 mb-8">
-            Search jobs, apply instantly, and hire hospitality talent anytime.
+            Built exclusively for hospitality hiring. Connect employers and workers faster than traditional hiring methods.
           </p>
 
-          <Link
-            href="/app/signup"
-            className="inline-flex items-center bg-black text-white px-8 py-4 rounded-2xl font-medium"
-          >
-            📱 Download on Google Play
-          </Link>
+          <button className="inline-flex items-center bg-black text-white px-8 py-4 rounded-2xl font-medium cursor-not-allowed opacity-90">
+            📱 Coming Soon on Google Play
+          </button>
 
         </div>
       </section>
@@ -237,7 +281,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FINAL CTA */}
+      {/* FINAL CTA - Updated */}
       <section className="py-24 border-t border-primary/10 bg-primary/5">
         <div className="max-w-4xl mx-auto px-4 text-center">
 
@@ -251,24 +295,47 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
 
-            <Link
-              href="/app/signup"
-              className="bg-primary text-white px-8 py-4 rounded-2xl font-medium shadow-lg hover:scale-[1.02] transition-all"
+            <button
+              className="bg-primary text-white px-8 py-4 rounded-2xl font-medium shadow-lg cursor-not-allowed"
             >
-              Post a Job
-            </Link>
+              📱 Coming Soon
+            </button>
 
-            <Link
-              href="/app/login"
+            <a
+              href="#how-it-works"
               className="border border-primary/20 bg-white px-8 py-4 rounded-2xl font-medium hover:bg-primary/5 transition-all"
             >
-              Open App
-            </Link>
+              Learn More
+            </a>
 
           </div>
 
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="border-t border-primary/10 py-8">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+
+          <div>
+            <p className="font-semibold">CREWZI</p>
+            <p className="text-sm text-foreground/60">
+              Hospitality Hiring Platform
+            </p>
+          </div>
+
+          <div className="flex gap-6 text-sm">
+            <Link href="/privacy-policy">
+              Privacy Policy
+            </Link>
+
+            <Link href="/terms">
+              Terms
+            </Link>
+          </div>
+
+        </div>
+      </footer>
 
     </main>
   );
