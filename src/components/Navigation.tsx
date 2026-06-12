@@ -46,6 +46,14 @@ export default function Navigation() {
                   Candidates
                 </Link>
               )}
+              {user && profile?.role === 'employer' && (
+                <Link
+                  href="/requests"
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-primary/5 transition-all"
+                >
+                  My Requests
+                </Link>
+              )}
               {/* OLD JOBS/APPLICATIONS FLOW - COMMENTED OUT
               <Link
                 href="/jobs"
