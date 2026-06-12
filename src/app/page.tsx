@@ -4,6 +4,30 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-background overflow-hidden">
 
+      {/* Add Simple Navbar */}
+      <nav className="max-w-6xl mx-auto px-4 py-6 flex items-center justify-between">
+        <div className="text-2xl font-bold text-primary">
+          CREWZI
+        </div>
+
+        <div className="flex items-center gap-6">
+          <a href="#how-it-works" className="text-sm font-medium">
+            How It Works
+          </a>
+
+          <a href="#roles" className="text-sm font-medium">
+            Roles
+          </a>
+
+          <Link
+            href="/app/login"
+            className="bg-primary text-white px-4 py-2 rounded-xl"
+          >
+            Open App
+          </Link>
+        </div>
+      </nav>
+
       {/* HERO SECTION */}
       <section className="relative">
 
@@ -17,32 +41,32 @@ export default function HomePage() {
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold text-foreground leading-tight mb-6">
-            The fastest way to
+            Hire Hospitality
             <br />
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              staff your business
+              Staff Faster
             </span>
           </h1>
 
           <p className="text-lg md:text-xl text-foreground/60 max-w-3xl mx-auto mb-10 leading-relaxed">
-            CREWZI helps hotels, restaurants, cafes, and event businesses
-            connect with reliable local workers quickly and efficiently.
+            CREWZI connects hotels, restaurants, cafes and event businesses
+            with hospitality workers across India.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-14">
 
             <Link
-              href="/signup"
+              href="/app/signup"
               className="bg-primary text-white px-8 py-4 rounded-2xl font-medium text-lg shadow-lg hover:scale-[1.02] transition-all"
             >
               Get Started
             </Link>
 
             <Link
-              href="/jobs"
+              href="/app/login"
               className="border border-primary/20 bg-white/70 backdrop-blur text-foreground px-8 py-4 rounded-2xl font-medium text-lg hover:bg-primary/5 transition-all"
             >
-              Explore Jobs
+              Open App
             </Link>
 
           </div>
@@ -83,12 +107,12 @@ export default function HomePage() {
             Search jobs, apply instantly, and hire hospitality talent anytime.
           </p>
 
-          <a
-            href="#"
+          <Link
+            href="/app/signup"
             className="inline-flex items-center bg-black text-white px-8 py-4 rounded-2xl font-medium"
           >
             📱 Download on Google Play
-          </a>
+          </Link>
 
         </div>
       </section>
@@ -128,7 +152,10 @@ export default function HomePage() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="py-24 border-t border-primary/10 bg-white/40">
+      <section
+        id="how-it-works"
+        className="py-24 border-t border-primary/10 bg-white/40"
+      >
         <div className="max-w-6xl mx-auto px-4">
 
           <div className="text-center mb-16">
@@ -149,10 +176,10 @@ export default function HomePage() {
               </h3>
 
               <ul className="space-y-4 text-foreground/70">
-                <li>✓ Post jobs in minutes</li>
-                <li>✓ Find hospitality-focused talent</li>
-                <li>✓ Review applicants instantly</li>
-                <li>✓ Reduce hiring delays</li>
+                <li>✓ Create your company profile</li>
+                <li>✓ Browse hospitality workers</li>
+                <li>✓ Request interviews instantly</li>
+                <li>✓ Hire faster with CREWZI</li>
               </ul>
             </div>
 
@@ -162,10 +189,10 @@ export default function HomePage() {
               </h3>
 
               <ul className="space-y-4 text-foreground/70">
-                <li>✓ Discover local opportunities</li>
-                <li>✓ Apply instantly</li>
-                <li>✓ Track application status</li>
-                <li>✓ Build your hospitality career</li>
+                <li>✓ Create your hospitality profile</li>
+                <li>✓ Get discovered by employers</li>
+                <li>✓ Receive interview requests</li>
+                <li>✓ Grow your hospitality career</li>
               </ul>
             </div>
 
@@ -175,7 +202,7 @@ export default function HomePage() {
       </section>
 
       {/* JOB ROLES */}
-      <section className="py-24">
+      <section id="roles" className="py-24">
         <div className="max-w-6xl mx-auto px-4">
 
           <div className="text-center mb-16">
@@ -225,17 +252,17 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
 
             <Link
-              href="/signup"
+              href="/app/signup"
               className="bg-primary text-white px-8 py-4 rounded-2xl font-medium shadow-lg hover:scale-[1.02] transition-all"
             >
               Post a Job
             </Link>
 
             <Link
-              href="/jobs"
+              href="/app/login"
               className="border border-primary/20 bg-white px-8 py-4 rounded-2xl font-medium hover:bg-primary/5 transition-all"
             >
-              Find Jobs
+              Open App
             </Link>
 
           </div>
@@ -246,4 +273,3 @@ export default function HomePage() {
     </main>
   );
 }
-
