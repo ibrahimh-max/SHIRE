@@ -11,17 +11,17 @@ function AuthCallbackContent() {
   useEffect(() => {
     const handleCallback = async () => {
       const code = searchParams.get('code');
-      const next = searchParams.get('next') ?? '/dashboard';
+      const next = searchParams.get('next') ?? '/app/dashboard';
 
       if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (!error) {
           router.push(next);
         } else {
-          router.push('/login?error=Unable to verify email');
+          router.push('/app/login?error=Unable to verify email');
         }
       } else {
-        router.push('/login');
+        router.push('/app/login');
       }
     };
 

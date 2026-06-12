@@ -61,7 +61,7 @@ export default function CreateCompanyPage() {
         return;
       }
 
-      router.push('/candidates');
+      router.push('/app/candidates');
     } catch (err) {
       console.error(err);
       setError('Failed to create company');

@@ -50,7 +50,7 @@ export default function ProfilePage() {
     }
 
     if (!user) {
-      router.push('/login');
+      router.push('/app/login');
       return;
     }
   }, [user, loading, authInitialized, router]);
@@ -113,7 +113,7 @@ export default function ProfilePage() {
       await refreshProfile();
 
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push('/app/dashboard');
       }, 1500);
     } catch (err) {
       setError('Failed to update profile');

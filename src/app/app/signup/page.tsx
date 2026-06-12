@@ -57,7 +57,7 @@ export default function Signup() {
         password: formData.password,
 
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: `${window.location.origin}/app/dashboard`,
 
           data: {
             name: formData.name,
@@ -75,7 +75,7 @@ export default function Signup() {
       setSuccess(true);
 
       setTimeout(() => {
-        router.push('/login');
+        router.push('/app/login');
       }, 4000);
 
     } catch {
@@ -261,7 +261,7 @@ export default function Signup() {
               Already have an account?{' '}
 
               <a
-                href="/login"
+                href="/app/login"
                 className="text-primary hover:text-primary-dark font-medium"
               >
                 Sign in

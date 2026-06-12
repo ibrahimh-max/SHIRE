@@ -24,7 +24,7 @@ export default function Navigation() {
             <div className="hidden md:flex items-center gap-1">
               {user && (
                 <Link
-                  href="/dashboard"
+                  href="/app/dashboard"
                   className="px-3 py-1.5 rounded-lg text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-primary/5 transition-all"
                 >
                   Dashboard
@@ -32,7 +32,7 @@ export default function Navigation() {
               )}
               {user && profile?.role === 'worker' && (
                 <Link
-                  href="/profile"
+                  href="/app/profile"
                   className="px-3 py-1.5 rounded-lg text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-primary/5 transition-all"
                 >
                   Profile
@@ -40,7 +40,7 @@ export default function Navigation() {
               )}
               {user && profile?.role === 'employer' && (
                 <Link
-                  href="/candidates"
+                  href="/app/candidates"
                   className="px-3 py-1.5 rounded-lg text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-primary/5 transition-all"
                 >
                   Candidates
@@ -48,7 +48,7 @@ export default function Navigation() {
               )}
               {user && profile?.role === 'employer' && (
                 <Link
-                  href="/requests"
+                  href="/app/requests"
                   className="px-3 py-1.5 rounded-lg text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-primary/5 transition-all"
                 >
                   My Requests
@@ -105,13 +105,13 @@ export default function Navigation() {
             ) : (
               <>
                 <Link
-                  href="/login"
+                  href="/app/login"
                   className="text-sm font-medium text-foreground/60 hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-primary/5 transition-all"
                 >
                   Log in
                 </Link>
                 <Link
-                  href="/signup"
+                  href="/app/signup"
                   className="text-sm font-medium text-white px-4 py-2 rounded-lg transition-all bg-primary hover:bg-primary-dark"
                 >
                   Sign up

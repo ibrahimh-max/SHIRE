@@ -32,7 +32,7 @@ export default function Login() {
   useEffect(() => {
     if (mounted && authInitialized && user && !redirecting) {
       setRedirecting(true);
-      router.push('/dashboard');
+      router.push('/app/dashboard');
     }
   }, [mounted, authInitialized, user, redirecting, router]);
 
@@ -97,7 +97,7 @@ const signInWithGoogle = async () => {
         return;
       }
 
-      router.push('/dashboard');
+      router.push('/app/dashboard');
 
     } catch {
       setError('Something went wrong. Please try again.');
@@ -248,7 +248,7 @@ const signInWithGoogle = async () => {
             <p className="text-sm text-foreground/60">
               Don&apos;t have an account?{' '}
               <a
-                href="/signup"
+                href="/app/signup"
                 className="text-primary hover:text-primary-dark font-medium"
               >
                 Create account

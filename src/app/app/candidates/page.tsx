@@ -47,12 +47,12 @@ export default function CandidatesPage() {
     }
 
     if (!user) {
-      router.push('/login');
+      router.push('/app/login');
       return;
     }
 
     if (profile && profile.role !== 'employer') {
-      router.push('/dashboard');
+      router.push('/app/dashboard');
       return;
     }
   }, [user, profile, loading, authInitialized, router]);
