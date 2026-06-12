@@ -11,13 +11,18 @@ export default function AppGuard({
 }) {
   const router = useRouter();
 
+  const isDev = process.env.NODE_ENV === 'development';
+  const isNative = Capacitor.isNativePlatform();
+
   useEffect(() => {
-    if (!Capacitor.isNativePlatform()) {
+    // Allow localhost during development
+    if (!isNative && !isDev) {
       router.replace('/');
     }
-  }, [router]);
+  }, [router, isNative, isDev]);
 
-  if (!Capacitor.isNativePlatform()) {
+  // Block browser access only in production
+  if (!isNative && !isDev) {
     return null;
   }
 

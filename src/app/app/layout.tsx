@@ -1,4 +1,5 @@
 import AppGuard from '@/components/AppGuard';
+import MobileLayout from '@/components/mobile/MobileLayout';
 
 export default function AppLayout({
   children,
@@ -7,7 +8,9 @@ export default function AppLayout({
 }) {
   return (
     <AppGuard>
-      {children}
+      <MobileLayout>
+        {children}
+      </MobileLayout>
     </AppGuard>
   );
-}
+}
