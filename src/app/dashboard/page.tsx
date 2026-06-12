@@ -58,6 +58,9 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const [totalCandidates, setTotalCandidates] = useState(0);
   const [candidatesLoading, setCandidatesLoading] = useState(false);
+  
+  // Step 1: Add state
+  const [hasCompany, setHasCompany] = useState<boolean | null>(null);
 
   // Handle authentication redirect
   useEffect(() => {
@@ -82,11 +85,31 @@ export default function Dashboard() {
     }
   }, [user, profile, loading, authInitialized, router]);
 
+  // Step 2: Add function
+  const checkCompany = async () => {
+    if (!user) return;
+
+    const { data } = await supabase
+      .from('companies')
+      .select('id')
+      .eq('owner_id', user.id)
+      .maybeSingle();
+
+    if (!data) {
+      router.push('/create-company');
+      return;
+    }
+
+    setHasCompany(true);
+  };
+
   // Fetch dashboard data
   useEffect(() => {
     if (!user || !profile) return;
 
+    // Step 3: Replace the employer data loading section
     if (profile.role === 'employer') {
+      checkCompany();
       fetchTotalCandidates();
     }
 
