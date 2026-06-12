@@ -29,6 +29,10 @@ export default function CandidatesPage() {
   const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([]);
   const [pageLoading, setPageLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // Add State
+  const [sendingRequest, setSendingRequest] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Filters
   const [locationFilter, setLocationFilter] = useState('');
@@ -89,6 +93,53 @@ export default function CandidatesPage() {
 
     setFilteredCandidates(filtered);
   }, [candidates, locationFilter, experienceFilter, preferredRoleFilter, availabilityFilter]);
+
+  // Add Function
+  const sendInterviewRequest = async (workerId: string) => {
+    if (!user || !profile) return;
+
+    try {
+      setSendingRequest(workerId);
+
+      const { data: existing } = await supabase
+        .from('interview_invitations')
+        .select('id')
+        .eq('worker_id', workerId)
+        .eq('employer_id', user.id)
+        .maybeSingle();
+
+      if (existing) {
+        setError('You have already requested this candidate.');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('interview_invitations')
+        .insert({
+          worker_id: workerId,
+          employer_id: user.id,
+          employer_name: profile.name,
+          status: 'pending',
+          message: 'Interested in discussing an opportunity.'
+        });
+
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
+      setSuccessMessage('Interview request sent successfully.');
+
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+
+    } catch {
+      setError('Failed to send interview request.');
+    } finally {
+      setSendingRequest(null);
+    }
+  };
 
   const fetchCandidates = async () => {
     setPageLoading(true);
@@ -163,6 +214,13 @@ export default function CandidatesPage() {
           {error && (
             <div className="mb-6 p-4 rounded-xl border border-red-200 bg-red-50 text-red-700">
               {error}
+            </div>
+          )}
+
+          {/* Add Success Banner */}
+          {successMessage && (
+            <div className="mb-6 p-4 rounded-xl border border-green-200 bg-green-50 text-green-700">
+              {successMessage}
             </div>
           )}
 
@@ -359,34 +417,25 @@ export default function CandidatesPage() {
                       )}
                     </div>
 
-                    {/* Available Badge */}
+                    {/* Available Badge & Request Interview Button */}
                     <div className="mt-4 pt-4 border-t border-primary/10">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mb-3">
                         <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
                           <span className="w-2 h-2 bg-primary rounded-full"></span>
                           Available for hire
                         </span>
-
-                        {/* Resume Section */}
-                        {candidate.resume_url ? (
-                          <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center gap-1 text-xs font-medium text-green-600">
-                              <span className="text-sm">✓</span>
-                              Resume Available
-                            </span>
-                            <button
-                              onClick={() => window.open(candidate.resume_url, '_blank')}
-                              className="px-3 py-1 text-xs rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors"
-                            >
-                              View Resume
-                            </button>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-foreground/40">
-                            No resume
-                          </span>
-                        )}
                       </div>
+
+                      {/* Add Request Interview Button - Replaced Resume section */}
+                      <button
+                        onClick={() => sendInterviewRequest(candidate.id)}
+                        disabled={sendingRequest === candidate.id}
+                        className="w-full mt-2 bg-primary text-white py-2 rounded-xl hover:bg-primary-dark transition-colors disabled:opacity-50"
+                      >
+                        {sendingRequest === candidate.id
+                          ? 'Sending...'
+                          : 'Request Interview'}
+                      </button>
                     </div>
                   </div>
                 </div>
