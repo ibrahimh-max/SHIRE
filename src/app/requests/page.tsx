@@ -51,30 +51,44 @@ export default function RequestsPage() {
     setError('');
 
     try {
-      const { data, error } = await supabase
+      // Step 1: Fetch interview_invitations
+      const { data: invitations, error: invitationsError } = await supabase
         .from('interview_invitations')
-        .select(`
-          *,
-          profiles!interview_invitations_worker_id_fkey (
-            name,
-            preferred_role,
-            location
-          )
-        `)
+        .select('*')
         .eq('employer_id', user?.id)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        setError(error.message);
+      if (invitationsError) {
+        setError(invitationsError.message);
         return;
       }
 
-      // Transform data to include worker details
-      const transformedData = (data || []).map((item: any) => ({
-        ...item,
-        worker_name: item.profiles?.name,
-        worker_preferred_role: item.profiles?.preferred_role,
-        worker_location: item.profiles?.location,
+      if (!invitations || invitations.length === 0) {
+        setRequests([]);
+        return;
+      }
+
+      // Step 2: Extract worker_ids
+      const workerIds = invitations.map(inv => inv.worker_id);
+
+      // Step 3: Query profiles table separately
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, name, preferred_role, location')
+        .in('id', workerIds);
+
+      if (profilesError) {
+        setError(profilesError.message);
+        return;
+      }
+
+      // Step 4: Merge data client-side
+      const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
+      const transformedData = invitations.map(invitation => ({
+        ...invitation,
+        worker_name: profilesMap.get(invitation.worker_id)?.name,
+        worker_preferred_role: profilesMap.get(invitation.worker_id)?.preferred_role,
+        worker_location: profilesMap.get(invitation.worker_id)?.location,
       }));
 
       setRequests(transformedData);
