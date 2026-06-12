@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { InterviewInvitation } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,8 +59,11 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const [totalCandidates, setTotalCandidates] = useState(0);
   const [candidatesLoading, setCandidatesLoading] = useState(false);
-  
-  // Step 1: Add state
+  const [interviewInvitations, setInterviewInvitations] = useState<InterviewInvitation[]>([]);
+  const [interviewsLoading, setInterviewsLoading] = useState(false);
+  const [updatingInterviewId, setUpdatingInterviewId] = useState<string | null>(null);
+  const [interviewSuccess, setInterviewSuccess] = useState('');
+  const [interviewError, setInterviewError] = useState('');
 
   // Handle authentication redirect
   useEffect(() => {
@@ -107,6 +111,10 @@ const checkCompany = async () => {
     if (profile.role === 'employer') {
       checkCompany();
       fetchTotalCandidates();
+    }
+
+    if (profile.role === 'worker') {
+      fetchInterviewInvitations();
     }
 
     // OLD JOBS/APPLICATIONS FLOW - COMMENTED OUT
@@ -221,6 +229,61 @@ const checkCompany = async () => {
     }
   };
 
+  // Fetch interview invitations for worker
+  const fetchInterviewInvitations = async () => {
+    setInterviewsLoading(true);
+    setInterviewError('');
+
+    try {
+      const { data, error } = await supabase
+        .from('interview_invitations')
+        .select('*')
+        .eq('worker_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        setInterviewError(error.message);
+        return;
+      }
+
+      setInterviewInvitations(data || []);
+    } catch (err) {
+      setInterviewError('Failed to fetch interview requests');
+    } finally {
+      setInterviewsLoading(false);
+    }
+  };
+
+  // Update interview status
+  const updateInterviewStatus = async (invitationId: string, newStatus: 'interested' | 'not_interested') => {
+    setUpdatingInterviewId(invitationId);
+    setInterviewError('');
+    setInterviewSuccess('');
+
+    try {
+      const { error } = await supabase
+        .from('interview_invitations')
+        .update({ status: newStatus })
+        .eq('id', invitationId);
+
+      if (error) {
+        setInterviewError('Failed to update status');
+        return;
+      }
+
+      setInterviewSuccess('Status updated successfully');
+      await fetchInterviewInvitations();
+
+      setTimeout(() => {
+        setInterviewSuccess('');
+      }, 3000);
+    } catch (err) {
+      setInterviewError('Failed to update status');
+    } finally {
+      setUpdatingInterviewId(null);
+    }
+  };
+
   // OLD JOBS/APPLICATIONS FLOW - COMMENTED OUT
   // const updateApplicationStatus = async (applicationId: string, newStatus: 'accepted' | 'rejected') => {
   //   try {
@@ -280,6 +343,18 @@ const checkCompany = async () => {
           {error && (
             <div className="mb-6 p-4 rounded-xl border border-red-200 bg-red-50 text-red-700">
               {error}
+            </div>
+          )}
+
+          {/* Interview Success/Error Messages */}
+          {interviewSuccess && (
+            <div className="mb-6 p-4 rounded-xl border border-green-200 bg-green-50 text-green-700">
+              {interviewSuccess}
+            </div>
+          )}
+          {interviewError && (
+            <div className="mb-6 p-4 rounded-xl border border-red-200 bg-red-50 text-red-700">
+              {interviewError}
             </div>
           )}
 
@@ -393,6 +468,93 @@ const checkCompany = async () => {
                     </>
                   );
                 })()}
+              </div>
+
+              {/* Interview Requests Section */}
+              <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-6">
+                <h2 className="text-xl font-semibold text-foreground mb-6">
+                  Interview Requests
+                </h2>
+
+                {interviewsLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-foreground/60">Loading interview requests...</p>
+                  </div>
+                ) : interviewInvitations.length === 0 ? (
+                  <div className="text-center py-10">
+                    <p className="text-foreground/60">
+                      No interview requests yet.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {interviewInvitations.map((invitation) => (
+                      <div
+                        key={invitation.id}
+                        className="border border-primary/10 rounded-xl p-5 hover:shadow-sm transition-shadow"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg text-foreground mb-1">
+                              {invitation.company_name}
+                            </h3>
+                            <p className="text-sm text-foreground/60 mb-3">
+                              {invitation.message}
+                            </p>
+                            <div className="flex items-center gap-4 text-sm">
+                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                invitation.status === 'pending'
+                                  ? 'bg-yellow-100 text-yellow-700'
+                                  : invitation.status === 'interested'
+                                  ? 'bg-green-100 text-green-700'
+                                  : 'bg-red-100 text-red-700'
+                              }`}>
+                                {invitation.status.charAt(0).toUpperCase() + invitation.status.slice(1)}
+                              </span>
+                              <span className="text-foreground/40">
+                                {new Date(invitation.created_at).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+
+                          {invitation.status === 'pending' && (
+                            <div className="flex gap-2 ml-4">
+                              <button
+                                onClick={() => updateInterviewStatus(invitation.id, 'interested')}
+                                disabled={updatingInterviewId === invitation.id}
+                                className="px-4 py-2 bg-primary text-white text-sm rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {updatingInterviewId === invitation.id ? (
+                                  <span className="flex items-center gap-2">
+                                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                                    Updating...
+                                  </span>
+                                ) : (
+                                  'Interested'
+                                )}
+                              </button>
+                              <button
+                                onClick={() => updateInterviewStatus(invitation.id, 'not_interested')}
+                                disabled={updatingInterviewId === invitation.id}
+                                className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {updatingInterviewId === invitation.id ? (
+                                  <span className="flex items-center gap-2">
+                                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                                    Updating...
+                                  </span>
+                                ) : (
+                                  'Not Interested'
+                                )}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}

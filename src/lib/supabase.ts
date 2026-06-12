@@ -76,3 +76,14 @@ export interface Application {
   created_at: string;
   updated_at: string;
 }
+
+export interface InterviewInvitation {
+  id: string;
+  worker_id: string;
+  employer_id: string;
+  employer_name: string;
+  company_name: string;
+  status: 'pending' | 'interested' | 'not_interested';
+  message: string;
+  created_at: string;
+}
