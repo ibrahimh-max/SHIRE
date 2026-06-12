@@ -101,6 +101,13 @@ export default function CandidatesPage() {
     try {
       setSendingRequest(workerId);
 
+      // 1. Fetch Employer Company
+      const { data: company } = await supabase
+        .from('companies')
+        .select('name')
+        .eq('owner_id', user.id)
+        .maybeSingle();
+
       const { data: existing } = await supabase
         .from('interview_invitations')
         .select('id')
@@ -113,12 +120,14 @@ export default function CandidatesPage() {
         return;
       }
 
+      // 2. Update Insert with company_name
       const { error } = await supabase
         .from('interview_invitations')
         .insert({
           worker_id: workerId,
           employer_id: user.id,
           employer_name: profile.name,
+          company_name: company?.name || 'Unknown Company',
           status: 'pending',
           message: 'Interested in discussing an opportunity.'
         });
