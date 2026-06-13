@@ -187,7 +187,6 @@ export default function CandidatesPage() {
   if (loading || !authInitialized) {
     return (
       <div className="min-h-screen bg-background">
-
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
@@ -204,18 +203,20 @@ export default function CandidatesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-
-
       <div className="py-8 px-4">
-        <div className="max-w-6xl mx-auto">
+        {/* CHANGE 1: Mobile-first container */}
+        <div className="max-w-md mx-auto">
 
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground">
-              Browse Candidates
+          {/* CHANGE 2: App-like header */}
+          <div className="mb-6">
+            <p className="text-sm text-foreground/50">
+              Available Workers
+            </p>
+            <h1 className="text-2xl font-bold text-foreground mt-1">
+              Find Hospitality Talent
             </h1>
-            <p className="text-foreground/60 mt-2">
-              Find available workers for your hospitality business
+            <p className="text-primary mt-2 font-medium">
+              {filteredCandidates.length} workers available
             </p>
           </div>
 
@@ -233,10 +234,10 @@ export default function CandidatesPage() {
             </div>
           )}
 
-          {/* Filters */}
-          <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-6 mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="font-semibold text-foreground">Filters</h2>
+          {/* CHANGE 3 & 4: Smaller filter section with vertical stack */}
+          <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-4 mb-4">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="font-semibold text-foreground text-sm">Filters</h2>
               <button
                 onClick={clearFilters}
                 className="text-sm text-primary hover:text-primary-dark transition-colors"
@@ -245,10 +246,10 @@ export default function CandidatesPage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="space-y-3">
               {/* Location Filter */}
               <div>
-                <label className="block text-sm font-medium text-foreground/70 mb-2">
+                <label className="block text-sm font-medium text-foreground/70 mb-1">
                   Location
                 </label>
                 <input
@@ -256,19 +257,19 @@ export default function CandidatesPage() {
                   value={locationFilter}
                   onChange={(e) => setLocationFilter(e.target.value)}
                   placeholder="Enter location..."
-                  className="w-full px-4 py-2 rounded-xl border border-primary/20 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                  className="w-full px-4 py-2 rounded-xl border border-primary/20 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
                 />
               </div>
 
               {/* Experience Filter */}
               <div>
-                <label className="block text-sm font-medium text-foreground/70 mb-2">
+                <label className="block text-sm font-medium text-foreground/70 mb-1">
                   Experience
                 </label>
                 <select
                   value={experienceFilter}
                   onChange={(e) => setExperienceFilter(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border border-primary/20 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all bg-white"
+                  className="w-full px-4 py-2 rounded-xl border border-primary/20 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all bg-white text-sm"
                 >
                   <option value="">All experience levels</option>
                   <option value="0-1 years">0-1 years</option>
@@ -280,13 +281,13 @@ export default function CandidatesPage() {
 
               {/* Preferred Role Filter */}
               <div>
-                <label className="block text-sm font-medium text-foreground/70 mb-2">
+                <label className="block text-sm font-medium text-foreground/70 mb-1">
                   Preferred Role
                 </label>
                 <select
                   value={preferredRoleFilter}
                   onChange={(e) => setPreferredRoleFilter(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border border-primary/20 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all bg-white"
+                  className="w-full px-4 py-2 rounded-xl border border-primary/20 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all bg-white text-sm"
                 >
                   <option value="">All roles</option>
                   <option value="Waiter">Waiter</option>
@@ -301,13 +302,13 @@ export default function CandidatesPage() {
 
               {/* Availability Filter */}
               <div>
-                <label className="block text-sm font-medium text-foreground/70 mb-2">
+                <label className="block text-sm font-medium text-foreground/70 mb-1">
                   Availability
                 </label>
                 <select
                   value={availabilityFilter}
                   onChange={(e) => setAvailabilityFilter(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border border-primary/20 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all bg-white"
+                  className="w-full px-4 py-2 rounded-xl border border-primary/20 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all bg-white text-sm"
                 >
                   <option value="">All availability</option>
                   <option value="Full Time">Full Time</option>
@@ -318,14 +319,7 @@ export default function CandidatesPage() {
             </div>
           </div>
 
-          {/* Results count */}
-          <div className="mb-4">
-            <p className="text-foreground/60 text-sm">
-              Showing {filteredCandidates.length} candidate{filteredCandidates.length !== 1 ? 's' : ''}
-            </p>
-          </div>
-
-          {/* Candidates Grid */}
+          {/* CHANGE 6: Vertical stack for candidates */}
           {pageLoading ? (
             <div className="text-center py-16">
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
@@ -348,23 +342,24 @@ export default function CandidatesPage() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-4">
               {filteredCandidates.map((candidate) => (
                 <div
                   key={candidate.id}
-                  className="bg-white rounded-2xl shadow-sm border border-primary/10 overflow-hidden hover:shadow-md transition-shadow"
+                  // CHANGE 7: Removed hover effects
+                  className="bg-white rounded-2xl border border-primary/10 overflow-hidden"
                 >
-                  {/* Photo Section */}
-                  <div className="h-32 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                  {/* CHANGE 5: Smaller photo section */}
+                  <div className="h-20 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
                     {candidate.photo_url ? (
                       <img
                         src={candidate.photo_url}
                         alt={candidate.name}
-                        className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-sm"
+                        className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-sm"
                       />
                     ) : (
-                      <div className="w-24 h-24 rounded-full bg-primary/30 flex items-center justify-center border-4 border-white shadow-sm">
-                        <span className="text-3xl">
+                      <div className="w-16 h-16 rounded-full bg-primary/30 flex items-center justify-center border-4 border-white shadow-sm">
+                        <span className="text-2xl">
                           {candidate.name.charAt(0).toUpperCase()}
                         </span>
                       </div>
@@ -372,12 +367,19 @@ export default function CandidatesPage() {
                   </div>
 
                   {/* Info Section */}
-                  <div className="p-5">
-                    <h3 className="font-semibold text-lg text-foreground mb-1">
+                  <div className="p-4">
+                    {/* CHANGE 8 & 9: Cleaner typography and role at top */}
+                    <h3 className="font-bold text-base text-foreground">
                       {candidate.name}
                     </h3>
                     
-                    <div className="space-y-2 mt-4">
+                    {candidate.preferred_role && (
+                      <p className="text-primary text-sm font-medium mt-1">
+                        {candidate.preferred_role}
+                      </p>
+                    )}
+                    
+                    <div className="space-y-2 mt-3">
                       {/* Age */}
                       {candidate.age && (
                         <div className="flex items-center gap-2 text-sm text-foreground/70">
@@ -399,14 +401,6 @@ export default function CandidatesPage() {
                         <div className="flex items-center gap-2 text-sm text-foreground/70">
                           <span>💼</span>
                           <span>{candidate.experience}</span>
-                        </div>
-                      )}
-
-                      {/* Preferred Role */}
-                      {candidate.preferred_role && (
-                        <div className="flex items-center gap-2 text-sm text-foreground/70">
-                          <span>👨‍🍳</span>
-                          <span>{candidate.preferred_role}</span>
                         </div>
                       )}
 
@@ -435,7 +429,7 @@ export default function CandidatesPage() {
                         </span>
                       </div>
 
-                      {/* Add Request Interview Button - Replaced Resume section */}
+                      {/* CHANGE 10: Updated button text */}
                       <button
                         onClick={() => sendInterviewRequest(candidate.id)}
                         disabled={sendingRequest === candidate.id}
@@ -443,7 +437,7 @@ export default function CandidatesPage() {
                       >
                         {sendingRequest === candidate.id
                           ? 'Sending...'
-                          : 'Request Interview'}
+                          : 'Invite To Interview'}
                       </button>
                     </div>
                   </div>
