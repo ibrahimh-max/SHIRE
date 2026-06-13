@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Navigation from '@/components/Navigation';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -187,7 +187,7 @@ export default function CandidatesPage() {
   if (loading || !authInitialized) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
+
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
@@ -204,7 +204,7 @@ export default function CandidatesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
+
 
       <div className="py-8 px-4">
         <div className="max-w-6xl mx-auto">

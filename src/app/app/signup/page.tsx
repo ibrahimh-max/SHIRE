@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Navigation from '@/components/Navigation';
+
 import { supabase } from '@/lib/supabase';
 
 export default function Signup() {
@@ -96,7 +96,7 @@ export default function Signup() {
   return (
     <div className="min-h-screen bg-background">
 
-      <Navigation />
+
 
       <div className="flex items-center justify-center py-16 px-4">
 

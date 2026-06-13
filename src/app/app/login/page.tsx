@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Navigation from '@/components/Navigation';
+
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -112,7 +112,7 @@ const signInWithGoogle = async () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
+
 
       <div className="flex items-center justify-center py-16 px-4">
         <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 border border-primary/10">

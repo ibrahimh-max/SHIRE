@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Navigation from '@/components/Navigation';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -72,7 +72,7 @@ export default function CreateCompanyPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation />
+
 
       <div className="max-w-2xl mx-auto py-10 px-4">
         <div className="bg-white rounded-2xl shadow-md p-8">
