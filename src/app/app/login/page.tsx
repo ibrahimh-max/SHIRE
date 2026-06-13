@@ -28,9 +28,16 @@ export default function Login() {
     setMounted(true);
   }, []);
 
-  // Redirect if already logged in
+  // Redirect if already logged in - Disabled during development for easier account switching
   useEffect(() => {
-    if (mounted && authInitialized && user && !redirecting) {
+    // Disabled during development for easier account switching
+    if (
+      process.env.NODE_ENV === 'production' &&
+      mounted &&
+      authInitialized &&
+      user &&
+      !redirecting
+    ) {
       setRedirecting(true);
       router.push('/app/dashboard');
     }
@@ -133,6 +140,19 @@ const signInWithGoogle = async () => {
             <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
               {error}
             </div>
+          )}
+
+          {/* Account Switch Button */}
+          {user && (
+            <button
+              onClick={async () => {
+                await supabase.auth.signOut();
+                window.location.reload();
+              }}
+              className="mb-4 w-full border border-red-200 text-red-600 py-3 rounded-xl font-medium hover:bg-red-50"
+            >
+              Sign Out Current Account
+            </button>
           )}
 
           {/* ✅ NEW: Google Sign In Button */}
