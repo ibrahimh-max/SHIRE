@@ -126,7 +126,6 @@ export default function ProfilePage() {
   if (loading || !authInitialized) {
     return (
       <div className="min-h-screen bg-background">
-
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
@@ -143,18 +142,20 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
-
-
       <div className="py-8 px-4">
-        <div className="max-w-2xl mx-auto">
+        {/* CHANGE 1: Mobile-first container */}
+        <div className="max-w-md mx-auto">
 
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground">
-              Candidate Profile
+          {/* CHANGE 2: Profile header with avatar */}
+          <div className="flex flex-col items-center text-center mb-8">
+            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-3xl mb-4">
+              👤
+            </div>
+            <h1 className="text-2xl font-bold text-foreground">
+              {formData.name || 'Your Profile'}
             </h1>
-            <p className="text-foreground/60 mt-2">
-              Update your profile information
+            <p className="text-primary mt-2 font-medium">
+              {formData.preferred_role || 'Hospitality Worker'}
             </p>
           </div>
 
@@ -173,184 +174,15 @@ export default function ProfilePage() {
           )}
 
           {/* Profile Form */}
-          <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-6">
+          {/* CHANGE 3: Cleaner card styling */}
+          <div className="bg-white rounded-3xl border border-primary/10 p-5">
             <form onSubmit={handleSubmit} className="space-y-6">
 
-              {/* Name */}
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                  placeholder="Enter your full name"
-                />
-              </div>
-
-              {/* Phone */}
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-foreground mb-2">
-                  Phone Number *
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                  placeholder="Enter your phone number"
-                />
-              </div>
-
-              {/* Age */}
-              <div>
-                <label htmlFor="age" className="block text-sm font-medium text-foreground mb-2">
-                  Age *
-                </label>
-                <input
-                  type="number"
-                  id="age"
-                  name="age"
-                  value={formData.age}
-                  onChange={handleChange}
-                  required
-                  min="16"
-                  max="100"
-                  className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                  placeholder="Enter your age"
-                />
-              </div>
-
-              {/* Address */}
-              <div>
-                <label htmlFor="address" className="block text-sm font-medium text-foreground mb-2">
-                  Address
-                </label>
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                  placeholder="Enter your address"
-                />
-              </div>
-
-              {/* Location */}
-              <div>
-                <label htmlFor="location" className="block text-sm font-medium text-foreground mb-2">
-                  City/Location
-                </label>
-                <input
-                  type="text"
-                  id="location"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                  placeholder="Enter your city"
-                />
-              </div>
-
-              {/* Hospitality Experience */}
-              <div>
-                <label htmlFor="hospitality_experience" className="block text-sm font-medium text-foreground mb-2">
-                  Hospitality Experience *
-                </label>
-                <select
-                  id="hospitality_experience"
-                  name="hospitality_experience"
-                  value={formData.hospitality_experience}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
-                >
-                  <option value="">Select experience</option>
-                  <option value="Fresher">Fresher</option>
-                  <option value="Less than 1 Year">Less than 1 Year</option>
-                  <option value="1-3 Years">1-3 Years</option>
-                  <option value="3+ Years">3+ Years</option>
-                </select>
-              </div>
-
-              {/* Start Availability */}
-              <div>
-                <label htmlFor="start_availability" className="block text-sm font-medium text-foreground mb-2">
-                  How soon can you start? *
-                </label>
-                <select
-                  id="start_availability"
-                  name="start_availability"
-                  value={formData.start_availability}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
-                >
-                  <option value="">Select start date</option>
-                  <option value="Immediately">Immediately</option>
-                  <option value="Within 1 Week">Within 1 Week</option>
-                  <option value="Within 2 Weeks">Within 2 Weeks</option>
-                  <option value="Within 1 Month">Within 1 Month</option>
-                </select>
-              </div>
-
-              {/* Availability */}
-              <div>
-                <label htmlFor="availability" className="block text-sm font-medium text-foreground mb-2">
-                  Availability *
-                </label>
-                <select
-                  id="availability"
-                  name="availability"
-                  value={formData.availability}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
-                >
-                  <option value="">Select availability</option>
-                  <option value="Full Time">Full Time</option>
-                  <option value="Part Time">Part Time</option>
-                  <option value="Both">Both</option>
-                </select>
-              </div>
-
-              {/* Preferred Role */}
-              <div>
-                <label htmlFor="preferred_role" className="block text-sm font-medium text-foreground mb-2">
-                  Preferred Role *
-                </label>
-                <select
-                  id="preferred_role"
-                  name="preferred_role"
-                  value={formData.preferred_role}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
-                >
-                  <option value="">Select preferred role</option>
-                  <option value="Waiter">Waiter</option>
-                  <option value="Chef">Chef</option>
-                  <option value="Kitchen Helper">Kitchen Helper</option>
-                  <option value="Receptionist">Receptionist</option>
-                  <option value="Housekeeping">Housekeeping</option>
-                  <option value="Barista">Barista</option>
-                  <option value="Delivery Staff">Delivery Staff</option>
-                </select>
-              </div>
-
-              {/* Is Available Toggle */}
+              {/* CHANGE 4: Availability toggle moved to TOP */}
               <div className="flex items-center justify-between p-4 bg-background/50 rounded-xl">
                 <div>
-                  <h3 className="font-medium text-foreground">Available for Work</h3>
+                  {/* CHANGE 5: Updated text */}
+                  <h3 className="font-semibold text-foreground">Available For Hiring</h3>
                   <p className="text-sm text-foreground/60">Toggle your availability status</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
@@ -365,8 +197,196 @@ export default function ProfilePage() {
                 </label>
               </div>
 
+              {/* CHANGE 10: Personal Information Block */}
+              <div className="space-y-4 border-t border-primary/10 pt-5">
+                {/* Name */}
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-foreground mb-2">
+                    Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                    placeholder="Enter your phone number"
+                  />
+                </div>
+
+                {/* Age */}
+                <div>
+                  <label htmlFor="age" className="block text-sm font-medium text-foreground mb-2">
+                    Age *
+                  </label>
+                  <input
+                    type="number"
+                    id="age"
+                    name="age"
+                    value={formData.age}
+                    onChange={handleChange}
+                    required
+                    min="16"
+                    max="100"
+                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                    placeholder="Enter your age"
+                  />
+                </div>
+
+                {/* Address */}
+                <div>
+                  <label htmlFor="address" className="block text-sm font-medium text-foreground mb-2">
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                    placeholder="Enter your address"
+                  />
+                </div>
+
+                {/* Location */}
+                <div>
+                  <label htmlFor="location" className="block text-sm font-medium text-foreground mb-2">
+                    City/Location
+                  </label>
+                  <input
+                    type="text"
+                    id="location"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                    placeholder="Enter your city"
+                  />
+                </div>
+              </div>
+
+              {/* CHANGE 10: Hospitality Information Block */}
+              <div className="space-y-4 border-t border-primary/10 pt-5">
+                {/* CHANGE 7: Preferred Role with star */}
+                <div>
+                  <label htmlFor="preferred_role" className="block text-sm font-medium text-foreground mb-2">
+                    Preferred Role * <span className="text-primary ml-1">★</span>
+                  </label>
+                  <select
+                    id="preferred_role"
+                    name="preferred_role"
+                    value={formData.preferred_role}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                  >
+                    <option value="">Select preferred role</option>
+                    <option value="Waiter">Waiter</option>
+                    <option value="Chef">Chef</option>
+                    <option value="Kitchen Helper">Kitchen Helper</option>
+                    <option value="Receptionist">Receptionist</option>
+                    <option value="Housekeeping">Housekeeping</option>
+                    <option value="Barista">Barista</option>
+                    <option value="Delivery Staff">Delivery Staff</option>
+                  </select>
+                </div>
+
+                {/* CHANGE 7: Hospitality Experience with star */}
+                <div>
+                  <label htmlFor="hospitality_experience" className="block text-sm font-medium text-foreground mb-2">
+                    Hospitality Experience * <span className="text-primary ml-1">★</span>
+                  </label>
+                  <select
+                    id="hospitality_experience"
+                    name="hospitality_experience"
+                    value={formData.hospitality_experience}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                  >
+                    <option value="">Select experience</option>
+                    <option value="Fresher">Fresher</option>
+                    <option value="Less than 1 Year">Less than 1 Year</option>
+                    <option value="1-3 Years">1-3 Years</option>
+                    <option value="3+ Years">3+ Years</option>
+                  </select>
+                </div>
+
+                {/* Availability */}
+                <div>
+                  <label htmlFor="availability" className="block text-sm font-medium text-foreground mb-2">
+                    Availability *
+                  </label>
+                  <select
+                    id="availability"
+                    name="availability"
+                    value={formData.availability}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                  >
+                    <option value="">Select availability</option>
+                    <option value="Full Time">Full Time</option>
+                    <option value="Part Time">Part Time</option>
+                    <option value="Both">Both</option>
+                  </select>
+                </div>
+
+                {/* Start Availability */}
+                <div>
+                  <label htmlFor="start_availability" className="block text-sm font-medium text-foreground mb-2">
+                    How soon can you start? *
+                  </label>
+                  <select
+                    id="start_availability"
+                    name="start_availability"
+                    value={formData.start_availability}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                  >
+                    <option value="">Select start date</option>
+                    <option value="Immediately">Immediately</option>
+                    <option value="Within 1 Week">Within 1 Week</option>
+                    <option value="Within 2 Weeks">Within 2 Weeks</option>
+                    <option value="Within 1 Month">Within 1 Month</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* CHANGE 9: Profile Visibility Card */}
+              <div className="bg-primary/5 rounded-xl p-4 text-center">
+                <p className="font-semibold text-primary">
+                  Profile Visibility
+                </p>
+                <p className="text-sm text-foreground/60 mt-1">
+                  Employers can discover you using the information below.
+                </p>
+              </div>
+
               {/* Submit Button */}
               <div className="pt-4">
+                {/* CHANGE 8: Updated button text */}
                 <button
                   type="submit"
                   disabled={isSaving}
@@ -378,7 +398,7 @@ export default function ProfilePage() {
                       Saving...
                     </span>
                   ) : (
-                    'Save Profile'
+                    'Update Profile'
                   )}
                 </button>
               </div>
