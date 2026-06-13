@@ -9,6 +9,11 @@ import { InterviewInvitation } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
+// Worker invitation type (received by worker)
+interface WorkerInvitation extends InterviewInvitation {
+  // uses fields already on InterviewInvitation
+}
+
 interface InterviewRequestWithWorker extends InterviewInvitation {
   worker_name?: string;
   worker_preferred_role?: string;
@@ -20,8 +25,11 @@ export default function RequestsPage() {
   const router = useRouter();
 
   const [requests, setRequests] = useState<InterviewRequestWithWorker[]>([]);
+  const [workerInvitations, setWorkerInvitations] = useState<WorkerInvitation[]>([]);
   const [pageLoading, setPageLoading] = useState(false);
   const [error, setError] = useState('');
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState('');
 
   // Handle authentication redirect
   useEffect(() => {
@@ -34,16 +42,18 @@ export default function RequestsPage() {
       return;
     }
 
-    if (profile && profile.role !== 'employer') {
-      router.push('/app/dashboard');
-      return;
-    }
+    // Both worker and employer can access this page
   }, [user, profile, loading, authInitialized, router]);
 
   // Fetch interview requests
   useEffect(() => {
-    if (!user || !profile || profile.role !== 'employer') return;
-    fetchRequests();
+    if (!user || !profile) return;
+
+    if (profile.role === 'employer') {
+      fetchRequests();
+    } else if (profile.role === 'worker') {
+      fetchWorkerInvitations();
+    }
   }, [user, profile]);
 
   const fetchRequests = async () => {
@@ -99,6 +109,61 @@ export default function RequestsPage() {
     }
   };
 
+  // Fetch interview invitations received by worker
+  const fetchWorkerInvitations = async () => {
+    setPageLoading(true);
+    setError('');
+
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('interview_invitations')
+        .select('*')
+        .eq('worker_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (fetchError) {
+        setError(fetchError.message);
+        return;
+      }
+
+      setWorkerInvitations(data || []);
+    } catch (err) {
+      setError('Failed to fetch interview requests');
+    } finally {
+      setPageLoading(false);
+    }
+  };
+
+  // Update interview status (worker responding)
+  const updateInterviewStatus = async (invitationId: string, newStatus: 'interested' | 'not_interested') => {
+    setUpdatingId(invitationId);
+    setError('');
+    setSuccessMsg('');
+
+    try {
+      const { error: updateError } = await supabase
+        .from('interview_invitations')
+        .update({ status: newStatus })
+        .eq('id', invitationId);
+
+      if (updateError) {
+        setError('Failed to update status');
+        return;
+      }
+
+      setSuccessMsg('Status updated successfully');
+      await fetchWorkerInvitations();
+
+      setTimeout(() => {
+        setSuccessMsg('');
+      }, 3000);
+    } catch (err) {
+      setError('Failed to update status');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   // Initial auth loading
   if (loading || !authInitialized) {
     return (
@@ -114,7 +179,7 @@ export default function RequestsPage() {
     );
   }
 
-  if (!user || (profile && profile.role !== 'employer')) {
+  if (!user) {
     return null;
   }
 
@@ -221,6 +286,97 @@ export default function RequestsPage() {
                 </div>
               ))}
             </div>
+          )}
+
+          {/* WORKER VIEW */}
+          {profile?.role === 'worker' && (
+            <>
+              {successMsg && (
+                <div className="mb-6 p-4 rounded-xl border border-green-200 bg-green-50 text-green-700">
+                  {successMsg}
+                </div>
+              )}
+
+              {pageLoading ? (
+                <div className="text-center py-16">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
+                  <p className="text-foreground/60">Loading interview requests...</p>
+                </div>
+              ) : workerInvitations.length === 0 ? (
+                <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-12 text-center">
+                  <p className="text-foreground/60">
+                    No interview requests yet.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {workerInvitations.map((invitation) => (
+                    <div
+                      key={invitation.id}
+                      className="bg-white rounded-2xl shadow-sm border border-primary/10 p-6 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg text-foreground mb-1">
+                            {invitation.company_name}
+                          </h3>
+                          <p className="text-sm text-foreground/60 mb-3">
+                            {invitation.message}
+                          </p>
+                          <div className="flex items-center gap-4 text-sm">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              invitation.status === 'pending'
+                                ? 'bg-yellow-100 text-yellow-700'
+                                : invitation.status === 'interested'
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-red-100 text-red-700'
+                            }`}>
+                              {invitation.status.charAt(0).toUpperCase() + invitation.status.slice(1)}
+                            </span>
+                            <span className="text-foreground/40">
+                              {new Date(invitation.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+
+                        {invitation.status === 'pending' && (
+                          <div className="flex gap-2 ml-4">
+                            <button
+                              onClick={() => updateInterviewStatus(invitation.id, 'interested')}
+                              disabled={updatingId === invitation.id}
+                              className="px-4 py-2 bg-primary text-white text-sm rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {updatingId === invitation.id ? (
+                                <span className="flex items-center gap-2">
+                                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                                  Updating...
+                                </span>
+                              ) : (
+                                'Interested'
+                              )}
+                            </button>
+                            <button
+                              onClick={() => updateInterviewStatus(invitation.id, 'not_interested')}
+                              disabled={updatingId === invitation.id}
+                              className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {updatingId === invitation.id ? (
+                                <span className="flex items-center gap-2">
+                                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                                  Updating...
+                                </span>
+                              ) : (
+                                'Not Interested'
+                              )}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
 
         </div>

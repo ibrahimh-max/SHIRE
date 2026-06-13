@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function Navigation() {
@@ -15,62 +14,11 @@ export default function Navigation() {
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
 
-          {/* Left — logo + links */}
-          <div className="flex items-center gap-8">
-            <Link href="/" className="text-xl font-bold tracking-tight text-primary">
+          {/* Left — logo */}
+          <div className="flex items-center">
+            <span className="text-xl font-bold tracking-tight text-primary">
               CREWZI
-            </Link>
-
-            <div className="hidden md:flex items-center gap-1">
-              {user && (
-                <Link
-                  href="/app/dashboard"
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-primary/5 transition-all"
-                >
-                  Dashboard
-                </Link>
-              )}
-              {user && profile?.role === 'worker' && (
-                <Link
-                  href="/app/profile"
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-primary/5 transition-all"
-                >
-                  Profile
-                </Link>
-              )}
-              {user && profile?.role === 'employer' && (
-                <Link
-                  href="/app/candidates"
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-primary/5 transition-all"
-                >
-                  Candidates
-                </Link>
-              )}
-              {user && profile?.role === 'employer' && (
-                <Link
-                  href="/app/requests"
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-primary/5 transition-all"
-                >
-                  My Requests
-                </Link>
-              )}
-              {/* OLD JOBS/APPLICATIONS FLOW - COMMENTED OUT
-              <Link
-                href="/jobs"
-                className="px-3 py-1.5 rounded-lg text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-primary/5 transition-all"
-              >
-                Jobs
-              </Link>
-              {user && profile?.role === 'employer' && (
-                <Link
-                  href="/post-job"
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-primary/5 transition-all"
-                >
-                  Post job
-                </Link>
-              )}
-              */}
-            </div>
+            </span>
           </div>
 
           {/* Right — auth */}
@@ -80,7 +28,7 @@ export default function Navigation() {
                 {/* Role pill */}
                 {profile?.role && (
                   <span
-                    className="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                    className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
                     style={{
                       background: profile.role === 'employer' ? '#EAF3DE' : 'rgba(0, 173, 181, 0.1)',
                       color: profile.role === 'employer' ? '#3B6D11' : '#00ADB5',
@@ -91,7 +39,7 @@ export default function Navigation() {
                 )}
 
                 {/* Name */}
-                <span className="text-sm text-foreground/40 hidden sm:block">
+                <span className="text-sm text-foreground/40">
                   {profile?.name?.split(' ')[0] || 'User'}
                 </span>
 
@@ -104,18 +52,18 @@ export default function Navigation() {
               </>
             ) : (
               <>
-                <Link
+                <a
                   href="/app/login"
                   className="text-sm font-medium text-foreground/60 hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-primary/5 transition-all"
                 >
                   Log in
-                </Link>
-                <Link
+                </a>
+                <a
                   href="/app/signup"
                   className="text-sm font-medium text-white px-4 py-2 rounded-lg transition-all bg-primary hover:bg-primary-dark"
                 >
                   Sign up
-                </Link>
+                </a>
               </>
             )}
           </div>
@@ -124,4 +72,4 @@ export default function Navigation() {
       </div>
     </nav>
   );
-}
+}
