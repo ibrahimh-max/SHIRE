@@ -168,7 +168,6 @@ export default function RequestsPage() {
   if (loading || !authInitialized) {
     return (
       <div className="min-h-screen bg-background">
-
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
@@ -185,18 +184,26 @@ export default function RequestsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-
-
       <div className="py-8 px-4">
-        <div className="max-w-6xl mx-auto">
+        {/* CHANGE 1: Mobile-first container */}
+        <div className="max-w-md mx-auto">
 
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground">
-              My Interview Requests
+          {/* CHANGE 2: App-like header */}
+          <div className="mb-6">
+            <p className="text-sm text-foreground/50">
+              {profile?.role === 'employer'
+                ? 'Interview Management'
+                : 'Interview Inbox'}
+            </p>
+            <h1 className="text-2xl font-bold text-foreground mt-1">
+              {profile?.role === 'employer'
+                ? 'Sent Requests'
+                : 'Interview Requests'}
             </h1>
-            <p className="text-foreground/60 mt-2">
-              Track all interview requests you have sent to candidates
+            <p className="text-primary mt-2 font-medium">
+              {profile?.role === 'employer'
+                ? `${requests.length} requests sent`
+                : `${workerInvitations.length} requests received`}
             </p>
           </div>
 
@@ -207,85 +214,90 @@ export default function RequestsPage() {
             </div>
           )}
 
-          {/* Requests List */}
-          {pageLoading ? (
-            <div className="text-center py-16">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-foreground/60">Loading interview requests...</p>
-            </div>
-          ) : requests.length === 0 ? (
-            <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-12 text-center">
-              <p className="text-foreground/60">
-                No interview requests sent yet.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {requests.map((request) => (
-                <div
-                  key={request.id}
-                  className="bg-white rounded-2xl shadow-sm border border-primary/10 p-6 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      {/* Company Name */}
-                      <h3 className="font-semibold text-lg text-foreground mb-1">
-                        {request.company_name}
-                      </h3>
+          {/* CHANGE 3: Wrap employer section */}
+          {profile?.role === 'employer' && (
+            <>
+              {pageLoading ? (
+                <div className="text-center py-16">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
+                  <p className="text-foreground/60">Loading interview requests...</p>
+                </div>
+              ) : requests.length === 0 ? (
+                <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-12 text-center">
+                  <p className="text-foreground/60">
+                    No interview requests sent yet.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {requests.map((request) => (
+                    <div
+                      key={request.id}
+                      // CHANGE 4: Removed hover effects, reduced padding
+                      className="bg-white rounded-2xl border border-primary/10 p-5"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          {/* Company Name - CHANGE 5: Better typography */}
+                          <h3 className="font-bold text-base text-foreground mb-1">
+                            🏢 {request.company_name}
+                          </h3>
 
-                      {/* Worker Details */}
-                      <div className="space-y-2 mt-4">
-                        {/* Worker Name */}
-                        <div className="flex items-center gap-2 text-sm text-foreground/70">
-                          <span>👤</span>
-                          <span>{request.worker_name || 'Unknown'}</span>
+                          {/* Worker Details */}
+                          <div className="space-y-2 mt-4">
+                            {/* Worker Name */}
+                            <div className="flex items-center gap-2 text-sm text-foreground/70">
+                              <span>👤</span>
+                              <span>{request.worker_name || 'Unknown'}</span>
+                            </div>
+
+                            {/* Worker Preferred Role */}
+                            {request.worker_preferred_role && (
+                              <div className="flex items-center gap-2 text-sm text-foreground/70">
+                                <span>👨‍🍳</span>
+                                <span>{request.worker_preferred_role}</span>
+                              </div>
+                            )}
+
+                            {/* Worker Location */}
+                            {request.worker_location && (
+                              <div className="flex items-center gap-2 text-sm text-foreground/70">
+                                <span>📍</span>
+                                <span>{request.worker_location}</span>
+                              </div>
+                            )}
+
+                            {/* Message */}
+                            {request.message && (
+                              <div className="flex items-start gap-2 text-sm text-foreground/60 mt-3 pt-3 border-t border-primary/10">
+                                <span>💬</span>
+                                <span>{request.message}</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Status and Date */}
+                          <div className="flex items-center gap-4 mt-4 pt-4 border-t border-primary/10">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              request.status === 'pending'
+                                ? 'bg-yellow-100 text-yellow-700'
+                                : request.status === 'interested'
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-red-100 text-red-700'
+                            }`}>
+                              {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                            </span>
+                            <span className="text-sm text-foreground/40">
+                              Sent: {new Date(request.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
                         </div>
-
-                        {/* Worker Preferred Role */}
-                        {request.worker_preferred_role && (
-                          <div className="flex items-center gap-2 text-sm text-foreground/70">
-                            <span>👨‍🍳</span>
-                            <span>{request.worker_preferred_role}</span>
-                          </div>
-                        )}
-
-                        {/* Worker Location */}
-                        {request.worker_location && (
-                          <div className="flex items-center gap-2 text-sm text-foreground/70">
-                            <span>📍</span>
-                            <span>{request.worker_location}</span>
-                          </div>
-                        )}
-
-                        {/* Message */}
-                        {request.message && (
-                          <div className="flex items-start gap-2 text-sm text-foreground/60 mt-3 pt-3 border-t border-primary/10">
-                            <span>💬</span>
-                            <span>{request.message}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Status and Date */}
-                      <div className="flex items-center gap-4 mt-4 pt-4 border-t border-primary/10">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          request.status === 'pending'
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : request.status === 'interested'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-red-100 text-red-700'
-                        }`}>
-                          {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                        </span>
-                        <span className="text-sm text-foreground/40">
-                          Sent: {new Date(request.created_at).toLocaleDateString()}
-                        </span>
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
 
           {/* WORKER VIEW */}
@@ -313,16 +325,23 @@ export default function RequestsPage() {
                   {workerInvitations.map((invitation) => (
                     <div
                       key={invitation.id}
-                      className="bg-white rounded-2xl shadow-sm border border-primary/10 p-6 hover:shadow-md transition-shadow"
+                      // CHANGE 6: Removed hover effects, reduced padding
+                      className="bg-white rounded-2xl border border-primary/10 p-5"
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-lg text-foreground mb-1">
-                            {invitation.company_name}
+                          {/* CHANGE 10: Add company icon */}
+                          <h3 className="font-bold text-base text-foreground mb-1">
+                            🏢 {invitation.company_name}
                           </h3>
-                          <p className="text-sm text-foreground/60 mb-3">
-                            {invitation.message}
-                          </p>
+                          
+                          {/* CHANGE 7: Premium message styling */}
+                          <div className="bg-primary/5 rounded-xl p-3 mt-3 mb-3">
+                            <p className="text-sm text-foreground/70">
+                              {invitation.message}
+                            </p>
+                          </div>
+                          
                           <div className="flex items-center gap-4 text-sm">
                             <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                               invitation.status === 'pending'
@@ -340,7 +359,9 @@ export default function RequestsPage() {
                         </div>
 
                         {invitation.status === 'pending' && (
-                          <div className="flex gap-2 ml-4">
+                          // CHANGE 8: Vertical button stack
+                          <div className="flex flex-col gap-2 mt-4">
+                            {/* CHANGE 9: Updated button text */}
                             <button
                               onClick={() => updateInterviewStatus(invitation.id, 'interested')}
                               disabled={updatingId === invitation.id}
@@ -352,7 +373,7 @@ export default function RequestsPage() {
                                   Updating...
                                 </span>
                               ) : (
-                                'Interested'
+                                'Accept Interview'
                               )}
                             </button>
                             <button
@@ -366,7 +387,7 @@ export default function RequestsPage() {
                                   Updating...
                                 </span>
                               ) : (
-                                'Not Interested'
+                                'Decline'
                               )}
                             </button>
                           </div>
