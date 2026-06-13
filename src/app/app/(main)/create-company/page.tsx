@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase';
 export const dynamic = 'force-dynamic';
 
 export default function CreateCompanyPage() {
-  const { user, profile } = useAuth();
+  const { user, profile, loading, authInitialized } = useAuth();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -19,11 +19,72 @@ export default function CreateCompanyPage() {
     description: '',
   });
 
-  const [loading, setLoading] = useState(false);
+  // Fix 1: Renamed to avoid naming conflict
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [checkingCompany, setCheckingCompany] = useState(true);
 
-  // Prevent workers
-  if (profile?.role !== 'employer') {
+  // Handle authentication and redirect
+  useEffect(() => {
+    if (loading || !authInitialized) {
+      return;
+    }
+
+    if (!user) {
+      router.push('/app/login');
+      return;
+    }
+
+    // Redirect workers away from this page
+    if (profile && profile.role !== 'employer') {
+      router.push('/app/dashboard');
+      return;
+    }
+
+    // Check if user already has a company
+    const checkExistingCompany = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('companies')
+          .select('id')
+          .eq('owner_id', user.id)
+          .maybeSingle();
+
+        if (data) {
+          // User already has a company, redirect to candidates page
+          router.push('/app/candidates');
+          return;
+        }
+      } catch (err) {
+        console.error('Error checking company:', err);
+      } finally {
+        setCheckingCompany(false);
+      }
+    };
+
+    if (profile && profile.role === 'employer') {
+      checkExistingCompany();
+    } else {
+      setCheckingCompany(false);
+    }
+  }, [user, profile, loading, authInitialized, router]);
+
+  // Show loading while checking auth and company
+  if (loading || !authInitialized || checkingCompany) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-foreground/60">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Prevent rendering if not employer (though redirect should handle it)
+  if (!user || profile?.role !== 'employer') {
     return null;
   }
 
@@ -34,6 +95,8 @@ export default function CreateCompanyPage() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Clear error when user starts typing
+    if (error) setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,171 +104,170 @@ export default function CreateCompanyPage() {
 
     if (!user) return;
 
-    setLoading(true);
+    setIsSubmitting(true);
     setError('');
 
     try {
-      const { error } = await supabase
+      const { error: insertError } = await supabase
         .from('companies')
         .insert({
           owner_id: user.id,
-          name: formData.name,
+          name: formData.name.trim(),
           company_type: formData.company_type,
-          location: formData.location,
-          description: formData.description,
+          location: formData.location.trim(),
+          description: formData.description.trim(),
         });
 
-      if (error) {
-        console.error(error);
-        setError(error.message);
+      if (insertError) {
+        console.error('Insert error:', insertError);
+        setError(insertError.message);
+        setIsSubmitting(false);
         return;
       }
 
+      // Fix 2: Smooth transition delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Success - redirect to candidates page
       router.push('/app/candidates');
+      
     } catch (err) {
-      console.error(err);
-      setError('Failed to create company');
-    } finally {
-      setLoading(false);
+      console.error('Submit error:', err);
+      setError('Failed to create company. Please try again.');
+      setIsSubmitting(false);
     }
   };
 
-return (
-  <div className="min-h-screen bg-background">
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="max-w-md mx-auto px-4 py-6">
 
-    <div className="max-w-md mx-auto px-4 py-6">
-
-      {/* Header */}
-      <div className="text-center mb-8">
-
-        <div className="w-20 h-20 mx-auto rounded-full bg-primary/10 flex items-center justify-center text-4xl mb-4">
-          🏢
-        </div>
-
-        <h1 className="text-2xl font-bold text-foreground">
-          Create Company
-        </h1>
-
-        <p className="text-foreground/60 mt-2">
-          Set up your business profile and start hiring workers.
-        </p>
-
-      </div>
-
-      {/* Error */}
-      {error && (
-        <div className="mb-5 bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl">
-          {error}
-        </div>
-      )}
-
-      {/* Form Card */}
-      <div className="bg-white rounded-3xl border border-primary/10 p-5">
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-
-          {/* Company Name */}
-          <div>
-            <label className="block mb-2 text-sm font-semibold text-foreground">
-              Company Name
-            </label>
-
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full rounded-xl border border-primary/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20"
-              placeholder="Taj Hotel"
-            />
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 mx-auto rounded-full bg-primary/10 flex items-center justify-center text-4xl mb-4">
+            🏢
           </div>
+          <h1 className="text-2xl font-bold text-foreground">
+            Create Company
+          </h1>
+          {/* Fix 3: Better header copy */}
+          <p className="text-foreground/60 mt-2">
+            Create your company profile and start inviting hospitality workers for interview
+          </p>
+        </div>
 
-          {/* Company Type */}
-          <div>
-            <label className="block mb-2 text-sm font-semibold text-foreground">
-              Business Type
-            </label>
+        {/* Error */}
+        {error && (
+          <div className="mb-5 bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl">
+            {error}
+          </div>
+        )}
 
-            <select
-              name="company_type"
-              value={formData.company_type}
-              onChange={handleChange}
-              required
-              className="w-full rounded-xl border border-primary/20 px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+        {/* Form Card */}
+        <div className="bg-white rounded-3xl border border-primary/10 p-5">
+          <form onSubmit={handleSubmit} className="space-y-5">
+
+            {/* Company Name */}
+            <div>
+              <label className="block mb-2 text-sm font-semibold text-foreground">
+                Company Name *
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className="w-full rounded-xl border border-primary/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                placeholder="Taj Hotel"
+              />
+            </div>
+
+            {/* Company Type */}
+            <div>
+              <label className="block mb-2 text-sm font-semibold text-foreground">
+                Business Type *
+              </label>
+              <select
+                name="company_type"
+                value={formData.company_type}
+                onChange={handleChange}
+                required
+                className="w-full rounded-xl border border-primary/20 px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              >
+                <option value="">Select Type</option>
+                <option value="Hotel">Hotel</option>
+                <option value="Restaurant">Restaurant</option>
+                <option value="Cafe">Cafe</option>
+                <option value="Catering">Catering</option>
+                <option value="Event Venue">Event Venue</option>
+                <option value="Cloud Kitchen">Cloud Kitchen</option>
+                <option value="Bar">Bar</option>
+                <option value="Resort">Resort</option>
+              </select>
+            </div>
+
+            {/* Location */}
+            <div>
+              <label className="block mb-2 text-sm font-semibold text-foreground">
+                Location *
+              </label>
+              <input
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                required
+                className="w-full rounded-xl border border-primary/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                placeholder="Hyderabad"
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block mb-2 text-sm font-semibold text-foreground">
+                About Your Business
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={4}
+                className="w-full rounded-xl border border-primary/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                placeholder="Tell workers about your hotel, restaurant, cafe, or business..."
+              />
+            </div>
+
+            {/* Info Box */}
+            <div className="bg-primary/5 rounded-xl p-4">
+              <p className="font-medium text-primary">
+                Hiring Starts Here
+              </p>
+              <p className="text-sm text-foreground/60 mt-1">
+                Once your company is created, you'll be able to browse workers and send interview invitations.
+              </p>
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-primary text-white py-4 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-dark transition-colors"
             >
-              <option value="">Select Type</option>
-              <option value="Hotel">Hotel</option>
-              <option value="Restaurant">Restaurant</option>
-              <option value="Cafe">Cafe</option>
-              <option value="Catering">Catering</option>
-              <option value="Event Venue">Event Venue</option>
-            </select>
-          </div>
+              {isSubmitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Creating Company...
+                </span>
+              ) : (
+                'Create Company'
+              )}
+            </button>
 
-          {/* Location */}
-          <div>
-            <label className="block mb-2 text-sm font-semibold text-foreground">
-              Location
-            </label>
-
-            <input
-              type="text"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              required
-              className="w-full rounded-xl border border-primary/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20"
-              placeholder="Hyderabad"
-            />
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block mb-2 text-sm font-semibold text-foreground">
-              About Your Business
-            </label>
-
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows={4}
-              required
-              className="w-full rounded-xl border border-primary/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
-              placeholder="Tell workers about your hotel, restaurant, cafe, or business..."
-            />
-          </div>
-
-          {/* Info Box */}
-          <div className="bg-primary/5 rounded-xl p-4">
-
-            <p className="font-medium text-primary">
-              Hiring Starts Here
-            </p>
-
-            <p className="text-sm text-foreground/60 mt-1">
-              Once your company is created, you'll be able to browse workers and send interview invitations.
-            </p>
-
-          </div>
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-primary text-white py-4 rounded-xl font-semibold disabled:opacity-50"
-          >
-            {loading
-              ? 'Creating Company...'
-              : 'Create Company'}
-          </button>
-
-        </form>
+          </form>
+        </div>
 
       </div>
-
     </div>
-
-  </div>
-);
+  );
+}
