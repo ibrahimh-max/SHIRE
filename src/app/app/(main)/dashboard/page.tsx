@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -24,8 +24,7 @@ export default function Dashboard() {
   const [interviewSuccess, setInterviewSuccess] = useState('');
   const [interviewError, setInterviewError] = useState('');
   
-  // Guard against duplicate fetches
-  const fetchedUserId = useRef<string | null>(null);
+
 
   // Handle authentication redirect
   useEffect(() => {
@@ -54,16 +53,12 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user || !profile) return;
 
-    // Prevent duplicate fetches on mount or unrelated profile updates
-    if (fetchedUserId.current === user.id) return;
-    fetchedUserId.current = user.id;
-
     if (profile.role === 'employer') {
       fetchEmployerData();
     } else if (profile.role === 'worker') {
       fetchInterviewInvitations();
     }
-  }, [user, profile]);
+  }, [user?.id, profile?.role]);
 
   // Fetch employer data in parallel
   const fetchEmployerData = async () => {
@@ -77,7 +72,12 @@ export default function Dashboard() {
         supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'worker').eq('is_available', true)
       ]);
 
-      if (!companyRes.data && !companyRes.error) {
+      if (companyRes.error) {
+        setError('Failed to load company data: ' + companyRes.error.message);
+        return;
+      }
+
+      if (!companyRes.data) {
         router.push('/app/create-company');
         return;
       }

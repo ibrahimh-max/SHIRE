@@ -76,8 +76,10 @@ export default function CreateCompanyPage() {
     }
   }, [user, profile, loading, authInitialized, router]);
 
-  // Show loading while checking auth and company
-  if (loading || !authInitialized || checkingCompany) {
+  // Show loading while checking auth, profile, and company
+  // Fix 5: Also wait for profile to arrive — prevents blank page race condition
+  // when authInitialized becomes true before fetchProfile completes
+  if (loading || !authInitialized || !profile || checkingCompany) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -141,10 +143,12 @@ export default function CreateCompanyPage() {
 
       // Success - redirect immediately
       router.push('/app/candidates');
-      
+
     } catch (err: any) {
       console.error('Submit error:', err);
       setError(err?.message || 'Failed to save company. Please try again.');
+    } finally {
+      // Always reset submitting state so button is never permanently disabled
       setIsSubmitting(false);
     }
   };

@@ -44,8 +44,9 @@ export default function MobileLayout({
 
           <button
             onClick={signOut}
-            className="text-sm font-medium text-red-500 relative z-50 flex items-center justify-center min-h-[48px] min-w-[48px]"
+            className="text-sm font-medium text-red-500 relative z-50 flex items-center justify-center min-h-[48px] min-w-[48px] cursor-pointer select-none"
             aria-label="Logout"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             Logout
           </button>

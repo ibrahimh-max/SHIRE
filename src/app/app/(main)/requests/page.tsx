@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -31,8 +31,7 @@ export default function RequestsPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Guard against duplicate fetches
-  const fetchedUserId = useRef<string | null>(null);
+
 
   // Handle authentication redirect
   useEffect(() => {
@@ -52,15 +51,12 @@ export default function RequestsPage() {
   useEffect(() => {
     if (!user || !profile) return;
 
-    if (fetchedUserId.current === user.id) return;
-    fetchedUserId.current = user.id;
-
     if (profile.role === 'employer') {
       fetchRequests();
     } else if (profile.role === 'worker') {
       fetchWorkerInvitations();
     }
-  }, [user, profile]);
+  }, [user?.id, profile?.role]);
 
   const fetchRequests = async () => {
     setPageLoading(true);
