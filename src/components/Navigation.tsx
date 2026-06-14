@@ -34,7 +34,7 @@ export default function Navigation() {
                       color: profile.role === 'employer' ? '#3B6D11' : '#00ADB5',
                     }}
                   >
-                    {profile.role === 'employer' ? 'Employer' : 'Worker'}
+                    {profile.role === 'employer' ? 'Employer' : 'Talent'}
                   </span>
                 )}
 

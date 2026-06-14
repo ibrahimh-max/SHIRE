@@ -176,7 +176,7 @@ export default function CreateCompanyPage() {
           <p className="text-foreground/60 mt-2">
             {hasCompany 
               ? 'Update your company profile' 
-              : 'Create your company profile and start inviting hospitality workers for interview'}
+              : 'Create your company profile and start inviting hospitality talent for interview'}
           </p>
         </div>
 
@@ -268,7 +268,7 @@ export default function CreateCompanyPage() {
                 Hiring Starts Here
               </p>
               <p className="text-sm text-foreground/60 mt-1">
-                Once your company is created, you'll be able to browse workers and send interview invitations.
+                Once your company is created, you'll be able to browse talent and send interview invitations.
               </p>
             </div>
 

@@ -191,7 +191,7 @@ export default function ProfilePage() {
               {formData.name || 'Your Profile'}
             </h1>
             <p className="text-primary mt-2 font-medium">
-              {formData.preferred_role || 'Hospitality Worker'}
+              {formData.preferred_role || 'Hospitality Talent'}
             </p>
           </div>
 

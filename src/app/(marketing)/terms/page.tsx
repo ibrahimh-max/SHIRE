@@ -19,7 +19,7 @@ export default function TermsPage() {
       </h2>
 
       <p>
-        CREWZI is a hospitality hiring platform that connects workers with
+        CREWZI is a hospitality hiring platform that connects hospitality talent with
         hotels, restaurants, cafes, catering companies, and other hospitality
         businesses for full-time, part-time, and gig-based job opportunities.
       </p>
@@ -35,7 +35,7 @@ export default function TermsPage() {
       </p>
 
       <h2 className="text-xl font-semibold mt-8 mb-3">
-        3. Worker Responsibilities
+        3. Talent Responsibilities
       </h2>
 
       <ul className="list-disc pl-6 space-y-2">
@@ -73,7 +73,7 @@ export default function TermsPage() {
       </h2>
 
       <p>
-        CREWZI only facilitates connections between workers and employers.
+        CREWZI only facilitates connections between talent and employers.
         We do not guarantee employment, interviews, hiring decisions,
         salaries, or job outcomes.
       </p>
@@ -94,7 +94,7 @@ export default function TermsPage() {
       <p>
         CREWZI shall not be responsible for employment decisions, workplace
         disputes, salary disagreements, or damages resulting from interactions
-        between workers and employers.
+        between talent and employers.
       </p>
 
       <h2 className="text-xl font-semibold mt-8 mb-3">

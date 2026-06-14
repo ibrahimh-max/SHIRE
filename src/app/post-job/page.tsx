@@ -283,7 +283,7 @@ export default function PostJob() {
                     
                     <div>
                       <label htmlFor="workers_needed" className="block text-sm font-medium text-gray-700 mb-1">
-                        Workers Needed
+                        Talent Needed
                       </label>
                       <input
                         type="number"

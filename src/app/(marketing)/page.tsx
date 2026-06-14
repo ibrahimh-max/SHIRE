@@ -50,7 +50,7 @@ export default function HomePage() {
 
           <p className="text-lg md:text-xl text-foreground/60 max-w-3xl mx-auto mb-10 leading-relaxed">
             CREWZI connects hotels, restaurants, cafes and event businesses
-            with hospitality workers across India.
+            with hospitality talent across India.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-14">
@@ -131,7 +131,7 @@ export default function HomePage() {
 
               <ul className="space-y-4">
                 <li>✅ Hospitality Focused</li>
-                <li>✅ Worker Profiles</li>
+                <li>✅ Talent Profiles</li>
                 <li>✅ Interview Requests</li>
                 <li>✅ Faster Hiring</li>
               </ul>
@@ -151,7 +151,7 @@ export default function HomePage() {
           </h2>
 
           <p className="text-lg text-foreground/60 mb-8">
-            Built exclusively for hospitality hiring. Connect employers and workers faster than traditional hiring methods.
+            Built exclusively for hospitality hiring. Connect employers and talent faster than traditional hiring methods.
           </p>
 
           <button className="inline-flex items-center bg-black text-white px-8 py-4 rounded-2xl font-medium cursor-not-allowed opacity-90">
@@ -221,7 +221,7 @@ export default function HomePage() {
 
               <ul className="space-y-4 text-foreground/70">
                 <li>✓ Create your company profile</li>
-                <li>✓ Browse hospitality workers</li>
+                <li>✓ Browse hospitality talent</li>
                 <li>✓ Request interviews instantly</li>
                 <li>✓ Hire faster with CREWZI</li>
               </ul>
@@ -229,7 +229,7 @@ export default function HomePage() {
 
             <div className="bg-white rounded-3xl border border-primary/10 shadow-sm p-8">
               <h3 className="text-2xl font-semibold mb-6">
-                💼 For Workers
+                💼 For Talent
               </h3>
 
               <ul className="space-y-4 text-foreground/70">

@@ -8,7 +8,7 @@ export default function PrivacyPolicyPage() {
       </p>
 
       <p className="mb-4">
-        Crewzi is a hospitality hiring platform that connects workers with
+        Crewzi is a hospitality hiring platform that connects hospitality talent with
         hospitality businesses such as hotels, restaurants, cafes, and venues.
       </p>
 
@@ -29,7 +29,7 @@ export default function PrivacyPolicyPage() {
 
       <ul className="list-disc pl-6 space-y-2">
         <li>To create and manage accounts</li>
-        <li>To connect workers and employers</li>
+        <li>To connect talent and employers</li>
         <li>To process job applications</li>
         <li>To improve our platform and services</li>
       </ul>

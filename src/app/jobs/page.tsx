@@ -163,7 +163,7 @@ const fetchJobs = async () => {
 };
 
   const handleApply = async (jobId: string) => {
-    if (!user || profile?.role !== 'worker') { setError('Only workers can apply for jobs'); return; }
+    if (!user || profile?.role !== 'worker') { setError('Only hospitality talent can apply for jobs'); return; }
     setApplying(jobId);
     try {
       const job = jobs.find(j => j.id === jobId);
@@ -395,7 +395,7 @@ const fetchJobs = async () => {
                     )
                   ) : user ? (
                     <div className="w-full bg-gray-50 text-gray-400 py-2.5 px-4 rounded-xl text-center text-sm">
-                      Only workers can apply
+                      Only hospitality talent can apply
                     </div>
                   ) : (
                     <button

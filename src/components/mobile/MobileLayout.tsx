@@ -31,7 +31,7 @@ export default function MobileLayout({
             >
               {profile.role === 'employer'
                 ? 'Employer'
-                : 'Worker'}
+                : 'Talent'}
             </span>
           )}
         </div>

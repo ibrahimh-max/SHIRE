@@ -189,7 +189,7 @@ export default function Dashboard() {
             </h1>
             {profile?.role === 'worker' && (
               <p className="text-primary mt-2 font-medium">
-                {profile.preferred_role || 'Hospitality Worker'} •{' '}
+                {profile.preferred_role || 'Hospitality Talent'} •{' '}
                 {profile.is_available ? 'Available' : 'Not Available'}
               </p>
             )}
@@ -432,7 +432,7 @@ export default function Dashboard() {
                       <div className="text-4xl mb-4">👥</div>
                       <h3 className="text-lg font-bold text-foreground mb-2">Start Building Your Team</h3>
                       <p className="text-foreground/60">
-                        Browse workers and send invitations.
+                        Browse talent and send invitations.
                       </p>
                     </div>
                     <div className="grid grid-cols-2 gap-3 mb-6">
@@ -441,7 +441,7 @@ export default function Dashboard() {
                           {totalCandidates}
                         </p>
                         <p className="text-sm text-foreground/60">
-                          Workers
+                          Talent
                         </p>
                       </div>
                       <div className="bg-primary/5 rounded-xl p-4 text-center">
@@ -457,7 +457,7 @@ export default function Dashboard() {
                       href="/app/candidates"
                       className="block w-full text-center bg-primary text-white py-4 rounded-xl font-medium"
                     >
-                      Browse Workers
+                      Browse Talent
                     </Link>
                   </>
                 )}

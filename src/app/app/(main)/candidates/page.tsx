@@ -210,13 +210,13 @@ export default function CandidatesPage() {
           {/* CHANGE 2: App-like header */}
           <div className="mb-6">
             <p className="text-sm text-foreground/50">
-              Available Workers
+              Available Talent
             </p>
             <h1 className="text-2xl font-bold text-foreground mt-1">
               Find Hospitality Talent
             </h1>
             <p className="text-primary mt-2 font-medium">
-              {filteredCandidates.length} workers available
+              {filteredCandidates.length} talent profiles available
             </p>
           </div>
 
@@ -328,7 +328,7 @@ export default function CandidatesPage() {
           ) : filteredCandidates.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-12 text-center">
               <div className="text-4xl mb-4">🔍</div>
-              <h3 className="text-lg font-bold text-foreground mb-2">No Workers Found</h3>
+              <h3 className="text-lg font-bold text-foreground mb-2">No Talent Found</h3>
               <p className="text-foreground/60 mb-4">
                 Try adjusting your filters.
               </p>

@@ -227,7 +227,7 @@ export default function Signup() {
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all bg-white"
               >
                 <option value="worker">
-                  💼 Worker looking for jobs
+                  💼 Talent looking for jobs
                 </option>
 
                 <option value="employer">
