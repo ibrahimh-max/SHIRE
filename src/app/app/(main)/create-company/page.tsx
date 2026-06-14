@@ -23,6 +23,7 @@ export default function CreateCompanyPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [checkingCompany, setCheckingCompany] = useState(true);
+  const [hasCompany, setHasCompany] = useState(false);
 
   // Handle authentication and redirect
   useEffect(() => {
@@ -53,9 +54,21 @@ export default function CreateCompanyPage() {
           .maybeSingle();
 
         if (data) {
-          // User already has a company, redirect to candidates page
-          router.push('/app/candidates');
-          return;
+          setHasCompany(true);
+          const { data: companyData } = await supabase
+            .from('companies')
+            .select('*')
+            .eq('owner_id', user.id)
+            .maybeSingle();
+            
+          if (companyData) {
+            setFormData({
+              name: companyData.name || '',
+              company_type: companyData.company_type || '',
+              location: companyData.location || '',
+              description: companyData.description || '',
+            });
+          }
         }
       } catch (err) {
         console.error('Error checking company:', err);
@@ -108,21 +121,30 @@ export default function CreateCompanyPage() {
     setError('');
 
     try {
-      const { error: insertError } = await supabase
-        .from('companies')
-        .insert({
-          owner_id: user.id,
-          name: formData.name.trim(),
-          company_type: formData.company_type,
-          location: formData.location.trim(),
-          description: formData.description.trim(),
-        });
+      if (hasCompany) {
+        const { error: updateError } = await supabase
+          .from('companies')
+          .update({
+            name: formData.name.trim(),
+            company_type: formData.company_type,
+            location: formData.location.trim(),
+            description: formData.description.trim(),
+          })
+          .eq('owner_id', user.id);
 
-      if (insertError) {
-        console.error('Insert error:', insertError);
-        setError(insertError.message);
-        setIsSubmitting(false);
-        return;
+        if (updateError) throw updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('companies')
+          .insert({
+            owner_id: user.id,
+            name: formData.name.trim(),
+            company_type: formData.company_type,
+            location: formData.location.trim(),
+            description: formData.description.trim(),
+          });
+
+        if (insertError) throw insertError;
       }
 
       // Fix 2: Smooth transition delay
@@ -131,9 +153,9 @@ export default function CreateCompanyPage() {
       // Success - redirect to candidates page
       router.push('/app/candidates');
       
-    } catch (err) {
+    } catch (err: any) {
       console.error('Submit error:', err);
-      setError('Failed to create company. Please try again.');
+      setError(err?.message || 'Failed to save company. Please try again.');
       setIsSubmitting(false);
     }
   };
@@ -148,11 +170,13 @@ export default function CreateCompanyPage() {
             🏢
           </div>
           <h1 className="text-2xl font-bold text-foreground">
-            Create Company
+            {hasCompany ? 'Edit Company' : 'Create Company'}
           </h1>
           {/* Fix 3: Better header copy */}
           <p className="text-foreground/60 mt-2">
-            Create your company profile and start inviting hospitality workers for interview
+            {hasCompany 
+              ? 'Update your company profile' 
+              : 'Create your company profile and start inviting hospitality workers for interview'}
           </p>
         </div>
 
@@ -257,10 +281,10 @@ export default function CreateCompanyPage() {
               {isSubmitting ? (
                 <span className="flex items-center justify-center gap-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Creating Company...
+                  {hasCompany ? 'Updating Company...' : 'Creating Company...'}
                 </span>
               ) : (
-                'Create Company'
+                hasCompany ? 'Update Company' : 'Create Company'
               )}
             </button>
 

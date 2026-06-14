@@ -22,7 +22,7 @@ interface ProfileFormData {
 }
 
 export default function ProfilePage() {
-  const { user, profile, loading, authInitialized, refreshProfile } = useAuth();
+  const { user, profile, loading, authInitialized, refreshProfile, signOut } = useAuth();
   const router = useRouter();
 
   const [formData, setFormData] = useState<ProfileFormData>({
@@ -42,6 +42,9 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState('');
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Handle authentication redirect
   useEffect(() => {
@@ -119,6 +122,39 @@ export default function ProfilePage() {
       setError('Failed to update profile');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    setIsDeleting(true);
+    setError('');
+
+    try {
+      const { error: invError } = await supabase
+        .from('interview_invitations')
+        .delete()
+        .or(`worker_id.eq.${user.id},employer_id.eq.${user.id}`);
+      if (invError) throw invError;
+
+      const { error: compError } = await supabase
+        .from('companies')
+        .delete()
+        .eq('owner_id', user.id);
+      if (compError) throw compError;
+
+      const { error: profError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', user.id);
+      if (profError) throw profError;
+
+      await signOut();
+      router.push('/app/login');
+    } catch (err: any) {
+      setError(err?.message || 'Failed to delete account. Please try again.');
+      setIsDeleting(false);
+      setShowDeleteModal(false);
     }
   };
 
@@ -404,10 +440,64 @@ export default function ProfilePage() {
               </div>
 
             </form>
+
+            {/* Danger Section */}
+            <div className="mt-12 border-t border-red-200/50 pt-8">
+              <h3 className="text-lg font-bold text-red-600 mb-2">Delete Account</h3>
+              <p className="text-sm text-foreground/60 mb-4">
+                This action permanently removes your account data.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(true)}
+                className="w-full bg-red-50 text-red-600 border border-red-200 px-6 py-3 rounded-xl hover:bg-red-100 transition-colors font-medium"
+              >
+                Delete Account
+              </button>
+            </div>
+
+            {/* Version */}
+            <div className="mt-8 text-center">
+              <p className="text-xs text-foreground/40">CREWZI v1.0</p>
+            </div>
           </div>
 
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
+            <h3 className="text-xl font-bold text-foreground mb-2">Delete Account</h3>
+            <p className="text-foreground/70 mb-6">
+              Are you sure you want to permanently delete your account?
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 rounded-xl border border-primary/20 text-foreground font-medium hover:bg-background transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteAccount}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 transition-colors flex items-center justify-center"
+              >
+                {isDeleting ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                ) : (
+                  'Delete'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

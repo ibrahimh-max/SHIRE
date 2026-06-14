@@ -327,10 +327,10 @@ export default function CandidatesPage() {
             </div>
           ) : filteredCandidates.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-12 text-center">
+              <div className="text-4xl mb-4">🔍</div>
+              <h3 className="text-lg font-bold text-foreground mb-2">No Workers Found</h3>
               <p className="text-foreground/60 mb-4">
-                {candidates.length === 0 
-                  ? 'No candidates available at the moment.' 
-                  : 'No candidates match your filters.'}
+                Try adjusting your filters.
               </p>
               {candidates.length > 0 && (
                 <button

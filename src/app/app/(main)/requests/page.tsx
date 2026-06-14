@@ -224,8 +224,10 @@ export default function RequestsPage() {
                 </div>
               ) : requests.length === 0 ? (
                 <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-12 text-center">
+                  <div className="text-4xl mb-4">📨</div>
+                  <h3 className="text-lg font-bold text-foreground mb-2">No Requests Sent Yet</h3>
                   <p className="text-foreground/60">
-                    No interview requests sent yet.
+                    Interview invitations you send will appear here.
                   </p>
                 </div>
               ) : (
@@ -316,8 +318,10 @@ export default function RequestsPage() {
                 </div>
               ) : workerInvitations.length === 0 ? (
                 <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-12 text-center">
+                  <div className="text-4xl mb-4">📭</div>
+                  <h3 className="text-lg font-bold text-foreground mb-2">No Interview Requests Yet</h3>
                   <p className="text-foreground/60">
-                    No interview requests yet.
+                    Employers will be able to invite you here.
                   </p>
                 </div>
               ) : (

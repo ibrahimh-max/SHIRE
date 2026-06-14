@@ -255,8 +255,10 @@ export default function Dashboard() {
                   </div>
                 ) : interviewInvitations.length === 0 ? (
                   <div className="text-center py-10">
+                    <div className="text-4xl mb-4">🎯</div>
+                    <h3 className="text-lg font-bold text-foreground mb-2">Waiting For Opportunities</h3>
                     <p className="text-foreground/60">
-                      No interview requests yet.
+                      Interview invitations will appear here.
                     </p>
                   </div>
                 ) : (
@@ -426,6 +428,13 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   <>
+                    <div className="text-center mb-6">
+                      <div className="text-4xl mb-4">👥</div>
+                      <h3 className="text-lg font-bold text-foreground mb-2">Start Building Your Team</h3>
+                      <p className="text-foreground/60">
+                        Browse workers and send invitations.
+                      </p>
+                    </div>
                     <div className="grid grid-cols-2 gap-3 mb-6">
                       <div className="bg-primary/5 rounded-xl p-4 text-center">
                         <p className="text-3xl font-bold text-primary">
