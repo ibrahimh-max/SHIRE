@@ -23,8 +23,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [authInitialized, setAuthInitialized] = useState(false);
 
-  // Fetch profile
-  const fetchProfile = async (userId: string, retries = 5) => {
+  // Fetch profile — reduced to 2 retries × 300ms (max ~600ms wait)
+  const fetchProfile = async (userId: string, retries = 2) => {
+    console.log('[CREWZI] PROFILE FETCH START — userId:', userId);
     for (let i = 0; i < retries; i++) {
       try {
         const { data, error } = await supabase
@@ -35,28 +36,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (error) {
           if (i < retries - 1) {
-            await new Promise(resolve => setTimeout(resolve, 800));
+            await new Promise(resolve => setTimeout(resolve, 300));
             continue;
           }
-
           setProfile(null);
+          console.log('[CREWZI] PROFILE FETCH FAILED — error:', error.message);
           return;
         }
 
         if (!data) {
           setProfile(null);
+          console.log('[CREWZI] PROFILE FETCH FINISHED — no profile found');
           return;
         }
 
         setProfile(data);
+        console.log('[CREWZI] PROFILE FETCH FINISHED — role:', data.role);
         return;
       } catch {
         if (i < retries - 1) {
-          await new Promise(resolve => setTimeout(resolve, 800));
+          await new Promise(resolve => setTimeout(resolve, 300));
           continue;
         }
-
         setProfile(null);
+        console.log('[CREWZI] PROFILE FETCH FAILED — exception on final retry');
       }
     }
   };
@@ -64,7 +67,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Refresh profile
   const refreshProfile = async () => {
     if (user) {
+      console.log('[CREWZI] REFRESH PROFILE START');
       await fetchProfile(user.id);
+      console.log('[CREWZI] REFRESH PROFILE FINISHED');
     }
   };
 
@@ -77,47 +82,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    console.log('[CREWZI] AUTH START — registering onAuthStateChange as single source of truth');
 
-
-
-    // REAL AUTH FLOW
-    const getInitialSession = async () => {
-      try {
-
-        const {
-          data: { session },
-          error,
-        } = await supabase.auth.getSession();
-
-        if (error) {
-          setLoading(false);
-          setAuthInitialized(true);
-          return;
-        }
-
-        if (session?.user) {
-          setUser(session.user);
-          await fetchProfile(session.user.id);
-        } else {
-          setUser(null);
-          setProfile(null);
-        }
-
-      } catch {
-        setUser(null);
-        setProfile(null);
-      } finally {
-        setLoading(false);
-        setAuthInitialized(true);
-      }
-    };
-
-    getInitialSession();
-
-    // AUTH LISTENER
+    // Single source of truth: onAuthStateChange handles ALL auth events.
+    // INITIAL_SESSION fires immediately on registration with the current session.
+    // No separate getInitialSession() needed — that caused double fetchProfile.
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('[CREWZI] AUTH EVENT:', event);
+
+      // TOKEN_REFRESHED: JWT silently refreshed. User identity unchanged.
+      // DO NOT re-fetch profile — this was the root cause of progressive loading freezes.
+      if (event === 'TOKEN_REFRESHED') {
+        console.log('[CREWZI] TOKEN REFRESH — skipping profile re-fetch');
+        return;
+      }
 
       if (session?.user) {
         setUser(session.user);
@@ -128,6 +108,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setLoading(false);
+
+      // Mark auth as initialized only after the first INITIAL_SESSION event.
+      // All pages gate on authInitialized before rendering or redirecting.
+      if (event === 'INITIAL_SESSION') {
+        console.log('[CREWZI] AUTH FINISHED — auth initialized');
+        setAuthInitialized(true);
+      }
     });
 
     return () => {
@@ -162,4 +149,3 @@ export function useAuth() {
 
   return context;
 }
-

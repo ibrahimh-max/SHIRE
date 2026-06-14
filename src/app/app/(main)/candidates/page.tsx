@@ -57,11 +57,11 @@ export default function CandidatesPage() {
     }
   }, [user, profile, loading, authInitialized, router]);
 
-  // Fetch candidates
+  // Fetch candidates — use primitives to avoid re-fetch on every profile object refresh
   useEffect(() => {
-    if (!user || !profile || profile.role !== 'employer') return;
+    if (!user?.id || profile?.role !== 'employer') return;
     fetchCandidates();
-  }, [user, profile]);
+  }, [user?.id, profile?.role]);
 
   // Apply filters
   useEffect(() => {

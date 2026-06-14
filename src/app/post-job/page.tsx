@@ -32,12 +32,12 @@ export default function PostJob() {
     }
   }, [profile, loading, router]);
 
-  // Fetch employer's companies
+  // Fetch employer's companies — use primitives to avoid re-fetch on profile object refresh
   useEffect(() => {
-    if (user && profile?.role === 'employer') {
+    if (user?.id && profile?.role === 'employer') {
       fetchCompanies();
     }
-  }, [user, profile]);
+  }, [user?.id, profile?.role]);
 
   const fetchCompanies = async () => {
     try {
