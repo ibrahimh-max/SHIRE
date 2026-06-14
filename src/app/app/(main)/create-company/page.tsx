@@ -56,12 +56,11 @@ export default function CreateCompanyPage() {
         if (companyData) {
           setHasCompany(true);
           setFormData({
-              name: companyData.name || '',
-              company_type: companyData.company_type || '',
-              location: companyData.location || '',
-              description: companyData.description || '',
-            });
-          }
+            name: companyData.name || '',
+            company_type: companyData.company_type || '',
+            location: companyData.location || '',
+            description: companyData.description || '',
+          });
         }
       } catch (err) {
         console.error('Error checking company:', err);
