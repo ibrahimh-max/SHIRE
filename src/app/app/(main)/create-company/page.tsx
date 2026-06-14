@@ -47,22 +47,15 @@ export default function CreateCompanyPage() {
       if (!user) return;
       
       try {
-        const { data, error } = await supabase
+        const { data: companyData, error } = await supabase
           .from('companies')
-          .select('id')
+          .select('*')
           .eq('owner_id', user.id)
           .maybeSingle();
 
-        if (data) {
+        if (companyData) {
           setHasCompany(true);
-          const { data: companyData } = await supabase
-            .from('companies')
-            .select('*')
-            .eq('owner_id', user.id)
-            .maybeSingle();
-            
-          if (companyData) {
-            setFormData({
+          setFormData({
               name: companyData.name || '',
               company_type: companyData.company_type || '',
               location: companyData.location || '',
@@ -147,10 +140,7 @@ export default function CreateCompanyPage() {
         if (insertError) throw insertError;
       }
 
-      // Fix 2: Smooth transition delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Success - redirect to candidates page
+      // Success - redirect immediately
       router.push('/app/candidates');
       
     } catch (err: any) {

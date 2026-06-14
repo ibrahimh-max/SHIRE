@@ -113,11 +113,12 @@ export default function ProfilePage() {
       }
 
       setSuccessMessage('✅ Profile saved successfully');
-      await refreshProfile();
+      
+      // Refresh profile in background, don't block UI
+      refreshProfile().catch(console.error);
 
-      setTimeout(() => {
-        router.push('/app/dashboard');
-      }, 1500);
+      // Redirect immediately
+      router.push('/app/dashboard');
     } catch (err) {
       setError('Failed to update profile');
     } finally {
@@ -158,14 +159,14 @@ export default function ProfilePage() {
     }
   };
 
-  // Initial auth loading
+  // Initial auth loading (non-blocking UI)
   if (loading || !authInitialized) {
     return (
       <div className="min-h-screen bg-background">
         <div className="flex items-center justify-center py-16">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-foreground/60">Loading your account...</p>
+          <div className="text-center space-y-4">
+            <div className="animate-pulse bg-primary/20 h-12 w-48 rounded-xl mx-auto"></div>
+            <div className="animate-pulse bg-primary/10 h-8 w-32 rounded-xl mx-auto"></div>
           </div>
         </div>
       </div>

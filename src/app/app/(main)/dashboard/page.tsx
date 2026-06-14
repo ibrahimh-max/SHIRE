@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -23,6 +23,9 @@ export default function Dashboard() {
   const [updatingInterviewId, setUpdatingInterviewId] = useState<string | null>(null);
   const [interviewSuccess, setInterviewSuccess] = useState('');
   const [interviewError, setInterviewError] = useState('');
+  
+  // Guard against duplicate fetches
+  const fetchedUserId = useRef<string | null>(null);
 
   // Handle authentication redirect
   useEffect(() => {
@@ -47,54 +50,45 @@ export default function Dashboard() {
     }
   }, [user, profile, loading, authInitialized, router]);
 
-  const checkCompany = async () => {
-    if (!user) return;
-
-    const { data } = await supabase
-      .from('companies')
-      .select('id')
-      .eq('owner_id', user.id)
-      .maybeSingle();
-
-    if (!data) {
-      router.push('/app/create-company');
-    }
-  };
-
   // Fetch dashboard data
   useEffect(() => {
     if (!user || !profile) return;
 
-    if (profile.role === 'employer') {
-      checkCompany();
-      fetchTotalCandidates();
-    }
+    // Prevent duplicate fetches on mount or unrelated profile updates
+    if (fetchedUserId.current === user.id) return;
+    fetchedUserId.current = user.id;
 
-    if (profile.role === 'worker') {
+    if (profile.role === 'employer') {
+      fetchEmployerData();
+    } else if (profile.role === 'worker') {
       fetchInterviewInvitations();
     }
   }, [user, profile]);
 
-  // Fetch total available candidates for employer
-  const fetchTotalCandidates = async () => {
+  // Fetch employer data in parallel
+  const fetchEmployerData = async () => {
+    if (!user) return;
     setCandidatesLoading(true);
     setError('');
 
     try {
-      const { count, error } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .eq('role', 'worker')
-        .eq('is_available', true);
+      const [companyRes, candidatesRes] = await Promise.all([
+        supabase.from('companies').select('id').eq('owner_id', user.id).maybeSingle(),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'worker').eq('is_available', true)
+      ]);
 
-      if (error) {
-        setError(error.message);
+      if (!companyRes.data && !companyRes.error) {
+        router.push('/app/create-company');
         return;
       }
 
-      setTotalCandidates(count || 0);
+      if (candidatesRes.error) {
+        setError(candidatesRes.error.message);
+      } else {
+        setTotalCandidates(candidatesRes.count || 0);
+      }
     } catch (err) {
-      setError('Failed to fetch candidates count');
+      setError('Failed to fetch dashboard data');
     } finally {
       setCandidatesLoading(false);
     }
@@ -155,14 +149,14 @@ export default function Dashboard() {
     }
   };
 
-  // Initial auth loading
+  // Initial auth loading (non-blocking UI)
   if (loading || !authInitialized) {
     return (
       <div className="min-h-screen bg-background">
         <div className="flex items-center justify-center py-16">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-foreground/60">Loading your account...</p>
+          <div className="text-center space-y-4">
+            <div className="animate-pulse bg-primary/20 h-12 w-48 rounded-xl mx-auto"></div>
+            <div className="animate-pulse bg-primary/10 h-8 w-32 rounded-xl mx-auto"></div>
           </div>
         </div>
       </div>

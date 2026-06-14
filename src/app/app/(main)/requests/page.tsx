@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -31,6 +31,9 @@ export default function RequestsPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
 
+  // Guard against duplicate fetches
+  const fetchedUserId = useRef<string | null>(null);
+
   // Handle authentication redirect
   useEffect(() => {
     if (loading || !authInitialized) {
@@ -48,6 +51,9 @@ export default function RequestsPage() {
   // Fetch interview requests
   useEffect(() => {
     if (!user || !profile) return;
+
+    if (fetchedUserId.current === user.id) return;
+    fetchedUserId.current = user.id;
 
     if (profile.role === 'employer') {
       fetchRequests();
@@ -164,14 +170,14 @@ export default function RequestsPage() {
     }
   };
 
-  // Initial auth loading
+  // Initial auth loading (non-blocking UI)
   if (loading || !authInitialized) {
     return (
       <div className="min-h-screen bg-background">
         <div className="flex items-center justify-center py-16">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-foreground/60">Loading your account...</p>
+          <div className="text-center space-y-4">
+            <div className="animate-pulse bg-primary/20 h-12 w-48 rounded-xl mx-auto"></div>
+            <div className="animate-pulse bg-primary/10 h-8 w-32 rounded-xl mx-auto"></div>
           </div>
         </div>
       </div>
