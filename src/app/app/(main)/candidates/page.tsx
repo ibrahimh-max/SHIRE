@@ -34,6 +34,11 @@ export default function CandidatesPage() {
   const [sendingRequest, setSendingRequest] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState('');
 
+  useEffect(() => {
+    console.log('CANDIDATES MOUNT');
+    return () => console.log('CANDIDATES UNMOUNT');
+  }, []);
+
   // Filters
   const [locationFilter, setLocationFilter] = useState('');
   const [experienceFilter, setExperienceFilter] = useState('');
@@ -151,6 +156,7 @@ export default function CandidatesPage() {
   };
 
   const fetchCandidates = async () => {
+    console.log('CANDIDATES FETCH START');
     setPageLoading(true);
     setError('');
 
@@ -172,6 +178,7 @@ export default function CandidatesPage() {
     } catch (err) {
       setError('Failed to fetch candidates');
     } finally {
+      console.log('CANDIDATES FETCH END');
       setPageLoading(false);
     }
   };

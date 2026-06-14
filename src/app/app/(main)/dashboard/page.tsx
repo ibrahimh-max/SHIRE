@@ -23,6 +23,11 @@ export default function Dashboard() {
   const [updatingInterviewId, setUpdatingInterviewId] = useState<string | null>(null);
   const [interviewSuccess, setInterviewSuccess] = useState('');
   const [interviewError, setInterviewError] = useState('');
+
+  useEffect(() => {
+    console.log('DASHBOARD MOUNT');
+    return () => console.log('DASHBOARD UNMOUNT');
+  }, []);
   
 
 
@@ -63,6 +68,7 @@ export default function Dashboard() {
   // Fetch employer data in parallel
   const fetchEmployerData = async () => {
     if (!user) return;
+    console.log('DASHBOARD FETCH START');
     setCandidatesLoading(true);
     setError('');
 
@@ -90,12 +96,14 @@ export default function Dashboard() {
     } catch (err) {
       setError('Failed to fetch dashboard data');
     } finally {
+      console.log('DASHBOARD FETCH END');
       setCandidatesLoading(false);
     }
   };
 
   // Fetch interview invitations for worker
   const fetchInterviewInvitations = async () => {
+    console.log('DASHBOARD FETCH START');
     setInterviewsLoading(true);
     setInterviewError('');
 
@@ -115,6 +123,7 @@ export default function Dashboard() {
     } catch (err) {
       setInterviewError('Failed to fetch interview requests');
     } finally {
+      console.log('DASHBOARD FETCH END');
       setInterviewsLoading(false);
     }
   };

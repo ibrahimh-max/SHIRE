@@ -31,7 +31,10 @@ export default function RequestsPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
 
-
+  useEffect(() => {
+    console.log('REQUESTS MOUNT');
+    return () => console.log('REQUESTS UNMOUNT');
+  }, []);
 
   // Handle authentication redirect
   useEffect(() => {
@@ -59,6 +62,7 @@ export default function RequestsPage() {
   }, [user?.id, profile?.role]);
 
   const fetchRequests = async () => {
+    console.log('REQUESTS FETCH START');
     setPageLoading(true);
     setError('');
 
@@ -107,12 +111,14 @@ export default function RequestsPage() {
     } catch (err) {
       setError('Failed to fetch interview requests');
     } finally {
+      console.log('REQUESTS FETCH END');
       setPageLoading(false);
     }
   };
 
   // Fetch interview invitations received by worker
   const fetchWorkerInvitations = async () => {
+    console.log('REQUESTS FETCH START');
     setPageLoading(true);
     setError('');
 
@@ -132,6 +138,7 @@ export default function RequestsPage() {
     } catch (err) {
       setError('Failed to fetch interview requests');
     } finally {
+      console.log('REQUESTS FETCH END');
       setPageLoading(false);
     }
   };
