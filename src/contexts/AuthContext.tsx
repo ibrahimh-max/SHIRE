@@ -1,10 +1,9 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { Profile } from '@/lib/supabase';
-
 
 interface AuthContextType {
   user: User | null;
@@ -23,13 +22,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loadingState, setLoadingState] = useState(true);
-  
+  const [authInitialized, setAuthInitialized] = useState(false);
+
+  // CRITICAL: Memory ref to track the current logged-in user ID.
+  // This acts as our source of truth to block redundant Supabase event cycles.
+  const lastProcessedUserId = useRef<string | null>(null);
+
   const loading = loadingState;
   const setLoading = (val: boolean) => {
     console.log(val ? 'LOADING TRUE' : 'LOADING FALSE');
     setLoadingState(val);
   };
-  const [authInitialized, setAuthInitialized] = useState(false);
 
   // Fetch profile — reduced to 2 retries × 300ms (max ~600ms wait)
   const fetchProfile = async (userId: string, retries = 2) => {
@@ -84,6 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign out
   const signOut = async () => {
     await supabase.auth.signOut();
+    lastProcessedUserId.current = null;
     setUser(null);
     setProfile(null);
     setLoading(false);
@@ -93,36 +97,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     listenerCount++;
     console.log('AUTH LISTENER CREATED. Total active:', listenerCount);
 
-    // Single source of truth: onAuthStateChange handles ALL auth events.
-    // INITIAL_SESSION fires immediately on registration with the current session.
-    // No separate getInitialSession() needed — that caused double fetchProfile.
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('AUTH EVENT:', event);
 
-      // TOKEN_REFRESHED: JWT silently refreshed. User identity unchanged.
-      // DO NOT re-fetch profile — this was the root cause of progressive loading freezes.
-      if (event === 'TOKEN_REFRESHED') {
-        console.log('TOKEN REFRESH: skipping profile re-fetch');
+      const currentUid = session?.user?.id || null;
+
+      // 1. DEDUPLICATION GUARD: If the user ID matches what we are already running, 
+      // do absolutely nothing. This eliminates the loop inside Capacitor WebViews.
+      if (
+        currentUid === lastProcessedUserId.current && 
+        (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN')
+      ) {
+        console.log(`[CREWZI] Redundant ${event} for active user ${currentUid}. Aborting loop.`);
+        
+        // Fail-safe layout sync
+        setAuthInitialized(true);
+        setLoading(false);
         return;
       }
 
-      if (session?.user) {
-        setUser(session.user);
-        await fetchProfile(session.user.id);
-      } else {
+      // 2. HANDLE SIGN_OUT / NULL SESSION: Clear states reliably
+      if (!session?.user) {
+        console.log('[CREWZI] No active session found. Cleaning state.');
+        lastProcessedUserId.current = null;
         setUser(null);
         setProfile(null);
+        setLoading(false);
+        setAuthInitialized(true); 
+        return;
       }
+
+      // 3. HANDLE VALID NEW SESSION / USER CHANGED
+      console.log(`[CREWZI] Processing state change for user: ${session.user.id}`);
+      lastProcessedUserId.current = session.user.id;
+      setUser(session.user);
+      
+      // Await network query before flipping flags to prevent partial rendering states
+      await fetchProfile(session.user.id);
 
       setLoading(false);
-
-      // Mark auth as initialized only after the first INITIAL_SESSION event.
-      // All pages gate on authInitialized before rendering or redirecting.
-      if (event === 'INITIAL_SESSION') {
-        setAuthInitialized(true);
-      }
+      setAuthInitialized(true);
     });
 
     return () => {
@@ -130,7 +146,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       listenerCount--;
       console.log('AUTH LISTENER DESTROYED. Total active:', listenerCount);
     };
-
   }, []);
 
   const value = {
@@ -149,7 +164,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Hook
 export function useAuth() {
   const context = useContext(AuthContext);
 
