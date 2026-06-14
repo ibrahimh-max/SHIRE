@@ -60,7 +60,7 @@ export default function CandidatesPage() {
       router.push('/app/dashboard');
       return;
     }
-  }, [user, profile, loading, authInitialized, router]);
+  }, [user?.id, profile?.role, loading, authInitialized, router]);
 
   // Fetch candidates — use primitives to avoid re-fetch on every profile object refresh
   useEffect(() => {

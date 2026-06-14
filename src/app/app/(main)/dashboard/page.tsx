@@ -52,7 +52,7 @@ export default function Dashboard() {
         return;
       }
     }
-  }, [user, profile, loading, authInitialized, router]);
+  }, [user?.id, profile?.role, loading, authInitialized, router]);
 
   // Fetch dashboard data
   useEffect(() => {

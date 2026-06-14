@@ -48,7 +48,7 @@ export default function RequestsPage() {
     }
 
     // Both worker and employer can access this page
-  }, [user, profile, loading, authInitialized, router]);
+  }, [user?.id, profile?.role, loading, authInitialized, router]);
 
   // Fetch interview requests
   useEffect(() => {

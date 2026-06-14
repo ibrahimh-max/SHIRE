@@ -74,7 +74,7 @@ export default function CreateCompanyPage() {
     } else {
       setCheckingCompany(false);
     }
-  }, [user, profile, loading, authInitialized, router]);
+  }, [user?.id, profile?.role, loading, authInitialized, router]);
 
   // Show loading while checking auth, profile, and company
   // Fix 5: Also wait for profile to arrive — prevents blank page race condition
