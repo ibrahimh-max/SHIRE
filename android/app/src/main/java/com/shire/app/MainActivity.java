@@ -1,4 +1,4 @@
-package com.shire.app;
+package com.crewzi.app;
 
 import com.getcapacitor.BridgeActivity;
 
