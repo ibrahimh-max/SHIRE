@@ -132,141 +132,129 @@ export default function Signup() {
                 </p>
               </div>
 
+              {/* Error */}
+              {error && (
+                <div className="mb-5 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
+                  {error}
+                </div>
+              )}
 
+              {/* Form */}
+              <form onSubmit={handleSubmit} className="space-y-5">
 
-          {/* Error */}
-          {error && (
-            <div className="mb-5 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
-              {error}
+                {/* Name */}
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-foreground/80 mb-1"
+                  >
+                    Full name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    required
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="input-field"
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-foreground/80 mb-1"
+                  >
+                    Email address
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="input-field"
+                  />
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-foreground/80 mb-1"
+                  >
+                    Password (min. 6 characters)
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                    minLength={6}
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="input-field"
+                  />
+                </div>
+
+                {/* Role */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground/80 mb-2">
+                    I am a
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, role: 'worker' })}
+                      className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
+                        formData.role === 'worker' 
+                          ? 'border-primary bg-primary/5 text-primary' 
+                          : 'border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span className="text-2xl mb-2">💼</span>
+                      <span className="font-semibold text-sm">Talent</span>
+                      <span className="text-xs opacity-70 mt-0.5">Looking for jobs</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, role: 'employer' })}
+                      className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
+                        formData.role === 'employer' 
+                          ? 'border-primary bg-primary/5 text-primary' 
+                          : 'border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span className="text-2xl mb-2">🏢</span>
+                      <span className="font-semibold text-sm">Employer</span>
+                      <span className="text-xs opacity-70 mt-0.5">Hiring staff</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Submit */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn-primary mt-2"
+                >
+                  {loading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Creating account...
+                    </>
+                  ) : (
+                    'Create account'
+                  )}
+                </button>
+
+              </form>
             </div>
           )}
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-
-            {/* Name */}
-            <div>
-
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-foreground/80 mb-1"
-              >
-                Full name
-              </label>
-
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                value={formData.name}
-                onChange={handleChange}
-                className="input-field"
-              />
-
-            </div>
-
-            {/* Email */}
-            <div>
-
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-foreground/80 mb-1"
-              >
-                Email address
-              </label>
-
-              <input
-                type="email"
-                id="email"
-                name="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="input-field"
-              />
-
-            </div>
-
-            {/* Password */}
-            <div>
-
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-foreground/80 mb-1"
-              >
-                Password (min. 6 characters)
-              </label>
-
-              <input
-                type="password"
-                id="password"
-                name="password"
-                required
-                minLength={6}
-                value={formData.password}
-                onChange={handleChange}
-                className="input-field"
-              />
-
-            </div>
-
-            {/* Role */}
-            <div>
-
-              <label className="block text-sm font-medium text-foreground/80 mb-2">
-                I am a
-              </label>
-
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, role: 'worker' })}
-                  className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
-                    formData.role === 'worker' 
-                      ? 'border-primary bg-primary/5 text-primary' 
-                      : 'border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50'
-                  }`}
-                >
-                  <span className="text-2xl mb-2">💼</span>
-                  <span className="font-semibold text-sm">Talent</span>
-                  <span className="text-xs opacity-70 mt-0.5">Looking for jobs</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, role: 'employer' })}
-                  className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
-                    formData.role === 'employer' 
-                      ? 'border-primary bg-primary/5 text-primary' 
-                      : 'border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50'
-                  }`}
-                >
-                  <span className="text-2xl mb-2">🏢</span>
-                  <span className="font-semibold text-sm">Employer</span>
-                  <span className="text-xs opacity-70 mt-0.5">Hiring staff</span>
-                </button>
-              </div>
-
-            </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary mt-2"
-            >
-              {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Creating account...
-                </>
-              ) : (
-                'Create account'
-              )}
-            </button>
-
-          </form>
 
           {/* Footer */}
           {!success && (
