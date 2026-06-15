@@ -118,22 +118,30 @@ const signInWithGoogle = async () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Top Accent Strip */}
+      <div className="h-1.5 w-full bg-gradient-to-r from-primary to-primary-dark"></div>
 
-
-      <div className="flex items-center justify-center py-16 px-4">
-        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 border border-primary/10">
-
-          {/* Heading */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground">
-              Welcome back
-            </h1>
-
-            <p className="text-foreground/60 mt-2">
-              Sign in to your CREWZI account
-            </p>
+      <div className="flex-1 flex items-center justify-center py-12 px-4">
+        <div className="w-full max-w-md animate-fade-in-up">
+          
+          {/* Brand Header */}
+          <div className="text-center mb-10">
+            <h1 className="text-4xl font-black text-primary tracking-tight mb-2">CREWZI</h1>
+            <p className="text-foreground/70 font-medium tracking-wide text-sm uppercase">Hospitality Hiring, Simplified</p>
           </div>
+
+          <div className="card-surface p-8">
+
+            {/* Heading */}
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-foreground">
+                Welcome back
+              </h2>
+              <p className="text-foreground/60 mt-1.5">
+                Sign in to your account
+              </p>
+            </div>
 
           {/* Error */}
           {error && (
@@ -159,7 +167,7 @@ const signInWithGoogle = async () => {
           <button
             onClick={signInWithGoogle}
             disabled={googleLoading || submitting || redirecting}
-            className="w-full border border-gray-200 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all mb-4 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full border-2 border-gray-100 py-3.5 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-200 transition-all mb-5 flex items-center justify-center gap-3 disabled:opacity-60 disabled:cursor-not-allowed text-foreground/80"
           >
             {googleLoading ? (
               <>
@@ -221,7 +229,7 @@ const signInWithGoogle = async () => {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                className="input-field"
               />
             </div>
 
@@ -241,7 +249,7 @@ const signInWithGoogle = async () => {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                className="input-field"
               />
             </div>
 
@@ -249,7 +257,7 @@ const signInWithGoogle = async () => {
             <button
               type="submit"
               disabled={submitting || redirecting || googleLoading}
-              className="w-full bg-primary text-white py-3 rounded-xl font-medium hover:bg-primary-dark transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+              className="btn-primary mt-2"
             >
               {submitting || redirecting ? (
                 <>
@@ -263,13 +271,15 @@ const signInWithGoogle = async () => {
 
           </form>
 
+          </div>
+
           {/* Footer */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-foreground/60">
+          <div className="mt-8 text-center animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <p className="text-foreground/60 font-medium">
               Don&apos;t have an account?{' '}
               <a
                 href="/app/signup"
-                className="text-primary hover:text-primary-dark font-medium"
+                className="text-primary hover:text-primary-dark font-bold ml-1 transition-colors"
               >
                 Create account
               </a>

@@ -162,11 +162,13 @@ export default function Dashboard() {
   if (loading || !authInitialized) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="flex items-center justify-center py-16">
-          <div className="text-center space-y-4">
-            <div className="animate-pulse bg-primary/20 h-12 w-48 rounded-xl mx-auto"></div>
-            <div className="animate-pulse bg-primary/10 h-8 w-32 rounded-xl mx-auto"></div>
+        <div className="py-8 px-4 max-w-md mx-auto space-y-6">
+          <div className="skeleton h-24 w-full mb-6"></div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="skeleton h-32 w-full"></div>
+            <div className="skeleton h-32 w-full"></div>
           </div>
+          <div className="skeleton h-40 w-full"></div>
         </div>
       </div>
     );
@@ -182,24 +184,31 @@ export default function Dashboard() {
         {/* CHANGE 1: Mobile-first container */}
         <div className="max-w-md mx-auto">
 
-          {/* CHANGE 2: App-like header */}
-          <div className="mb-6">
-            <p className="text-sm text-foreground/50">
-              Welcome Back
+          {/* App-like header */}
+          <div className="mb-8 animate-fade-in-up">
+            <p className="text-sm font-medium text-foreground/50 uppercase tracking-wider mb-1">
+              {new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 18 ? 'Good afternoon' : 'Good evening'}
             </p>
-            <h1 className="text-2xl font-bold text-foreground mt-1">
-              {profile?.name || 'User'} 👋
+            <h1 className="text-3xl font-black text-foreground tracking-tight">
+              {profile?.name?.split(' ')[0] || 'User'} 👋
             </h1>
             {profile?.role === 'worker' && (
-              <p className="text-primary mt-2 font-medium">
-                {profile.preferred_role || 'Hospitality Talent'} •{' '}
-                {profile.is_available ? 'Available' : 'Not Available'}
-              </p>
+              <div className="flex items-center gap-2 mt-3">
+                <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold tracking-wide">
+                  {profile.preferred_role || 'Hospitality Talent'}
+                </span>
+                <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide ${profile.is_available ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${profile.is_available ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
+                  {profile.is_available ? 'Available' : 'Unavailable'}
+                </span>
+              </div>
             )}
             {profile?.role === 'employer' && (
-              <p className="text-primary mt-2 font-medium">
-                Hospitality Employer
-              </p>
+              <div className="flex items-center gap-2 mt-3">
+                <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold tracking-wide">
+                  Hospitality Employer
+                </span>
+              </div>
             )}
           </div>
 
@@ -242,228 +251,197 @@ export default function Dashboard() {
 
           {/* WORKER DASHBOARD */}
           {profile?.role === 'worker' && (
-            <div className="space-y-6">
-              {/* CHANGE 3: Interview Requests moved ABOVE Profile Status */}
+            <div className="space-y-8 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+              
+              {/* Profile Completion */}
+              <div className="card-surface p-6">
+                {(() => {
+                  const requiredFields = ['phone', 'age', 'preferred_role', 'availability', 'hospitality_experience', 'start_availability'];
+                  const missingFields = requiredFields.filter(field => !profile[field as keyof typeof profile]);
+                  const isComplete = missingFields.length === 0;
+                  const pct = Math.round(((requiredFields.length - missingFields.length) / requiredFields.length) * 100);
+
+                  return (
+                    <div className="flex items-center gap-6">
+                      {/* Radial Progress */}
+                      <div className="relative w-20 h-20 flex-shrink-0">
+                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                          <path
+                            className="text-gray-100"
+                            strokeWidth="3"
+                            stroke="currentColor"
+                            fill="none"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          />
+                          <path
+                            className={`${isComplete ? 'text-success' : 'text-primary'}`}
+                            strokeDasharray={`${pct}, 100`}
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            stroke="currentColor"
+                            fill="none"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center font-bold text-sm">
+                          {pct}%
+                        </div>
+                      </div>
+                      
+                      <div className="flex-1">
+                        <h3 className="font-bold text-foreground mb-1">
+                          {isComplete ? 'Profile Complete!' : 'Complete your profile'}
+                        </h3>
+                        <p className="text-sm text-foreground/60 mb-3">
+                          {isComplete ? 'Employers can now discover you.' : 'Add your details to get hired faster.'}
+                        </p>
+                        {!isComplete && (
+                          <Link href="/app/profile" className="text-primary font-bold text-sm flex items-center gap-1 hover:text-primary-dark">
+                            Complete now
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
               {/* Interview Inbox Section */}
-              <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-6">
-                {/* CHANGE 6: Updated title */}
-                <h2 className="text-lg font-semibold text-foreground mb-6">
-                  Interview Inbox
-                </h2>
+              <div>
+                <h3 className="text-sm font-bold text-foreground/50 uppercase tracking-wider ml-1 mb-3">Interview Inbox</h3>
 
                 {interviewsLoading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-foreground/60">Loading interview requests...</p>
+                  <div className="space-y-3">
+                    <div className="skeleton h-32 w-full"></div>
+                    <div className="skeleton h-32 w-full"></div>
                   </div>
                 ) : interviewInvitations.length === 0 ? (
-                  <div className="text-center py-10">
-                    <div className="text-4xl mb-4">🎯</div>
-                    <h3 className="text-lg font-bold text-foreground mb-2">Waiting For Opportunities</h3>
-                    <p className="text-foreground/60">
-                      Interview invitations will appear here.
+                  <div className="card-surface p-8 text-center border-dashed border-2 border-gray-200 shadow-none">
+                    <div className="text-4xl mb-4 opacity-50">📫</div>
+                    <h3 className="text-lg font-bold text-foreground mb-2">No interviews yet</h3>
+                    <p className="text-foreground/60 text-sm">
+                      When employers want to interview you, their requests will appear here.
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {interviewInvitations.map((invitation) => (
-                      <div
-                        key={invitation.id}
-                        className="border border-primary/10 rounded-xl p-5 hover:shadow-sm transition-shadow"
-                      >
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg text-foreground mb-1">
-                              {invitation.company_name}
-                            </h3>
-                            <p className="text-sm text-foreground/60 mb-3">
+                      <div key={invitation.id} className="card-surface p-5">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg flex-shrink-0">
+                            {invitation.company_name.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-start mb-1">
+                              <h3 className="font-bold text-foreground truncate pr-2">
+                                {invitation.company_name}
+                              </h3>
+                              <span className="text-xs text-foreground/40 whitespace-nowrap">
+                                {new Date(invitation.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                              </span>
+                            </div>
+                            <p className="text-sm text-foreground/70 mb-3 line-clamp-2">
                               {invitation.message}
                             </p>
-                            <div className="flex items-center gap-4 text-sm">
-                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                invitation.status === 'pending'
-                                  ? 'bg-yellow-100 text-yellow-700'
-                                  : invitation.status === 'interested'
-                                  ? 'bg-green-100 text-green-700'
-                                  : 'bg-red-100 text-red-700'
-                              }`}>
-                                {invitation.status.charAt(0).toUpperCase() + invitation.status.slice(1)}
-                              </span>
-                              <span className="text-foreground/40">
-                                {new Date(invitation.created_at).toLocaleDateString()}
-                              </span>
-                            </div>
+                            
+                            {invitation.status === 'pending' ? (
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => updateInterviewStatus(invitation.id, 'interested')}
+                                  disabled={updatingInterviewId === invitation.id}
+                                  className="flex-1 bg-success text-white py-2 rounded-lg text-sm font-bold hover:bg-green-600 transition-colors disabled:opacity-50"
+                                >
+                                  Interested
+                                </button>
+                                <button
+                                  onClick={() => updateInterviewStatus(invitation.id, 'not_interested')}
+                                  disabled={updatingInterviewId === invitation.id}
+                                  className="flex-1 bg-gray-100 text-foreground py-2 rounded-lg text-sm font-bold hover:bg-gray-200 transition-colors disabled:opacity-50"
+                                >
+                                  Decline
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="inline-flex items-center gap-1.5">
+                                <span className={`w-2 h-2 rounded-full ${invitation.status === 'interested' ? 'bg-success' : 'bg-danger'}`}></span>
+                                <span className="text-xs font-bold text-foreground/60 uppercase tracking-wide">
+                                  {invitation.status}
+                                </span>
+                              </div>
+                            )}
                           </div>
-
-                          {invitation.status === 'pending' && (
-                            <div className="flex gap-2 ml-4">
-                              <button
-                                onClick={() => updateInterviewStatus(invitation.id, 'interested')}
-                                disabled={updatingInterviewId === invitation.id}
-                                className="px-4 py-2 bg-primary text-white text-sm rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                {updatingInterviewId === invitation.id ? (
-                                  <span className="flex items-center gap-2">
-                                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                                    Updating...
-                                  </span>
-                                ) : (
-                                  'Interested'
-                                )}
-                              </button>
-                              <button
-                                onClick={() => updateInterviewStatus(invitation.id, 'not_interested')}
-                                disabled={updatingInterviewId === invitation.id}
-                                className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                {updatingInterviewId === invitation.id ? (
-                                  <span className="flex items-center gap-2">
-                                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                                    Updating...
-                                  </span>
-                                ) : (
-                                  'Not Interested'
-                                )}
-                              </button>
-                            </div>
-                          )}
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-
-              {/* CHANGE 5: Updated title */}
-              <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-6">
-                <h2 className="text-lg font-semibold text-foreground mb-6">
-                  Your Hospitality Profile
-                </h2>
-
-                {(() => {
-                  const requiredFields = ['phone', 'age', 'preferred_role', 'availability', 'hospitality_experience', 'start_availability'];
-                  const missingFields = requiredFields.filter(field => !profile[field as keyof typeof profile]);
-                  const isComplete = missingFields.length === 0;
-                  const completionPercentage = Math.round(((requiredFields.length - missingFields.length) / requiredFields.length) * 100);
-
-                  return (
-                    <>
-                      <div className="mb-6">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-sm font-medium text-foreground/70">
-                            Profile Completion
-                          </span>
-                          <span className={`text-sm font-semibold ${
-                            isComplete ? 'text-green-600' : 'text-foreground/60'
-                          }`}>
-                            {completionPercentage}%
-                          </span>
-                        </div>
-                        <div className="w-full bg-foreground/10 rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full transition-all ${
-                              isComplete ? 'bg-green-500' : 'bg-primary'
-                            }`}
-                            style={{ width: `${completionPercentage}%` }}
-                          ></div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4 mb-6">
-                        <div className="bg-background/50 rounded-xl p-4">
-                          <p className="text-sm text-foreground/60 mb-1">Availability</p>
-                          <div className="flex items-center gap-2">
-                            <span className={`w-2 h-2 rounded-full ${
-                              profile.is_available ? 'bg-green-500' : 'bg-red-500'
-                            }`}></span>
-                            <span className="font-medium text-foreground text-sm">
-                              {profile.is_available ? 'Available' : 'Not Available'}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="bg-background/50 rounded-xl p-4">
-                          <p className="text-sm text-foreground/60 mb-1">Role</p>
-                          <p className="font-medium text-foreground text-sm">
-                            {profile.preferred_role || 'Not set'}
-                          </p>
-                        </div>
-
-                        <div className="bg-background/50 rounded-xl p-4">
-                          <p className="text-sm text-foreground/60 mb-1">Experience</p>
-                          <p className="font-medium text-foreground text-sm">
-                            {profile.hospitality_experience || 'Not set'}
-                          </p>
-                        </div>
-
-                        <div className="bg-background/50 rounded-xl p-4">
-                          <p className="text-sm text-foreground/60 mb-1">Can Start</p>
-                          <p className="font-medium text-foreground text-sm">
-                            {profile.start_availability || 'Not set'}
-                          </p>
-                        </div>
-                      </div>
-
-                      {!isComplete && (
-                        <Link
-                          href="/app/profile"
-                          className="inline-block w-full text-center bg-primary text-white px-6 py-3 rounded-xl hover:bg-primary-dark transition-colors shadow-sm font-medium"
-                        >
-                          Complete Profile
-                        </Link>
-                      )}
-                    </>
-                  );
-                })()}
-              </div>
             </div>
           )}
 
           {/* EMPLOYER DASHBOARD */}
           {profile?.role === 'employer' && (
-            <div className="space-y-6">
-              {/* CHANGE 4: New employer dashboard design */}
-              <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-6">
-                {candidatesLoading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-foreground/60">Loading...</p>
+            <div className="space-y-8 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+              {candidatesLoading ? (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="skeleton h-32 w-full"></div>
+                  <div className="skeleton h-32 w-full"></div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="card-surface p-5 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full"></div>
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-xl mb-4">
+                      👥
+                    </div>
+                    <p className="text-3xl font-black text-foreground mb-1">{totalCandidates}</p>
+                    <p className="text-sm font-medium text-foreground/60">Available Talent</p>
                   </div>
-                ) : (
-                  <>
-                    <div className="text-center mb-6">
-                      <div className="text-4xl mb-4">👥</div>
-                      <h3 className="text-lg font-bold text-foreground mb-2">Start Building Your Team</h3>
-                      <p className="text-foreground/60">
-                        Browse talent and send invitations.
-                      </p>
+                  
+                  <div className="card-surface p-5 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-success/10 to-transparent rounded-bl-full"></div>
+                    <div className="w-10 h-10 rounded-xl bg-success/10 text-success flex items-center justify-center text-xl mb-4">
+                      ✨
                     </div>
-                    <div className="grid grid-cols-2 gap-3 mb-6">
-                      <div className="bg-primary/5 rounded-xl p-4 text-center">
-                        <p className="text-3xl font-bold text-primary">
-                          {totalCandidates}
-                        </p>
-                        <p className="text-sm text-foreground/60">
-                          Talent
-                        </p>
-                      </div>
-                      <div className="bg-primary/5 rounded-xl p-4 text-center">
-                        <p className="text-3xl font-bold text-primary">
-                          -
-                        </p>
-                        <p className="text-sm text-foreground/60">
-                          Interested
-                        </p>
-                      </div>
+                    <p className="text-3xl font-black text-foreground mb-1">-</p>
+                    <p className="text-sm font-medium text-foreground/60">Interested</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-3">
+                <h3 className="text-sm font-bold text-foreground/50 uppercase tracking-wider ml-1">Quick Actions</h3>
+                
+                <Link href="/app/candidates" className="card-surface p-5 flex items-center justify-between group hover:border-primary/30">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-xl">
+                      🔍
                     </div>
-                    <Link
-                      href="/app/candidates"
-                      className="block w-full text-center bg-primary text-white py-4 rounded-xl font-medium"
-                    >
-                      Browse Talent
-                    </Link>
-                  </>
-                )}
+                    <div>
+                      <h4 className="font-bold text-foreground">Browse Talent</h4>
+                      <p className="text-sm text-foreground/60">Find staff for your business</p>
+                    </div>
+                  </div>
+                  <div className="text-gray-300 group-hover:text-primary transition-colors">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                  </div>
+                </Link>
+
+                <Link href="/app/requests" className="card-surface p-5 flex items-center justify-between group hover:border-primary/30">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-xl">
+                      📨
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-foreground">View Requests</h4>
+                      <p className="text-sm text-foreground/60">Manage interview invitations</p>
+                    </div>
+                  </div>
+                  <div className="text-gray-300 group-hover:text-primary transition-colors">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                  </div>
+                </Link>
               </div>
             </div>
           )}

@@ -43,6 +43,7 @@ export default function CandidatesPage() {
   const [locationFilter, setLocationFilter] = useState('');
   const [experienceFilter, setExperienceFilter] = useState('');
   const [preferredRoleFilter, setPreferredRoleFilter] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const [availabilityFilter, setAvailabilityFilter] = useState('');
 
   // Handle authentication redirect
@@ -194,10 +195,13 @@ export default function CandidatesPage() {
   if (loading || !authInitialized) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="flex items-center justify-center py-16">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-foreground/60">Loading your account...</p>
+        <div className="py-8 px-4 max-w-md mx-auto space-y-6">
+          <div className="skeleton h-20 w-full"></div>
+          <div className="skeleton h-12 w-full"></div>
+          <div className="space-y-4">
+            <div className="skeleton h-48 w-full"></div>
+            <div className="skeleton h-48 w-full"></div>
+            <div className="skeleton h-48 w-full"></div>
           </div>
         </div>
       </div>
@@ -214,239 +218,227 @@ export default function CandidatesPage() {
         {/* CHANGE 1: Mobile-first container */}
         <div className="max-w-md mx-auto">
 
-          {/* CHANGE 2: App-like header */}
-          <div className="mb-6">
-            <p className="text-sm text-foreground/50">
-              Available Talent
-            </p>
-            <h1 className="text-2xl font-bold text-foreground mt-1">
-              Find Hospitality Talent
-            </h1>
-            <p className="text-primary mt-2 font-medium">
-              {filteredCandidates.length} talent profiles available
-            </p>
+          {/* App-like header */}
+          <div className="mb-6 animate-fade-in-up">
+            <div className="flex items-end justify-between">
+              <div>
+                <h1 className="text-3xl font-black text-foreground tracking-tight">
+                  Find Talent
+                </h1>
+                <p className="text-foreground/60 mt-1 font-medium">
+                  {filteredCandidates.length} profiles available
+                </p>
+              </div>
+              <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xl">
+                🔍
+              </div>
+            </div>
           </div>
 
-          {/* Error */}
+          {/* Error & Success Banners */}
           {error && (
-            <div className="mb-6 p-4 rounded-xl border border-red-200 bg-red-50 text-red-700">
+            <div className="mb-6 p-4 rounded-xl border border-red-200 bg-red-50 text-red-700 font-medium">
               {error}
             </div>
           )}
-
-          {/* Add Success Banner */}
           {successMessage && (
-            <div className="mb-6 p-4 rounded-xl border border-green-200 bg-green-50 text-green-700">
+            <div className="mb-6 p-4 rounded-xl border border-green-200 bg-green-50 text-green-700 font-medium">
               {successMessage}
             </div>
           )}
 
-          {/* CHANGE 3 & 4: Smaller filter section with vertical stack */}
-          <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-4 mb-4">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="font-semibold text-foreground text-sm">Filters</h2>
-              <button
-                onClick={clearFilters}
-                className="text-sm text-primary hover:text-primary-dark transition-colors"
-              >
-                Clear all
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              {/* Location Filter */}
-              <div>
-                <label className="block text-sm font-medium text-foreground/70 mb-1">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  value={locationFilter}
-                  onChange={(e) => setLocationFilter(e.target.value)}
-                  placeholder="Enter location..."
-                  className="w-full px-4 py-2 rounded-xl border border-primary/20 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
-                />
+          {/* Collapsible Filters */}
+          <div className="mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <button 
+              onClick={() => setShowFilters(!showFilters)}
+              className="w-full card-surface p-4 flex items-center justify-between"
+            >
+              <div className="flex items-center gap-2 font-bold text-foreground">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                Filters
+                {(locationFilter || experienceFilter || preferredRoleFilter || availabilityFilter) && (
+                  <span className="w-2 h-2 rounded-full bg-primary ml-1"></span>
+                )}
               </div>
-
-              {/* Experience Filter */}
-              <div>
-                <label className="block text-sm font-medium text-foreground/70 mb-1">
-                  Experience
-                </label>
-                <select
-                  value={experienceFilter}
-                  onChange={(e) => setExperienceFilter(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border border-primary/20 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all bg-white text-sm"
-                >
-                  <option value="">All experience levels</option>
-                  <option value="0-1 years">0-1 years</option>
-                  <option value="1-3 years">1-3 years</option>
-                  <option value="3-5 years">3-5 years</option>
-                  <option value="5+ years">5+ years</option>
-                </select>
+              <div className={`transition-transform duration-200 ${showFilters ? 'rotate-180' : ''}`}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </div>
+            </button>
 
-              {/* Preferred Role Filter */}
-              <div>
-                <label className="block text-sm font-medium text-foreground/70 mb-1">
-                  Preferred Role
-                </label>
-                <select
-                  value={preferredRoleFilter}
-                  onChange={(e) => setPreferredRoleFilter(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border border-primary/20 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all bg-white text-sm"
-                >
-                  <option value="">All roles</option>
-                  <option value="Waiter">Waiter</option>
-                  <option value="Chef">Chef</option>
-                  <option value="Kitchen Helper">Kitchen Helper</option>
-                  <option value="Receptionist">Receptionist</option>
-                  <option value="Housekeeping">Housekeeping</option>
-                  <option value="Barista">Barista</option>
-                  <option value="Delivery Staff">Delivery Staff</option>
-                </select>
-              </div>
+            {showFilters && (
+              <div className="card-surface p-5 mt-2 space-y-4 animate-fade-in-up">
+                <div className="flex justify-between items-center mb-1">
+                  <h3 className="font-bold text-sm text-foreground/50 uppercase tracking-wider">Refine Search</h3>
+                  <button onClick={clearFilters} className="text-sm font-bold text-primary hover:text-primary-dark">
+                    Clear all
+                  </button>
+                </div>
 
-              {/* Availability Filter */}
-              <div>
-                <label className="block text-sm font-medium text-foreground/70 mb-1">
-                  Availability
-                </label>
-                <select
-                  value={availabilityFilter}
-                  onChange={(e) => setAvailabilityFilter(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border border-primary/20 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all bg-white text-sm"
-                >
-                  <option value="">All availability</option>
-                  <option value="Full Time">Full Time</option>
-                  <option value="Part Time">Part Time</option>
-                  <option value="Both">Both</option>
-                </select>
+                <div>
+                  <label className="block text-sm font-bold text-foreground mb-1.5">Location</label>
+                  <input
+                    type="text"
+                    value={locationFilter}
+                    onChange={(e) => setLocationFilter(e.target.value)}
+                    placeholder="E.g., Downtown..."
+                    className="input-field"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-foreground mb-1.5">Experience</label>
+                  <select
+                    value={experienceFilter}
+                    onChange={(e) => setExperienceFilter(e.target.value)}
+                    className="input-field bg-white"
+                  >
+                    <option value="">All levels</option>
+                    <option value="0-1 years">0-1 years</option>
+                    <option value="1-3 years">1-3 years</option>
+                    <option value="3-5 years">3-5 years</option>
+                    <option value="5+ years">5+ years</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-foreground mb-1.5">Role</label>
+                  <select
+                    value={preferredRoleFilter}
+                    onChange={(e) => setPreferredRoleFilter(e.target.value)}
+                    className="input-field bg-white"
+                  >
+                    <option value="">All roles</option>
+                    <option value="Waiter">Waiter</option>
+                    <option value="Chef">Chef</option>
+                    <option value="Kitchen Helper">Kitchen Helper</option>
+                    <option value="Receptionist">Receptionist</option>
+                    <option value="Housekeeping">Housekeeping</option>
+                    <option value="Barista">Barista</option>
+                    <option value="Delivery Staff">Delivery Staff</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-foreground mb-1.5">Availability</label>
+                  <select
+                    value={availabilityFilter}
+                    onChange={(e) => setAvailabilityFilter(e.target.value)}
+                    className="input-field bg-white"
+                  >
+                    <option value="">All availability</option>
+                    <option value="Full Time">Full Time</option>
+                    <option value="Part Time">Part Time</option>
+                    <option value="Both">Both</option>
+                  </select>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
-          {/* CHANGE 6: Vertical stack for candidates */}
+          {/* Talent List */}
           {pageLoading ? (
-            <div className="text-center py-16">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-foreground/60">Loading candidates...</p>
+            <div className="space-y-4">
+              <div className="skeleton h-48 w-full"></div>
+              <div className="skeleton h-48 w-full"></div>
+              <div className="skeleton h-48 w-full"></div>
             </div>
           ) : filteredCandidates.length === 0 ? (
-            <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-12 text-center">
-              <div className="text-4xl mb-4">🔍</div>
-              <h3 className="text-lg font-bold text-foreground mb-2">No Talent Found</h3>
-              <p className="text-foreground/60 mb-4">
-                Try adjusting your filters.
+            <div className="card-surface p-10 text-center animate-fade-in-up border-dashed border-2 border-gray-200 shadow-none mt-8">
+              <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-5xl opacity-50">🔍</span>
+              </div>
+              <h3 className="text-xl font-bold text-foreground mb-2">No Talent Found</h3>
+              <p className="text-foreground/60 mb-6 max-w-[200px] mx-auto">
+                Try adjusting your filters to see more results.
               </p>
               {candidates.length > 0 && (
                 <button
                   onClick={clearFilters}
-                  className="bg-primary text-white px-5 py-2 rounded-xl hover:bg-primary-dark transition-colors"
+                  className="btn-primary"
                 >
                   Clear filters
                 </button>
               )}
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-5 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               {filteredCandidates.map((candidate) => (
-                <div
-                  key={candidate.id}
-                  // CHANGE 7: Removed hover effects
-                  className="bg-white rounded-2xl border border-primary/10 overflow-hidden"
-                >
-                  {/* CHANGE 5: Smaller photo section */}
-                  <div className="h-20 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                    {candidate.photo_url ? (
-                      <img
-                        src={candidate.photo_url}
-                        alt={candidate.name}
-                        className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-sm"
-                      />
-                    ) : (
-                      <div className="w-16 h-16 rounded-full bg-primary/30 flex items-center justify-center border-4 border-white shadow-sm">
-                        <span className="text-2xl">
-                          {candidate.name.charAt(0).toUpperCase()}
-                        </span>
+                <div key={candidate.id} className="card-surface overflow-hidden flex flex-col">
+                  <div className="p-5 flex-1">
+                    <div className="flex items-start gap-4 mb-4">
+                      {/* Avatar */}
+                      <div className="relative">
+                        {candidate.photo_url ? (
+                          <img
+                            src={candidate.photo_url}
+                            alt={candidate.name}
+                            className="w-16 h-16 rounded-full object-cover shadow-sm ring-2 ring-primary/20 p-0.5"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-dark text-white flex items-center justify-center font-bold text-xl shadow-sm ring-2 ring-primary/20 p-0.5">
+                            {candidate.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                          <div className="w-3.5 h-3.5 bg-success rounded-full animate-pulse"></div>
+                        </div>
                       </div>
-                    )}
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-1">
+                          <h3 className="font-black text-lg text-foreground truncate">
+                            {candidate.name}
+                          </h3>
+                          {candidate.preferred_role && (
+                            <span className="text-sm font-bold text-primary truncate">
+                              • {candidate.preferred_role}
+                            </span>
+                          )}
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {candidate.location && (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 rounded-lg text-xs font-semibold text-foreground/70">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                              {candidate.location}
+                            </span>
+                          )}
+                          {candidate.experience && (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 rounded-lg text-xs font-semibold text-foreground/70">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                              {candidate.experience}
+                            </span>
+                          )}
+                          {candidate.availability && (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold">
+                              {candidate.availability}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Info Section */}
-                  <div className="p-4">
-                    {/* CHANGE 8 & 9: Cleaner typography and role at top */}
-                    <h3 className="font-bold text-base text-foreground">
-                      {candidate.name}
-                    </h3>
-                    
-                    {candidate.preferred_role && (
-                      <p className="text-primary text-sm font-medium mt-1">
-                        {candidate.preferred_role}
-                      </p>
-                    )}
-                    
-                    <div className="space-y-2 mt-3">
-                      {/* Age */}
-                      {candidate.age && (
-                        <div className="flex items-center gap-2 text-sm text-foreground/70">
-                          <span>🎂</span>
-                          <span>{candidate.age} years old</span>
-                        </div>
+                  {/* Action Button */}
+                  <div className="px-5 pb-5 mt-auto">
+                    <button
+                      onClick={() => sendInterviewRequest(candidate.id)}
+                      disabled={sendingRequest === candidate.id}
+                      className="btn-primary"
+                    >
+                      {sendingRequest === candidate.id ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          Invite to Interview
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </>
                       )}
-
-                      {/* Location */}
-                      {candidate.location && (
-                        <div className="flex items-center gap-2 text-sm text-foreground/70">
-                          <span>📍</span>
-                          <span>{candidate.location}</span>
-                        </div>
-                      )}
-
-                      {/* Experience */}
-                      {candidate.experience && (
-                        <div className="flex items-center gap-2 text-sm text-foreground/70">
-                          <span>💼</span>
-                          <span>{candidate.experience}</span>
-                        </div>
-                      )}
-
-                      {/* Availability */}
-                      {candidate.availability && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            candidate.availability === 'Full Time'
-                              ? 'bg-primary/10 text-primary'
-                              : candidate.availability === 'Part Time'
-                              ? 'bg-accent/10 text-accent'
-                              : 'bg-primary/5 text-primary'
-                          }`}>
-                            {candidate.availability}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Available Badge & Request Interview Button */}
-                    <div className="mt-4 pt-4 border-t border-primary/10">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
-                          <span className="w-2 h-2 bg-primary rounded-full"></span>
-                          Available for hire
-                        </span>
-                      </div>
-
-                      {/* CHANGE 10: Updated button text */}
-                      <button
-                        onClick={() => sendInterviewRequest(candidate.id)}
-                        disabled={sendingRequest === candidate.id}
-                        className="w-full mt-2 bg-primary text-white py-2 rounded-xl hover:bg-primary-dark transition-colors disabled:opacity-50"
-                      >
-                        {sendingRequest === candidate.id
-                          ? 'Sending...'
-                          : 'Invite To Interview'}
-                      </button>
-                    </div>
+                    </button>
                   </div>
                 </div>
               ))}

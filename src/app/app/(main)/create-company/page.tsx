@@ -81,10 +81,19 @@ export default function CreateCompanyPage() {
   // when authInitialized becomes true before fetchProfile completes
   if (loading || !authInitialized || !profile || checkingCompany) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-foreground/60">Loading...</p>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-md mx-auto px-4 py-8 space-y-6">
+          <div className="flex flex-col items-center mb-8 space-y-4">
+            <div className="skeleton w-24 h-24 rounded-full"></div>
+            <div className="skeleton h-8 w-48"></div>
+            <div className="skeleton h-4 w-64"></div>
+          </div>
+          <div className="space-y-4">
+            <div className="skeleton h-20 w-full"></div>
+            <div className="skeleton h-20 w-full"></div>
+            <div className="skeleton h-20 w-full"></div>
+            <div className="skeleton h-32 w-full"></div>
+          </div>
         </div>
       </div>
     );
@@ -158,15 +167,14 @@ export default function CreateCompanyPage() {
       <div className="max-w-md mx-auto px-4 py-6">
 
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 mx-auto rounded-full bg-primary/10 flex items-center justify-center text-4xl mb-4">
+        <div className="text-center mb-8 animate-fade-in-up">
+          <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-5xl text-white shadow-lg ring-4 ring-white mb-4">
             🏢
           </div>
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-3xl font-black text-foreground tracking-tight">
             {hasCompany ? 'Edit Company' : 'Create Company'}
           </h1>
-          {/* Fix 3: Better header copy */}
-          <p className="text-foreground/60 mt-2">
+          <p className="text-foreground/60 mt-2 font-medium">
             {hasCompany 
               ? 'Update your company profile' 
               : 'Create your company profile and start inviting hospitality talent for interview'}
@@ -175,18 +183,18 @@ export default function CreateCompanyPage() {
 
         {/* Error */}
         {error && (
-          <div className="mb-5 bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl">
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl font-medium animate-fade-in-up">
             {error}
           </div>
         )}
 
         {/* Form Card */}
-        <div className="bg-white rounded-3xl border border-primary/10 p-5">
+        <div className="card-surface p-5 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <form onSubmit={handleSubmit} className="space-y-5">
 
             {/* Company Name */}
             <div>
-              <label className="block mb-2 text-sm font-semibold text-foreground">
+              <label className="block mb-1.5 text-sm font-bold text-foreground">
                 Company Name *
               </label>
               <input
@@ -195,14 +203,14 @@ export default function CreateCompanyPage() {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-primary/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                className="input-field"
                 placeholder="Taj Hotel"
               />
             </div>
 
             {/* Company Type */}
             <div>
-              <label className="block mb-2 text-sm font-semibold text-foreground">
+              <label className="block mb-1.5 text-sm font-bold text-foreground">
                 Business Type *
               </label>
               <select
@@ -210,7 +218,7 @@ export default function CreateCompanyPage() {
                 value={formData.company_type}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-primary/20 px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                className="input-field bg-white"
               >
                 <option value="">Select Type</option>
                 <option value="Hotel">Hotel</option>
@@ -226,7 +234,7 @@ export default function CreateCompanyPage() {
 
             {/* Location */}
             <div>
-              <label className="block mb-2 text-sm font-semibold text-foreground">
+              <label className="block mb-1.5 text-sm font-bold text-foreground">
                 Location *
               </label>
               <input
@@ -235,14 +243,14 @@ export default function CreateCompanyPage() {
                 value={formData.location}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-primary/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                placeholder="Hyderabad"
+                className="input-field"
+                placeholder="e.g. Hyderabad"
               />
             </div>
 
             {/* Description */}
             <div>
-              <label className="block mb-2 text-sm font-semibold text-foreground">
+              <label className="block mb-1.5 text-sm font-bold text-foreground">
                 About Your Business
               </label>
               <textarea
@@ -250,36 +258,41 @@ export default function CreateCompanyPage() {
                 value={formData.description}
                 onChange={handleChange}
                 rows={4}
-                className="w-full rounded-xl border border-primary/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                className="input-field resize-none"
                 placeholder="Tell workers about your hotel, restaurant, cafe, or business..."
               />
             </div>
 
             {/* Info Box */}
             <div className="bg-primary/5 rounded-xl p-4">
-              <p className="font-medium text-primary">
+              <p className="font-bold text-primary">
                 Hiring Starts Here
               </p>
-              <p className="text-sm text-foreground/60 mt-1">
+              <p className="text-sm text-foreground/60 mt-1 font-medium">
                 Once your company is created, you'll be able to browse talent and send interview invitations.
               </p>
             </div>
 
             {/* Submit */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-primary text-white py-4 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-dark transition-colors"
-            >
-              {isSubmitting ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  {hasCompany ? 'Updating Company...' : 'Creating Company...'}
-                </span>
-              ) : (
-                hasCompany ? 'Update Company' : 'Create Company'
-              )}
-            </button>
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn-primary w-full shadow-lg"
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    {hasCompany ? 'Updating...' : 'Creating...'}
+                  </>
+                ) : (
+                  <>
+                    {hasCompany ? 'Update Company' : 'Create Company'}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </>
+                )}
+              </button>
+            </div>
 
           </form>
         </div>

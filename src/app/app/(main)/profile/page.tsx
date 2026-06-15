@@ -163,10 +163,16 @@ export default function ProfilePage() {
   if (loading || !authInitialized) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="flex items-center justify-center py-16">
-          <div className="text-center space-y-4">
-            <div className="animate-pulse bg-primary/20 h-12 w-48 rounded-xl mx-auto"></div>
-            <div className="animate-pulse bg-primary/10 h-8 w-32 rounded-xl mx-auto"></div>
+        <div className="py-8 px-4 max-w-md mx-auto space-y-6">
+          <div className="flex flex-col items-center mb-8 space-y-4">
+            <div className="skeleton w-24 h-24 rounded-full"></div>
+            <div className="skeleton h-8 w-48"></div>
+            <div className="skeleton h-4 w-32"></div>
+          </div>
+          <div className="space-y-4">
+            <div className="skeleton h-20 w-full"></div>
+            <div className="skeleton h-40 w-full"></div>
+            <div className="skeleton h-40 w-full"></div>
           </div>
         </div>
       </div>
@@ -183,62 +189,65 @@ export default function ProfilePage() {
         {/* CHANGE 1: Mobile-first container */}
         <div className="max-w-md mx-auto">
 
-          {/* CHANGE 2: Profile header with avatar */}
-          <div className="flex flex-col items-center text-center mb-8">
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-3xl mb-4">
-              👤
+          {/* Profile header with avatar */}
+          <div className="flex flex-col items-center text-center mb-8 animate-fade-in-up">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-4xl text-white font-bold shadow-lg ring-4 ring-white mb-4">
+                {formData.name ? formData.name.charAt(0).toUpperCase() : '👤'}
+              </div>
+              <button className="absolute bottom-4 right-0 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center text-primary hover:bg-gray-50 transition-colors border border-gray-100">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              </button>
             </div>
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="text-3xl font-black text-foreground tracking-tight">
               {formData.name || 'Your Profile'}
             </h1>
-            <p className="text-primary mt-2 font-medium">
+            <p className="text-primary mt-1 font-bold">
               {formData.preferred_role || 'Hospitality Talent'}
             </p>
           </div>
 
           {/* Success Message */}
           {successMessage && (
-            <div className="mb-6 p-4 rounded-xl border border-green-200 bg-green-50 text-green-700">
+            <div className="mb-6 p-4 rounded-xl border border-green-200 bg-green-50 text-green-700 font-medium animate-fade-in-up">
               {successMessage}
             </div>
           )}
 
           {/* Error */}
           {error && (
-            <div className="mb-6 p-4 rounded-xl border border-red-200 bg-red-50 text-red-700">
+            <div className="mb-6 p-4 rounded-xl border border-red-200 bg-red-50 text-red-700 font-medium animate-fade-in-up">
               {error}
             </div>
           )}
 
           {/* Profile Form */}
-          {/* CHANGE 3: Cleaner card styling */}
-          <div className="bg-white rounded-3xl border border-primary/10 p-5">
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
 
-              {/* CHANGE 4: Availability toggle moved to TOP */}
-              <div className="flex items-center justify-between p-4 bg-background/50 rounded-xl">
-                <div>
-                  {/* CHANGE 5: Updated text */}
-                  <h3 className="font-semibold text-foreground">Available For Hiring</h3>
-                  <p className="text-sm text-foreground/60">Toggle your availability status</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="is_available"
-                    checked={formData.is_available}
-                    onChange={handleChange}
-                    className="sr-only peer"
-                  />
-                  <div className="w-14 h-7 bg-foreground/20 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
-                </label>
+            {/* Availability toggle */}
+            <div className="card-surface p-5 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-foreground">Available For Hiring</h3>
+                <p className="text-sm text-foreground/60 mt-0.5">Employers can discover and invite you</p>
               </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="is_available"
+                  checked={formData.is_available}
+                  onChange={handleChange}
+                  className="sr-only peer"
+                />
+                <div className="w-14 h-8 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-success shadow-inner"></div>
+              </label>
+            </div>
 
-              {/* CHANGE 10: Personal Information Block */}
-              <div className="space-y-4 border-t border-primary/10 pt-5">
-                {/* Name */}
+            {/* Personal Information Block */}
+            <div className="card-surface p-5">
+              <h3 className="font-bold text-lg text-foreground mb-4">Personal Info</h3>
+              <div className="space-y-4">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="name" className="block text-sm font-bold text-foreground mb-1.5">
                     Full Name *
                   </label>
                   <input
@@ -248,14 +257,13 @@ export default function ProfilePage() {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                    className="input-field"
                     placeholder="Enter your full name"
                   />
                 </div>
 
-                {/* Phone */}
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="phone" className="block text-sm font-bold text-foreground mb-1.5">
                     Phone Number *
                   </label>
                   <input
@@ -265,33 +273,48 @@ export default function ProfilePage() {
                     value={formData.phone}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                    className="input-field"
                     placeholder="Enter your phone number"
                   />
                 </div>
 
-                {/* Age */}
-                <div>
-                  <label htmlFor="age" className="block text-sm font-medium text-foreground mb-2">
-                    Age *
-                  </label>
-                  <input
-                    type="number"
-                    id="age"
-                    name="age"
-                    value={formData.age}
-                    onChange={handleChange}
-                    required
-                    min="16"
-                    max="100"
-                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    placeholder="Enter your age"
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="age" className="block text-sm font-bold text-foreground mb-1.5">
+                      Age *
+                    </label>
+                    <input
+                      type="number"
+                      id="age"
+                      name="age"
+                      value={formData.age}
+                      onChange={handleChange}
+                      required
+                      min="16"
+                      max="100"
+                      className="input-field"
+                      placeholder="e.g. 25"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="location" className="block text-sm font-bold text-foreground mb-1.5">
+                      City *
+                    </label>
+                    <input
+                      type="text"
+                      id="location"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleChange}
+                      required
+                      className="input-field"
+                      placeholder="e.g. Mumbai"
+                    />
+                  </div>
                 </div>
 
-                {/* Address */}
                 <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="address" className="block text-sm font-bold text-foreground mb-1.5">
                     Address
                   </label>
                   <input
@@ -300,34 +323,20 @@ export default function ProfilePage() {
                     name="address"
                     value={formData.address}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    placeholder="Enter your address"
-                  />
-                </div>
-
-                {/* Location */}
-                <div>
-                  <label htmlFor="location" className="block text-sm font-medium text-foreground mb-2">
-                    City/Location
-                  </label>
-                  <input
-                    type="text"
-                    id="location"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    placeholder="Enter your city"
+                    className="input-field"
+                    placeholder="Enter your full address"
                   />
                 </div>
               </div>
+            </div>
 
-              {/* CHANGE 10: Hospitality Information Block */}
-              <div className="space-y-4 border-t border-primary/10 pt-5">
-                {/* CHANGE 7: Preferred Role with star */}
+            {/* Hospitality Information Block */}
+            <div className="card-surface p-5">
+              <h3 className="font-bold text-lg text-foreground mb-4">Hospitality Info</h3>
+              <div className="space-y-4">
                 <div>
-                  <label htmlFor="preferred_role" className="block text-sm font-medium text-foreground mb-2">
-                    Preferred Role * <span className="text-primary ml-1">★</span>
+                  <label htmlFor="preferred_role" className="block text-sm font-bold text-foreground mb-1.5">
+                    Preferred Role *
                   </label>
                   <select
                     id="preferred_role"
@@ -335,7 +344,7 @@ export default function ProfilePage() {
                     value={formData.preferred_role}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                    className="input-field bg-white"
                   >
                     <option value="">Select preferred role</option>
                     <option value="Waiter">Waiter</option>
@@ -348,10 +357,9 @@ export default function ProfilePage() {
                   </select>
                 </div>
 
-                {/* CHANGE 7: Hospitality Experience with star */}
                 <div>
-                  <label htmlFor="hospitality_experience" className="block text-sm font-medium text-foreground mb-2">
-                    Hospitality Experience * <span className="text-primary ml-1">★</span>
+                  <label htmlFor="hospitality_experience" className="block text-sm font-bold text-foreground mb-1.5">
+                    Hospitality Experience *
                   </label>
                   <select
                     id="hospitality_experience"
@@ -359,7 +367,7 @@ export default function ProfilePage() {
                     value={formData.hospitality_experience}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                    className="input-field bg-white"
                   >
                     <option value="">Select experience</option>
                     <option value="Fresher">Fresher</option>
@@ -369,9 +377,8 @@ export default function ProfilePage() {
                   </select>
                 </div>
 
-                {/* Availability */}
                 <div>
-                  <label htmlFor="availability" className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="availability" className="block text-sm font-bold text-foreground mb-1.5">
                     Availability *
                   </label>
                   <select
@@ -380,7 +387,7 @@ export default function ProfilePage() {
                     value={formData.availability}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                    className="input-field bg-white"
                   >
                     <option value="">Select availability</option>
                     <option value="Full Time">Full Time</option>
@@ -389,9 +396,8 @@ export default function ProfilePage() {
                   </select>
                 </div>
 
-                {/* Start Availability */}
                 <div>
-                  <label htmlFor="start_availability" className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="start_availability" className="block text-sm font-bold text-foreground mb-1.5">
                     How soon can you start? *
                   </label>
                   <select
@@ -400,7 +406,7 @@ export default function ProfilePage() {
                     value={formData.start_availability}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 rounded-xl border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                    className="input-field bg-white"
                   >
                     <option value="">Select start date</option>
                     <option value="Immediately">Immediately</option>
@@ -410,56 +416,50 @@ export default function ProfilePage() {
                   </select>
                 </div>
               </div>
+            </div>
 
-              {/* CHANGE 9: Profile Visibility Card */}
-              <div className="bg-primary/5 rounded-xl p-4 text-center">
-                <p className="font-semibold text-primary">
-                  Profile Visibility
-                </p>
-                <p className="text-sm text-foreground/60 mt-1">
-                  Employers can discover you using the information below.
-                </p>
-              </div>
+            {/* Submit Button - Sticky at bottom */}
+            <div className="sticky bottom-20 z-10 pt-4 pb-2 bg-background/80 backdrop-blur-md">
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="btn-primary w-full shadow-lg"
+              >
+                {isSaving ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    Save Profile
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </>
+                )}
+              </button>
+            </div>
 
-              {/* Submit Button */}
-              <div className="pt-4">
-                {/* CHANGE 8: Updated button text */}
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="w-full bg-primary text-white px-6 py-3 rounded-xl hover:bg-primary-dark transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                >
-                  {isSaving ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      Saving...
-                    </span>
-                  ) : (
-                    'Update Profile'
-                  )}
-                </button>
-              </div>
+          </form>
 
-            </form>
-
-            {/* Danger Section */}
-            <div className="mt-12 border-t border-red-200/50 pt-8">
-              <h3 className="text-lg font-bold text-red-600 mb-2">Delete Account</h3>
-              <p className="text-sm text-foreground/60 mb-4">
-                This action permanently removes your account data.
+          {/* Account Settings & Danger Section */}
+          <div className="mt-8 space-y-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <div className="card-surface p-5 border-red-100">
+              <h3 className="font-bold text-lg text-danger mb-2">Danger Zone</h3>
+              <p className="text-sm text-foreground/60 mb-5">
+                Permanently delete your account and all associated data. This action cannot be undone.
               </p>
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(true)}
-                className="w-full bg-red-50 text-red-600 border border-red-200 px-6 py-3 rounded-xl hover:bg-red-100 transition-colors font-medium"
+                className="w-full bg-red-50 text-red-600 border border-red-200 px-6 py-3 rounded-xl font-bold hover:bg-red-100 transition-colors"
               >
                 Delete Account
               </button>
             </div>
 
             {/* Version */}
-            <div className="mt-8 text-center">
-              <p className="text-xs text-foreground/40">CREWZI v1.0</p>
+            <div className="text-center pb-8">
+              <p className="text-sm font-bold text-foreground/30">CREWZI v1.0</p>
             </div>
           </div>
 

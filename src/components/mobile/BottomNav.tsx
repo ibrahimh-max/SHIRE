@@ -15,14 +15,14 @@ function HomeIcon({ active }: { active: boolean }) {
       width="24"
       height="24"
       viewBox="0 0 24 24"
-      fill="none"
-      stroke={active ? 'currentColor' : 'currentColor'}
-      strokeWidth={active ? 2.2 : 1.8}
+      fill={active ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      strokeWidth={active ? 2 : 1.8}
       strokeLinecap="round"
       strokeLinejoin="round"
     >
       <path d="M3 12L12 3l9 9" />
-      <path d="M5 10v9a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1v-9" />
+      <path d="M5 10v9a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1v-9" fill={active ? 'currentColor' : 'none'} />
     </svg>
   );
 }
@@ -33,17 +33,17 @@ function RequestsIcon({ active }: { active: boolean }) {
       width="24"
       height="24"
       viewBox="0 0 24 24"
-      fill="none"
+      fill={active ? 'currentColor' : 'none'}
       stroke="currentColor"
-      strokeWidth={active ? 2.2 : 1.8}
+      strokeWidth={active ? 2 : 1.8}
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="16" y1="13" x2="8" y2="13" />
-      <line x1="16" y1="17" x2="8" y2="17" />
-      <polyline points="10 9 9 9 8 9" />
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" fill={active ? 'currentColor' : 'none'} />
+      <polyline points="14 2 14 8 20 8" fill={active ? 'currentColor' : 'none'} />
+      <line x1="16" y1="13" x2="8" y2="13" stroke={active ? '#fff' : 'currentColor'} />
+      <line x1="16" y1="17" x2="8" y2="17" stroke={active ? '#fff' : 'currentColor'} />
+      <polyline points="10 9 9 9 8 9" stroke={active ? '#fff' : 'currentColor'} />
     </svg>
   );
 }
@@ -54,14 +54,14 @@ function ProfileIcon({ active }: { active: boolean }) {
       width="24"
       height="24"
       viewBox="0 0 24 24"
-      fill="none"
+      fill={active ? 'currentColor' : 'none'}
       stroke="currentColor"
-      strokeWidth={active ? 2.2 : 1.8}
+      strokeWidth={active ? 2 : 1.8}
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
+      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" fill={active ? 'currentColor' : 'none'} />
+      <circle cx="12" cy="7" r="4" fill={active ? 'currentColor' : 'none'} />
     </svg>
   );
 }
@@ -72,14 +72,14 @@ function WorkersIcon({ active }: { active: boolean }) {
       width="24"
       height="24"
       viewBox="0 0 24 24"
-      fill="none"
+      fill={active ? 'currentColor' : 'none'}
       stroke="currentColor"
-      strokeWidth={active ? 2.2 : 1.8}
+      strokeWidth={active ? 2 : 1.8}
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" fill={active ? 'currentColor' : 'none'} />
+      <circle cx="9" cy="7" r="4" fill={active ? 'currentColor' : 'none'} />
       <path d="M23 21v-2a4 4 0 00-3-3.87" />
       <path d="M16 3.13a4 4 0 010 7.75" />
     </svg>
@@ -92,15 +92,15 @@ function CompanyIcon({ active }: { active: boolean }) {
       width="24"
       height="24"
       viewBox="0 0 24 24"
-      fill="none"
+      fill={active ? 'currentColor' : 'none'}
       stroke="currentColor"
-      strokeWidth={active ? 2.2 : 1.8}
+      strokeWidth={active ? 2 : 1.8}
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-      <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
-      <line x1="12" y1="12" x2="12" y2="12.01" />
+      <rect x="2" y="7" width="20" height="14" rx="2" ry="2" fill={active ? 'currentColor' : 'none'} />
+      <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" fill={active ? 'currentColor' : 'none'} />
+      <line x1="12" y1="12" x2="12" y2="12.01" stroke={active ? '#fff' : 'currentColor'} strokeWidth={active ? 4 : 2} />
     </svg>
   );
 }

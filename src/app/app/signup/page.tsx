@@ -94,42 +94,45 @@ export default function Signup() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Top Accent Strip */}
+      <div className="h-1.5 w-full bg-gradient-to-r from-primary to-primary-dark"></div>
 
+      <div className="flex-1 flex items-center justify-center py-12 px-4">
+        <div className="w-full max-w-md animate-fade-in-up">
 
-
-      <div className="flex items-center justify-center py-16 px-4">
-
-        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 border border-primary/10">
-
-          {/* Header */}
-          <div className="text-center mb-8">
-
-            <h1 className="text-3xl font-bold text-foreground">
-              Join CREWZI
-            </h1>
-
-            <p className="text-foreground/60 mt-2">
-              Start your hospitality journey
-            </p>
-
+          {/* Brand Header */}
+          <div className="text-center mb-10">
+            <h1 className="text-4xl font-black text-primary tracking-tight mb-2">CREWZI</h1>
+            <p className="text-foreground/70 font-medium tracking-wide text-sm uppercase">Hospitality Hiring, Simplified</p>
           </div>
 
-          {/* Success */}
-          {success && (
-            <div className="mb-5 p-4 bg-green-50 border border-green-200 rounded-xl">
-
-              <h3 className="font-semibold text-green-700 mb-1">
-                ✅ Verification email sent
-              </h3>
-
-              <p className="text-sm text-green-700">
-                Please check your inbox and click the verification link
-                to activate your account.
+          {/* Success State */}
+          {success ? (
+            <div className="card-surface p-10 text-center animate-fade-in-up">
+              <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-sm border border-green-200">
+                ✓
+              </div>
+              <h2 className="text-2xl font-bold text-foreground mb-3">Check your inbox</h2>
+              <p className="text-foreground/70 mb-8">
+                We've sent a verification link to<br/>
+                <span className="font-semibold text-foreground">{formData.email}</span>
               </p>
-
+              <div className="animate-pulse bg-primary/10 h-2 w-32 rounded-full mx-auto"></div>
             </div>
-          )}
+          ) : (
+            <div className="card-surface p-8">
+              {/* Heading */}
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold text-foreground">
+                  Create an account
+                </h2>
+                <p className="text-foreground/60 mt-1.5">
+                  Start your hospitality journey
+                </p>
+              </div>
+
+
 
           {/* Error */}
           {error && (
@@ -158,7 +161,7 @@ export default function Signup() {
                 required
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                className="input-field"
               />
 
             </div>
@@ -180,7 +183,7 @@ export default function Signup() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                className="input-field"
               />
 
             </div>
@@ -203,7 +206,7 @@ export default function Signup() {
                 minLength={6}
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                className="input-field"
               />
 
             </div>
@@ -211,70 +214,77 @@ export default function Signup() {
             {/* Role */}
             <div>
 
-              <label
-                htmlFor="role"
-                className="block text-sm font-medium text-foreground/80 mb-1"
-              >
+              <label className="block text-sm font-medium text-foreground/80 mb-2">
                 I am a
               </label>
 
-              <select
-                id="role"
-                name="role"
-                required
-                value={formData.role}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all bg-white"
-              >
-                <option value="worker">
-                  💼 Talent looking for jobs
-                </option>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, role: 'worker' })}
+                  className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
+                    formData.role === 'worker' 
+                      ? 'border-primary bg-primary/5 text-primary' 
+                      : 'border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="text-2xl mb-2">💼</span>
+                  <span className="font-semibold text-sm">Talent</span>
+                  <span className="text-xs opacity-70 mt-0.5">Looking for jobs</span>
+                </button>
 
-                <option value="employer">
-                  🏢 Employer hiring staff
-                </option>
-
-              </select>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, role: 'employer' })}
+                  className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
+                    formData.role === 'employer' 
+                      ? 'border-primary bg-primary/5 text-primary' 
+                      : 'border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="text-2xl mb-2">🏢</span>
+                  <span className="font-semibold text-sm">Employer</span>
+                  <span className="text-xs opacity-70 mt-0.5">Hiring staff</span>
+                </button>
+              </div>
 
             </div>
 
             {/* Submit */}
             <button
               type="submit"
-              disabled={loading || success}
-              className="w-full bg-primary text-white py-3 rounded-xl hover:bg-primary-dark transition-all font-medium shadow-sm hover:shadow-md disabled:opacity-60"
+              disabled={loading}
+              className="btn-primary mt-2"
             >
-              {loading
-                ? 'Creating account...'
-                : success
-                  ? 'Verification Email Sent'
-                  : 'Create account'}
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Creating account...
+                </>
+              ) : (
+                'Create account'
+              )}
             </button>
 
           </form>
 
           {/* Footer */}
-          <div className="mt-6 text-center">
-
-            <p className="text-sm text-foreground/60">
-
-              Already have an account?{' '}
-
-              <a
-                href="/app/login"
-                className="text-primary hover:text-primary-dark font-medium"
-              >
-                Sign in
-              </a>
-
-            </p>
-
-          </div>
+          {!success && (
+            <div className="mt-8 text-center animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+              <p className="text-foreground/60 font-medium">
+                Already have an account?{' '}
+                <a
+                  href="/app/login"
+                  className="text-primary hover:text-primary-dark font-bold ml-1 transition-colors"
+                >
+                  Sign in
+                </a>
+              </p>
+            </div>
+          )}
 
         </div>
-
       </div>
-
     </div>
   );
 }
