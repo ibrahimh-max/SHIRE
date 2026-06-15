@@ -116,7 +116,7 @@ export default function TermsPage() {
       </p>
 
       <p className="mt-2 font-medium">
-        support@crewzi.com
+        955ibrahimhassan@gmail.com
       </p>
     </main>
   );

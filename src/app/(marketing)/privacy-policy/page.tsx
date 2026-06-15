@@ -58,7 +58,7 @@ export default function PrivacyPolicyPage() {
 
       <p>
         For privacy-related questions, contact us at:
-        support@crewzi.com
+        955ibrahimhassan@gmail.com
       </p>
     </main>
   );
