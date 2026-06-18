@@ -47,7 +47,7 @@ export default function DeleteAccountPage() {
         </p>
 
         <p className="mt-2 font-medium">
-          support@crewzi.in
+          955ibrahimhassan@gmail.com
         </p>
       </div>
     </main>
