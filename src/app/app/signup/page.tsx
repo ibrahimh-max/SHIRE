@@ -52,19 +52,19 @@ export default function Signup() {
 
     try {
 
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
-
         options: {
-          emailRedirectTo: `${window.location.origin}/app/dashboard`,
-
           data: {
             name: formData.name,
             role: formData.role,
           },
         },
       });
+
+      console.log("SIGNUP DATA:", data);
+      console.log("SIGNUP ERROR:", error);
 
       if (error) {
         setError(error.message);
