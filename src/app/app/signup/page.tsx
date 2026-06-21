@@ -44,14 +44,12 @@ export default function Signup() {
 
   // Email Signup
   const handleSubmit = async (e: React.FormEvent) => {
-
     e.preventDefault();
 
     setLoading(true);
     setError('');
 
     try {
-
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -63,12 +61,11 @@ export default function Signup() {
         },
       });
 
-      console.log("SIGNUP DATA:", data);
-      console.log("SIGNUP ERROR:", error);
+      console.log('SIGNUP DATA:', data);
+      console.log('SIGNUP ERROR:', error);
 
       if (error) {
         setError(error.message);
-        setLoading(false);
         return;
       }
 
@@ -76,16 +73,12 @@ export default function Signup() {
 
       setTimeout(() => {
         router.push('/app/login');
-      }, 4000);
-
-    } catch {
-
+      }, 3000);
+    } catch (err) {
+      console.error('SIGNUP EXCEPTION:', err);
       setError('Something went wrong. Please try again.');
-
     } finally {
-
       setLoading(false);
-
     }
   };
 
@@ -113,10 +106,13 @@ export default function Signup() {
               <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-sm border border-green-200">
                 ✓
               </div>
-              <h2 className="text-2xl font-bold text-foreground mb-3">Check your inbox</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-3">
+                Account Created
+              </h2>
               <p className="text-foreground/70 mb-8">
-                We've sent a verification link to<br/>
-                <span className="font-semibold text-foreground">{formData.email}</span>
+                Your account has been created successfully.
+                <br />
+                Redirecting to login...
               </p>
               <div className="animate-pulse bg-primary/10 h-2 w-32 rounded-full mx-auto"></div>
             </div>
