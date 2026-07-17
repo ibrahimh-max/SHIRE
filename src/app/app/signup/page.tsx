@@ -70,10 +70,6 @@ export default function Signup() {
       }
 
       setSuccess(true);
-
-      setTimeout(() => {
-        router.push('/app/login');
-      }, 3000);
     } catch (err) {
       console.error('SIGNUP EXCEPTION:', err);
       setError('Something went wrong. Please try again.');
@@ -103,18 +99,53 @@ export default function Signup() {
           {/* Success State */}
           {success ? (
             <div className="card-surface p-10 text-center animate-fade-in-up">
-              <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-sm border border-green-200">
-                ✓
+              <div className="w-20 h-20 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-sm border border-primary/20">
+                ✉️
               </div>
               <h2 className="text-2xl font-bold text-foreground mb-3">
-                Account Created
+                Almost there!
               </h2>
-              <p className="text-foreground/70 mb-8">
-                Your account has been created successfully.
-                <br />
-                Redirecting to login...
+              <p className="text-foreground/70 mb-4">
+                We've sent a verification link to <strong>{formData.email}</strong>.
               </p>
-              <div className="animate-pulse bg-primary/10 h-2 w-32 rounded-full mx-auto"></div>
+              <p className="text-foreground/70 mb-4">
+                Please verify your email before signing in.
+              </p>
+              <p className="text-sm text-foreground/50 mb-8 italic">
+                Check your Spam/Junk folder if you don't see the email.
+              </p>
+              
+              <div className="space-y-3">
+                <a 
+                  href="https://mail.google.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="btn-primary w-full flex items-center justify-center py-3 rounded-xl font-bold block"
+                >
+                  Open Gmail
+                </a>
+                
+                <button 
+                  onClick={async () => {
+                    try {
+                      await supabase.auth.resend({ type: 'signup', email: formData.email });
+                      alert('Verification email resent! Please check your inbox.');
+                    } catch(e) {
+                      console.error(e);
+                    }
+                  }}
+                  className="w-full py-3 rounded-xl border-2 border-gray-100 font-semibold hover:border-primary/50 hover:bg-primary/5 transition-all text-foreground"
+                >
+                  Resend Verification Email
+                </button>
+                
+                <button 
+                  onClick={() => router.push('/app/login')}
+                  className="w-full py-3 text-foreground/70 font-medium hover:text-foreground transition-colors"
+                >
+                  Back to Login
+                </button>
+              </div>
             </div>
           ) : (
             <div className="card-surface p-8">

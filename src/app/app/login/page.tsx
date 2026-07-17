@@ -65,7 +65,11 @@ export default function Login() {
       });
 
       if (error) {
-        setError(error.message);
+        if (error.message.toLowerCase().includes('email not confirmed')) {
+          setError('email_not_confirmed');
+        } else {
+          setError(error.message);
+        }
         setSubmitting(false);
         return;
       }
@@ -110,9 +114,33 @@ export default function Login() {
             </div>
 
             {/* Error */}
-            {error && (
+            {error && error !== 'email_not_confirmed' && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
                 {error}
+              </div>
+            )}
+
+            {error === 'email_not_confirmed' && (
+              <div className="mb-6 p-5 bg-primary/5 border border-primary/20 rounded-xl text-center">
+                <div className="text-3xl mb-2">✉️</div>
+                <h3 className="font-bold text-foreground mb-2">Email Not Verified</h3>
+                <p className="text-sm text-foreground/70 mb-5">
+                  Please check your inbox and verify your email before signing in.
+                </p>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await supabase.auth.resend({ type: 'signup', email: formData.email });
+                      alert('Verification email resent! Please check your inbox.');
+                    } catch(e) {
+                      console.error(e);
+                    }
+                  }}
+                  className="w-full py-2.5 bg-white border-2 border-primary/20 text-primary font-semibold rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-all text-sm shadow-sm"
+                >
+                  Resend Verification Email
+                </button>
               </div>
             )}
 
