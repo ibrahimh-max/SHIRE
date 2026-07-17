@@ -111,34 +111,14 @@ export default function Signup() {
               <p className="text-foreground/70 mb-4">
                 Please verify your email before signing in.
               </p>
+              <p className="text-foreground/70 mb-4">
+                Once you've clicked the verification link in your email, return to Crewzi and log in.
+              </p>
               <p className="text-sm text-foreground/50 mb-8 italic">
-                Check your Spam/Junk folder if you don't see the email.
+                Check your Spam/Junk folder if you don't see the email. It may take up to 2 minutes to arrive.
               </p>
               
               <div className="space-y-3">
-                <a 
-                  href="https://mail.google.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="btn-primary w-full flex items-center justify-center py-3 rounded-xl font-bold block"
-                >
-                  Open Gmail
-                </a>
-                
-                <button 
-                  onClick={async () => {
-                    try {
-                      await supabase.auth.resend({ type: 'signup', email: formData.email });
-                      alert('Verification email resent! Please check your inbox.');
-                    } catch(e) {
-                      console.error(e);
-                    }
-                  }}
-                  className="w-full py-3 rounded-xl border-2 border-gray-100 font-semibold hover:border-primary/50 hover:bg-primary/5 transition-all text-foreground"
-                >
-                  Resend Verification Email
-                </button>
-                
                 <button 
                   onClick={() => router.push('/app/login')}
                   className="w-full py-3 text-foreground/70 font-medium hover:text-foreground transition-colors"
